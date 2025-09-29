@@ -94,7 +94,7 @@ export function validateUrl(url: string): ValidationResult {
       isValid: true,
       sanitized: urlObj.toString() // This normalizes the URL
     };
-  } catch (error) {
+  } catch {
     return { isValid: false, error: 'Invalid URL format' };
   }
 }

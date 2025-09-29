@@ -8,9 +8,6 @@ export default function SignalRunnerApp() {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-        <script src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.js"></script>
-        <script src="https://cdn.tailwindcss.com"></script>
       </head>
       <body className="bg-white text-neutral-900 antialiased font-sans" style={{fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial', scrollBehavior: 'smooth'}}>
         {/* App Shell */}
@@ -118,7 +115,7 @@ export default function SignalRunnerApp() {
                   </p>
                   <div className="mt-6 flex items-center justify-center gap-3">
                     <a id="btn-get-started" href="/start" className="motion-btn inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-500/20 text-sm sm:text-base" data-tooltip="Start the app">
-                      Get started — it's free
+                      Get started — it&apos;s free
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" data-lucide="arrow-right" className="lucide lucide-arrow-right w-4 h-4"></svg>
                     </a>
                     <a href="#features" className="motion-btn inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-md bg-neutral-50 hover:bg-neutral-100 text-neutral-900 border border-neutral-300 text-sm sm:text-base" data-tooltip="Scroll to features">
@@ -504,6 +501,9 @@ export default function SignalRunnerApp() {
             })();
           `
         }} />
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" async />
+        <script src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.js" async />
+        <script src="https://cdn.tailwindcss.com" async />
       </body>
     </html>
   );

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { ChevronRight, Globe, PenTool, Sparkles, ArrowLeft, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import { validateUrl, validateBrief, validateIcpInputs, ValidationRateLimit } from '@/utils/validation'
+import { parseUrl, parseBrief, generateIcpPreview, IcpPreview } from '@/utils/parsing'
 
 export default function StartPage() {
   const [url, setUrl] = useState('')
@@ -11,6 +12,7 @@ export default function StartPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<{url?: string; brief?: string; general?: string}>({})
   const [rateLimit] = useState(() => new ValidationRateLimit())
+  const [icpPreview, setIcpPreview] = useState<IcpPreview | null>(null)
 
   const validateInputs = () => {
     const newErrors: {url?: string; brief?: string; general?: string} = {}
@@ -58,17 +60,25 @@ export default function StartPage() {
 
       const sanitizedUrl = combinedValidation.sanitized ? JSON.parse(combinedValidation.sanitized).url : url;
       const sanitizedBrief = combinedValidation.sanitized ? JSON.parse(combinedValidation.sanitized).brief : brief;
+      const metadata = combinedValidation.sanitized ? JSON.parse(combinedValidation.sanitized).meta : {};
 
       console.log('Generating ICP preview for:', { url: sanitizedUrl, brief: sanitizedBrief });
 
+      // Parse URL and brief to extract business information
+      const urlData = parseUrl(sanitizedUrl);
+      const briefData = parseBrief(sanitizedBrief);
+      
+      // Generate ICP preview
+      const preview = generateIcpPreview(urlData, briefData, metadata);
+      
       // Simulate processing time
       setTimeout(() => {
         setIsLoading(false);
-
-        // Show success message (temporary until real backend is ready)
-        alert(`✅ ICP Preview Generated Successfully!\n\nURL: ${sanitizedUrl}\nBrief: ${sanitizedBrief || 'No description provided'}\n\nNote: This is a validation test. Real web scraping and ICP generation will be implemented in the next tasks.`);
+        setIcpPreview(preview);
+        
+        console.log('Generated ICP Preview:', preview);
       }, 1500)
-    } catch (error) {
+    } catch {
       setErrors({ general: 'An unexpected error occurred. Please try again.' })
     } finally {
       setIsLoading(false)
@@ -81,6 +91,10 @@ export default function StartPage() {
       // Clear URL error on change
       setErrors(prev => ({ ...prev, url: undefined }))
     }
+    // Clear previous ICP preview when inputs change
+    if (icpPreview) {
+      setIcpPreview(null)
+    }
   }
 
   const handleBriefChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -88,6 +102,10 @@ export default function StartPage() {
     if (errors.brief) {
       // Clear brief error on change
       setErrors(prev => ({ ...prev, brief: undefined }))
+    }
+    // Clear previous ICP preview when inputs change
+    if (icpPreview) {
+      setIcpPreview(null)
     }
   }
 
@@ -229,6 +247,194 @@ export default function StartPage() {
             </button>
           </form>
         </div>
+
+        {/* ICP Preview Results */}
+        {icpPreview && (
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold text-gray-900">ICP Preview Generated</h2>
+              <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                icpPreview.confidence === 'High' 
+                  ? 'bg-green-100 text-green-800' 
+                  : icpPreview.confidence === 'Medium'
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : 'bg-red-100 text-red-800'
+              }`}>
+                {icpPreview.confidence} Confidence
+              </div>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-6 mb-6">
+              <div>
+                <h3 className="font-medium text-gray-900 mb-3">Business Profile</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Category:</span>
+                    <span className="font-medium">{icpPreview.businessCategory}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Size:</span>
+                    <span className="font-medium">{icpPreview.companySize}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Region:</span>
+                    <span className="font-medium">{icpPreview.region}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Model:</span>
+                    <span className="font-medium">{icpPreview.businessModel}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Stage:</span>
+                    <span className="font-medium">{icpPreview.growthStage}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="font-medium text-gray-900 mb-3">Market Analysis</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Target Market:</span>
+                    <span className="font-medium text-sm">{icpPreview.targetMarket}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Position:</span>
+                    <span className="font-medium text-sm">{icpPreview.marketPosition}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Advantage:</span>
+                    <span className="font-medium text-sm">{icpPreview.competitiveAdvantage}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Revenue:</span>
+                    <span className="font-medium text-sm">{icpPreview.revenueModel}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="font-medium text-gray-900 mb-3">Decision Process</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Process:</span>
+                    <span className="font-medium text-sm">{icpPreview.decisionMakingProcess}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Behavior:</span>
+                    <span className="font-medium text-sm">{icpPreview.buyingBehavior}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Tech Adoption:</span>
+                    <span className="font-medium text-sm">{icpPreview.technologyAdoption}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Regulation:</span>
+                    <span className="font-medium text-sm">{icpPreview.regulatoryEnvironment}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <h3 className="font-medium text-gray-900 mb-3">Target Roles</h3>
+                <div className="flex flex-wrap gap-2">
+                  {icpPreview.buyerRoles.map((role, index) => (
+                    <span key={index} className="px-2.5 py-1.5 rounded-md bg-blue-50 border border-blue-200 text-blue-800 text-sm">
+                      {role}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="font-medium text-gray-900 mb-3">Customer Segments</h3>
+                <div className="flex flex-wrap gap-2">
+                  {icpPreview.customerSegments.map((segment, index) => (
+                    <span key={index} className="px-2.5 py-1.5 rounded-md bg-green-50 border border-green-200 text-green-800 text-sm">
+                      {segment}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <h3 className="font-medium text-gray-900 mb-3">Pain Points</h3>
+                <div className="flex flex-wrap gap-2">
+                  {icpPreview.painPoints.map((painPoint, index) => (
+                    <span key={index} className="px-2.5 py-1.5 rounded-md bg-red-50 border border-red-200 text-red-800 text-sm">
+                      {painPoint}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="font-medium text-gray-900 mb-3">Value Proposition</h3>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <span className="text-yellow-800 font-medium">{icpPreview.valueProposition}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <h3 className="font-medium text-gray-900 mb-3">Budget Indicators</h3>
+                <div className="flex flex-wrap gap-2">
+                  {icpPreview.budgetIndicators.map((indicator, index) => (
+                    <span key={index} className="px-2.5 py-1.5 rounded-md bg-purple-50 border border-purple-200 text-purple-800 text-sm">
+                      {indicator}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="font-medium text-gray-900 mb-3">Urgency Signals</h3>
+                <div className="flex flex-wrap gap-2">
+                  {icpPreview.urgencySignals.map((signal, index) => (
+                    <span key={index} className="px-2.5 py-1.5 rounded-md bg-orange-50 border border-orange-200 text-orange-800 text-sm">
+                      {signal}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="mb-6">
+              <h3 className="font-medium text-gray-900 mb-3">Keywords & Services</h3>
+              <div className="flex flex-wrap gap-2">
+                {icpPreview.keywords.map((keyword, index) => (
+                  <span key={index} className="px-2.5 py-1.5 rounded-md bg-gray-50 border border-gray-200 text-gray-700 text-sm">
+                    {keyword}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="font-medium text-gray-900 mb-3">Analysis Sources</h3>
+              <div className="space-y-3">
+                {icpPreview.sources.map((source, index) => (
+                  <div key={index} className="bg-gray-50 rounded-lg p-4">
+                    <div className="font-medium text-gray-900 mb-2">{source.type}</div>
+                    <ul className="text-sm text-gray-600 space-y-1">
+                      {source.extractedData.map((data, dataIndex) => (
+                        <li key={dataIndex} className="flex items-start">
+                          <span className="text-gray-400 mr-2">•</span>
+                          <span>{data}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* How It Works */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
