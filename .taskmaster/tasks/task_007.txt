@@ -1,0 +1,11 @@
+# Task ID: 7
+# Title: Develop Export and Handoff Features
+# Status: pending
+# Dependencies: 6
+# Priority: medium
+# Description: Create export and handoff functionalities for compliance-aware email outreach.
+# Details:
+Implement CSV export of accounts, contacts, scores, and evidence. Integrate Gmail/Outlook OAuth for email handoff. Develop a connector for one sequencer (Smartlead or Instantly). Implement compliance checks for SPF/DKIM/DMARC and List-Unsubscribe headers.
+
+# Test Strategy:
+Test export functionality to ensure data is correctly formatted and complete. Validate OAuth integration and sequencer connector functionality. Ensure compliance checks block handoff when necessary.

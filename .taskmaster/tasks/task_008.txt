@@ -1,0 +1,11 @@
+# Task ID: 8
+# Title: Implement Light Analytics and Reporting
+# Status: pending
+# Dependencies: 7
+# Priority: low
+# Description: Develop analytics features to provide insights into platform usage and performance.
+# Details:
+Create a reporting system that summarizes accounts discovered, contacts verified, average scores, and drafts generated. Implement connector status reporting and error handling. Use OpenTelemetry for observability and PostHog for product analytics.
+
+# Test Strategy:
+Verify that analytics reports are accurate and comprehensive. Test error handling and connector status reporting under various conditions.

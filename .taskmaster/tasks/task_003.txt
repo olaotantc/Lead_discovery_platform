@@ -1,0 +1,11 @@
+# Task ID: 3
+# Title: Develop Discovery Playbooks
+# Status: pending
+# Dependencies: 2
+# Priority: high
+# Description: Create playbooks for discovering business signals from open-web sources.
+# Details:
+Implement Playbook 1 for hiring signals by scanning career pages and job boards. Implement Playbook 2 for business profile matching using public pages and directories. Ensure that all playbooks respect robots.txt and store provenance of data. Use Playwright for web crawling and ensure polite rate limiting.
+
+# Test Strategy:
+Run playbooks on test URLs to verify that correct signals are captured. Check that provenance is stored and that robots.txt is respected. Validate data accuracy and completeness.

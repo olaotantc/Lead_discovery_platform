@@ -1,0 +1,319 @@
+PRD — Discovery-First Lead Platform (MVP v0.2)
+
+Date: 2025-09-28
+Owner: Olaotan (Product Lead)
+Contributors: PM/UX, Full-stack Engineer, Data/ML Engineer, Deliverability Advisor
+
+0) Summary
+
+Small businesses and lean GTM teams struggle to find qualified targets. They waste time searching the web, buying lists, and hiring freelancers, then end up with stale or unverified data and generic outreach.
+
+This MVP delivers a one-session experience that:
+
+Takes a URL or short brief and infers an industry-agnostic ICP preview.
+
+Runs open-web discovery using universal business signals (e.g., hiring needs, category/offer alignment, location/coverage, recent activity/press).
+
+Finds and verifies contacts for buyer-fit roles.
+
+Prioritizes with explainable scores and evidence.
+
+Drafts evidence-grounded 1:1 emails.
+
+Provides a compliant hand-off to email tools (Gmail/Outlook) and one sequencer.
+
+North star: Paste a URL → receive a verified, prioritized list with ready drafts in ≤ 10 minutes.
+
+1) Goals & Non-Goals
+Goals (MVP)
+
+Discovery-first, industry-agnostic from URL/brief using universal signals.
+
+Return 30–100 accounts and 40–120 verified contacts.
+
+Show Fit/Intent/Reachability/Recency scores (0–100) with reason codes and evidence.
+
+Generate 1 opener + 2 follow-ups per contact; each line traceable to a snippet.
+
+Compliant hand-off: CSV + Gmail/Outlook OAuth + one sequencer (Smartlead or Instantly) with sender checks (SPF/DKIM/DMARC) and List-Unsubscribe.
+
+Non-Goals (MVP)
+
+LinkedIn DM automation or scraping behind authentication.
+
+Complex multi-user roles/permissions; team workspaces.
+
+In-app sequencing or domain warmup automation.
+
+Full CRM sync (HubSpot/Pipedrive).
+
+Social listening (Reddit/X) as a core signal (post-MVP, optional and capped).
+
+2) Users, JTBD, and Outcomes
+
+Primary user: Founder/IC seller at an SMB or micro-agency (US/EU).
+Secondary: Solo GTM operator (fractional growth/BDR).
+
+JTBD: "When I need pipeline fast, help me find qualified targets, verify contacts, rank with reasons, and draft credible emails, so I can launch outreach without harming deliverability."
+
+User outcomes: less time searching, higher reply rates, healthier domains, clearer focus on top-scored leads.
+
+3) Product Principles
+
+Start with finding — discovery is the wedge.
+
+Evidence over guesswork — every score and sentence traces to a source.
+
+Compliance by default — refuse hand-off if sender hygiene is missing.
+
+Provider-agnostic — abstract enrichment/verification vendors.
+
+Fast first value — 10-minute path to list and drafts.
+
+4) Scope — Functional Requirements
+A) Input & ICP Preview
+
+Inputs:
+
+URL (e.g., acme-services.com)
+
+Short brief (free text: category/offer, buyer, region)
+
+ICP preview (industry-agnostic fields):
+
+Business category/vertical (e.g., local services, ecommerce, professional services, manufacturing, healthcare, education)
+
+Company size band (solo, 2–10, 11–50, 51–200, 200+)
+
+Region/coverage (local, regional, national, international)
+
+Buyer roles (Owner, GM, Ops Lead, Marketing Lead, etc.)
+
+Keywords/Offers (what they sell/serve)
+
+Notes: Remove tech-stack as a required field. If detected incidentally, treat as optional evidence only.
+
+B) Discovery (Playbooks)
+
+Playbook 1 — Hiring Signals: scan careers pages and job boards for relevant role keywords; capture counts and dates.
+
+Playbook 2 — Business Profile Match: align on what they do and who/where they serve via public pages and directories:
+
+Category & offer alignment from website copy (services/products)
+
+Location & coverage (service areas, new branches/stores)
+
+Presence in industry directories/marketplaces (e.g., Google Business Profile/about page, Yelp/Clutch/trade associations)
+
+Recency indicators (news, blog posts, awards, press mentions)
+
+Optional MVP+ — Market Moment: last-30-day updates (press/blog/awards).
+
+All playbooks: respect robots.txt; no scraping behind auth; store provenance.
+
+C) Contacts & Verification
+
+Target roles: Owner/GM, Director/VP of relevant function.
+
+Email discovery with pattern detection/provider lookup.
+
+Verification via a single provider (Bouncer or NeverBounce).
+
+Default include ≥ 85% confidence; auto-suppress below threshold; user can adjust.
+
+D) Prioritization & Scoring (0–100)
+
+Fit (0–40): category match (+12), size band (+10), region/coverage (+6), offer/keyword match (+12)
+
+Intent (0–35): hiring relevant roles this week (+10), multiple relevant openings (+8), market moment (press/new location/promo) (+6), events/RFPs (up to +11)
+
+Reachability (0–15): ≥1 verified role-fit contact (+10), ≥2 verified (+5), pattern confidence (+0–3)
+
+Recency (0–10): ≤7d (+10), ≤30d (+6), ≤90d (+3)
+
+Display: total and facet scores with reason codes; each reason links to an evidence snippet + source URL.
+
+E) Draft Generation (Evidence-Grounded)
+
+Per contact: 1 opener + 2 follow-ups; tones: Direct and Consultative; optional case-study block.
+
+Each sentence includes evidence references (hover panel shows snippet + URL).
+
+Language and examples oriented to non-tech verticals (e.g., local/pro services, retail).
+
+F) Export & Handoff (Compliance-Aware)
+
+CSV export with accounts, contacts, scores, reasons, evidence links.
+
+Gmail/Outlook OAuth; inject List-Unsubscribe header on compose.
+
+Sequencer connector (choose one): Smartlead or Instantly; push contacts + custom fields (score, reasons).
+
+Compliance gate: SPF/DKIM/DMARC presence check; complaint-risk indicator; block hand-off if failing mandatory checks.
+
+G) Light Analytics
+
+Run summary: accounts discovered, contacts verified, avg score, drafts generated.
+
+Connector status: last push result, errors, retry.
+
+5) Non-Functional Requirements
+
+Performance: URL→results in ≤ 10 minutes (demo path). Draft generation ≤ 10s/contact avg.
+
+Reliability: retries with backoff; graceful degradation if a provider is down.
+
+Scalability: worker queues; provider rate limits; caching/deduping signals.
+
+Security: OAuth best practices, encrypt tokens at rest, least-privilege access.
+
+Privacy & Compliance: provenance stored (source URL, captured_at), suppression lists, GDPR/CCPA deletion/exports.
+
+6) UX Flow & Screens
+
+Welcome / Input — URL/brief → ICP preview (Category, Size, Region, Buyer roles, Keywords/Offers) → Run discovery
+
+Discovery Results (Accounts) — table with score, reason tags (category/offer/location/activity); filters
+
+Contacts Panel — verified contacts with confidence badges; include/exclude; threshold slider
+
+Prioritize View — facet scores with evidence side-drawer; filters (score≥X, region, role, keyword)
+
+Drafts View — draft email + evidence panel; tone switch; case-study insert; per-contact or bulk
+
+Handoff — choose CSV/Gmail/Outlook/Sequencer; compliance checklist; throttle suggestion; confirm
+
+Empty/error states include cost estimates, retry with adjusted ICP/playbooks, and helpful guidance.
+
+7) Data Model (v0.2)
+
+Account: {id, name, domain, category, size_band, region_coverage, profile_tags[], score{fit,intent,reach,recency,total}, created_at}
+
+Signal: {id, account_id, type(hiring|profile|news), value, weight, source_url, snippet, captured_at}
+
+Contact: {id, account_id, name, role, email, confidence, source, verified_at}
+
+Draft: {id, account_id, contact_id, tone, body, evidence_refs[]}
+
+Run: {id, user_id, input(url|brief), params, stats, started_at, completed_at}
+
+Settings: {user_id, thresholds, connectors, suppression_list}
+
+Migration note: rename technographics[] → profile_tags[] (backward-compatible alias or view recommended).
+
+8) Integrations (MVP)
+
+Verification: Bouncer or NeverBounce (pick one).
+
+Email: Gmail, Outlook (OAuth).
+
+Sequencer: Smartlead or Instantly (start with one).
+
+Optional: lightweight directory adapters; Market Moment feed if time permits.
+
+9) Technical Architecture (High-Level)
+
+Frontend: Next.js + Tailwind; React Query.
+
+Backend: Node.js (Fastify/Nest); PostgreSQL; Redis + BullMQ for jobs.
+
+Crawling: Playwright; robots.txt respect; polite rate limiting; allow/deny lists.
+
+Services: Discovery orchestrator (playbooks), Verification service, Scoring, Draft (LLM wrapper), Compliance checks.
+
+Observability: OpenTelemetry traces, structured logs; PostHog for product analytics.
+
+10) Compliance, Security & Ethics
+
+Email hygiene: check SPF/DKIM/DMARC; require List-Unsubscribe; complaint-risk meter; block hand-off if mandatory checks fail.
+
+Platform terms: no LinkedIn DMs; only public web signals; rate limits; provenance for every signal.
+
+Privacy: takedown/opt-out flows; data deletion/exports on request.
+
+User safety: default to verified contacts; discourage low-confidence sends.
+
+11) Telemetry & KPIs
+
+Acquisition: sign-ups, first-run completion.
+
+Activation: time to first list; verified contact rate; avg score.
+
+Engagement: drafts generated/contact; % drafts edited; hand-off completion rate.
+
+Quality: complaint-risk gate pass rate; bounce rate (when available); evidence coverage per draft.
+
+Costs: verification/API spend per run; credits consumed.
+
+Core events: run_started, run_completed, accounts_discovered, contacts_verified, score_viewed, draft_generated, handoff_initiated, handoff_blocked_compliance, export_csv, plus business_profile_match_detected, directory_evidence_captured, market_moment_detected.
+
+12) Release Criteria (Acceptance)
+
+From a live SMB URL, deliver ≥ 25 verified contacts with avg score ≥ 65 in ≤ 10 minutes using Hiring Signals + Business Profile Match.
+
+ICP preview shows Category, Size band, Region/coverage, Buyer roles, Keywords/Offers. No "Technology stack" field required or shown.
+
+Discovery reasons include examples like: "+12 category match (wedding photography)", "+6 serves Santa Monica & West LA", "+6 new location this week", "+8 hiring office manager".
+
+Each score reason and each draft sentence has a hoverable evidence reference (snippet + source_url).
+
+CSV export, Gmail/Outlook OAuth, and one sequencer push work end-to-end.
+
+Compliance gate blocks hand-off if sender checks fail or unsubscribe header disabled.
+
+Rate limits and retries in place; user-visible errors are actionable.
+
+13) Risks & Mitigations
+
+Directory coverage variance: per-vertical adapters; user exclude lists; provenance surfaced.
+
+Local business data quality: emphasize recency; allow user feedback to blacklist sources.
+
+Provider dependency/cost: abstraction layer; pre-run cost estimates; credit caps per run.
+
+Deliverability tightening: configurable gates; rules updated without breaking API; staged throttling suggestions.
+
+Scrape fragility: resilient selectors; exponential backoff; caching/deduping.
+
+14) Open Questions
+
+Sequencer choice for MVP: Smartlead vs Instantly (decide based on partner/API).
+
+Include Market Moment in MVP or hold for v1?
+
+Evidence granularity: sentence- vs paragraph-level (default to sentence for drafts).
+
+Pricing unit for credits (per discovered account vs per verified contact vs hybrid).
+
+15) Milestones & Timeline (8 weeks)
+
+W1: UX flows; schema; job runners; provider stubs; compliance UI.
+
+W2–3: Playbooks (Hiring, Business Profile Match) + evidence capture.
+
+W3–4: Contacts + Verification + suppression thresholding.
+
+W4–5: Scoring v0 + reason codes + filters.
+
+W5–6: Draft generator + evidence panel; tone switcher; case-study block.
+
+W6: Handoff (CSV + Gmail/Outlook); sender checks; unsub header injection.
+
+W7: First sequencer connector; run summary analytics; error handling.
+
+W8: Hardening, rate limits, demo polish, acceptance tests.
+
+16) Appendix
+
+Glossary:
+
+ICP: Ideal Customer Profile (industry-agnostic here).
+
+Business Profile Match: matching on category/offer, location/coverage, directory presence, and recent public activity.
+
+Evidence: captured snippet + source URL + timestamp used to justify a reason or draft sentence.
+
+Example draft line with evidence:
+
+"Congrats on opening the Pasadena branch last week — looks like you're expanding coverage in the San Gabriel Valley."
+Evidence: https://acme-services.com/press/new-pasadena-branch (captured 2025-09-20)

@@ -1,0 +1,11 @@
+# Task ID: 5
+# Title: Build Scoring and Prioritization System
+# Status: pending
+# Dependencies: 4
+# Priority: high
+# Description: Create a scoring system to prioritize discovered contacts based on multiple criteria.
+# Details:
+Develop a scoring algorithm that calculates Fit, Intent, Reachability, and Recency scores based on predefined criteria. Implement a system to display total and facet scores with reason codes and evidence links. Ensure scores are calculated in real-time as data is gathered.
+
+# Test Strategy:
+Validate scoring accuracy by comparing calculated scores against expected outcomes for test cases. Ensure that reason codes and evidence links are correctly displayed and traceable.

@@ -1,0 +1,239 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Setup Project Repository",
+        "description": "Initialize the project repository with the necessary structure and tools for development.",
+        "details": "Create a new Git repository for the project. Set up the project structure using Next.js for the frontend and Node.js with Fastify/Nest for the backend. Integrate Tailwind CSS for styling and React Query for data fetching. Initialize PostgreSQL and Redis databases. Set up BullMQ for job management. Ensure all necessary dependencies are installed and configured.",
+        "testStrategy": "Verify that the repository is initialized correctly with all dependencies installed. Ensure that the project can be built and run locally without errors.",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Initialize Git Repository",
+            "description": "Create a new Git repository for the project and set up the initial commit.",
+            "dependencies": [],
+            "details": "Create a new repository on GitHub or your preferred Git hosting service. Clone the repository locally and create an initial commit with a README file and a .gitignore file tailored for Node.js projects.",
+            "status": "done",
+            "testStrategy": "Verify that the repository is accessible online and that the initial commit is present with the correct files."
+          },
+          {
+            "id": 2,
+            "title": "Set Up Project Structure",
+            "description": "Set up the project structure using Next.js for the frontend and Node.js with Fastify/Nest for the backend.",
+            "dependencies": [],
+            "details": "Initialize a Next.js application in a 'frontend' directory and a Node.js application using Fastify or Nest in a 'backend' directory. Ensure both applications are set up with basic configurations and can run independently.\n<info added on 2025-09-29T03:09:16.295Z>\nCompleted project structure setup and added comprehensive documentation. Created project_status.md for progress tracking and enhanced CLAUDE.md for seamless agent handoffs. Both frontend (Next.js + TypeScript + Tailwind) and backend (Fastify + TypeScript) are building successfully. Added proper .gitignore with build outputs and ensured documentation files are tracked.\n</info added on 2025-09-29T03:09:16.295Z>",
+            "status": "done",
+            "testStrategy": "Run both the frontend and backend applications locally to ensure they start without errors."
+          },
+          {
+            "id": 3,
+            "title": "Integrate Styling and Data Fetching Tools",
+            "description": "Integrate Tailwind CSS for styling and React Query for data fetching in the frontend application.",
+            "dependencies": [],
+            "details": "Install Tailwind CSS and configure it within the Next.js application. Set up a basic style to verify integration. Install React Query and set up a basic data fetching example to ensure it works correctly.",
+            "status": "done",
+            "testStrategy": "Verify that Tailwind CSS styles are applied correctly and that React Query can fetch data without errors."
+          },
+          {
+            "id": 4,
+            "title": "Initialize Databases",
+            "description": "Set up PostgreSQL and Redis databases for the backend application.",
+            "dependencies": [],
+            "details": "Install PostgreSQL and Redis locally or use a cloud service. Configure the backend application to connect to these databases. Create a basic schema in PostgreSQL and test connectivity to both databases.",
+            "status": "done",
+            "testStrategy": "Ensure that the backend application can connect to both databases and perform basic operations like reading and writing data."
+          },
+          {
+            "id": 5,
+            "title": "Set Up Job Management",
+            "description": "Integrate BullMQ for job management in the backend application.",
+            "dependencies": [],
+            "details": "Install BullMQ and configure it within the backend application. Set up a simple job queue and processor to verify that jobs can be added and processed correctly.",
+            "status": "done",
+            "testStrategy": "Test the job queue by adding a test job and ensuring it is processed as expected."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Implement ICP Preview Input",
+        "description": "Develop the input mechanism for URL and short brief to generate an ICP preview.",
+        "details": "Create a frontend component that accepts a URL and a short brief as input. Implement logic to parse these inputs and generate an industry-agnostic ICP preview, including fields like business category, company size, region, buyer roles, and keywords. Ensure that the input is validated and sanitized before processing.",
+        "testStrategy": "Test with various URLs and briefs to ensure accurate ICP previews are generated. Validate that all fields are correctly populated and that invalid inputs are handled gracefully.",
+        "priority": "medium",
+        "dependencies": [
+          1
+        ],
+        "status": "in-progress",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design Frontend Component",
+            "description": "Create a frontend component to accept a URL and a short brief as input.",
+            "dependencies": [],
+            "details": "Design the user interface for the input fields and ensure it is responsive and user-friendly.",
+            "status": "done",
+            "testStrategy": "Test the component layout on various devices and screen sizes to ensure usability and accessibility."
+          },
+          {
+            "id": 2,
+            "title": "Implement Input Validation and Sanitization",
+            "description": "Develop logic to validate and sanitize the URL and brief inputs.",
+            "dependencies": [
+              "2.1"
+            ],
+            "details": "Ensure inputs are checked for format, length, and potential security threats like XSS.",
+            "status": "pending",
+            "testStrategy": "Test with valid and invalid inputs to ensure only sanitized data is processed."
+          },
+          {
+            "id": 3,
+            "title": "Parse Inputs for ICP Preview Generation",
+            "description": "Implement logic to parse the URL and brief to extract necessary data for ICP preview.",
+            "dependencies": [
+              "2.2"
+            ],
+            "details": "Develop parsing algorithms to identify key elements such as business category, company size, and region.",
+            "status": "pending",
+            "testStrategy": "Test parsing accuracy with a variety of URLs and briefs to ensure correct data extraction."
+          },
+          {
+            "id": 4,
+            "title": "Generate Industry-Agnostic ICP Preview",
+            "description": "Create the mechanism to generate an ICP preview from parsed data.",
+            "dependencies": [
+              "2.3"
+            ],
+            "details": "Use parsed data to populate fields like business category, company size, region, buyer roles, and keywords.",
+            "status": "pending",
+            "testStrategy": "Verify that the ICP preview is generated accurately for different industries and input scenarios."
+          },
+          {
+            "id": 5,
+            "title": "Integrate and Test ICP Preview Component",
+            "description": "Integrate the ICP preview generation with the frontend component and conduct comprehensive testing.",
+            "dependencies": [
+              "2.4"
+            ],
+            "details": "Ensure seamless integration of the ICP preview with the frontend and validate overall functionality.",
+            "status": "pending",
+            "testStrategy": "Conduct end-to-end testing with various inputs to ensure the entire process works as expected and handles errors gracefully."
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Develop Discovery Playbooks",
+        "description": "Create playbooks for discovering business signals from open-web sources.",
+        "details": "Implement Playbook 1 for hiring signals by scanning career pages and job boards. Implement Playbook 2 for business profile matching using public pages and directories. Ensure that all playbooks respect robots.txt and store provenance of data. Use Playwright for web crawling and ensure polite rate limiting.",
+        "testStrategy": "Run playbooks on test URLs to verify that correct signals are captured. Check that provenance is stored and that robots.txt is respected. Validate data accuracy and completeness.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Implement Contact Discovery and Verification",
+        "description": "Develop the functionality to discover and verify contacts for target roles.",
+        "details": "Use pattern detection and provider lookup to discover emails for target roles like Owner/GM. Integrate with a verification provider (Bouncer or NeverBounce) to verify email addresses. Implement logic to include contacts with ≥ 85% confidence and allow user adjustments.",
+        "testStrategy": "Test contact discovery with various company profiles to ensure accurate role identification and email discovery. Verify that email verification works correctly and that confidence thresholds are enforced.",
+        "priority": "high",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Build Scoring and Prioritization System",
+        "description": "Create a scoring system to prioritize discovered contacts based on multiple criteria.",
+        "details": "Develop a scoring algorithm that calculates Fit, Intent, Reachability, and Recency scores based on predefined criteria. Implement a system to display total and facet scores with reason codes and evidence links. Ensure scores are calculated in real-time as data is gathered.",
+        "testStrategy": "Validate scoring accuracy by comparing calculated scores against expected outcomes for test cases. Ensure that reason codes and evidence links are correctly displayed and traceable.",
+        "priority": "high",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Generate Evidence-Grounded Drafts",
+        "description": "Implement the draft generation feature for creating personalized emails.",
+        "details": "Develop a system to generate 1 opener and 2 follow-up emails per contact, using evidence gathered during discovery. Ensure each sentence includes evidence references. Provide options for tone (Direct, Consultative) and optional case-study blocks.",
+        "testStrategy": "Test draft generation for various contacts to ensure emails are personalized and evidence-grounded. Validate that tone options and case-study blocks are correctly implemented.",
+        "priority": "medium",
+        "dependencies": [
+          5
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Develop Export and Handoff Features",
+        "description": "Create export and handoff functionalities for compliance-aware email outreach.",
+        "details": "Implement CSV export of accounts, contacts, scores, and evidence. Integrate Gmail/Outlook OAuth for email handoff. Develop a connector for one sequencer (Smartlead or Instantly). Implement compliance checks for SPF/DKIM/DMARC and List-Unsubscribe headers.",
+        "testStrategy": "Test export functionality to ensure data is correctly formatted and complete. Validate OAuth integration and sequencer connector functionality. Ensure compliance checks block handoff when necessary.",
+        "priority": "medium",
+        "dependencies": [
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Implement Light Analytics and Reporting",
+        "description": "Develop analytics features to provide insights into platform usage and performance.",
+        "details": "Create a reporting system that summarizes accounts discovered, contacts verified, average scores, and drafts generated. Implement connector status reporting and error handling. Use OpenTelemetry for observability and PostHog for product analytics.",
+        "testStrategy": "Verify that analytics reports are accurate and comprehensive. Test error handling and connector status reporting under various conditions.",
+        "priority": "low",
+        "dependencies": [
+          7
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Ensure Compliance and Security",
+        "description": "Implement compliance and security measures to protect user data and ensure legal adherence.",
+        "details": "Enforce email hygiene checks (SPF/DKIM/DMARC) and require List-Unsubscribe headers. Implement privacy measures like data deletion and opt-out flows. Ensure OAuth best practices and encrypt tokens at rest.",
+        "testStrategy": "Conduct security audits to verify compliance with privacy and security standards. Test email hygiene checks and privacy features to ensure they function correctly.",
+        "priority": "high",
+        "dependencies": [
+          8
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Conduct Final Testing and Deployment",
+        "description": "Perform final testing and deploy the platform for user access.",
+        "details": "Conduct comprehensive testing across all features to ensure functionality and performance meet requirements. Prepare deployment scripts and documentation. Deploy the platform to a production environment and monitor for issues.",
+        "testStrategy": "Execute acceptance tests to validate all features against the PRD. Monitor deployment for performance and stability issues. Ensure user feedback mechanisms are in place.",
+        "priority": "high",
+        "dependencies": [
+          9
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-09-29T02:54:40.788Z",
+      "updated": "2025-09-29T04:25:11.812Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+# Task ID: 6
+# Title: Generate Evidence-Grounded Drafts
+# Status: pending
+# Dependencies: 5
+# Priority: medium
+# Description: Implement the draft generation feature for creating personalized emails.
+# Details:
+Develop a system to generate 1 opener and 2 follow-up emails per contact, using evidence gathered during discovery. Ensure each sentence includes evidence references. Provide options for tone (Direct, Consultative) and optional case-study blocks.
+
+# Test Strategy:
+Test draft generation for various contacts to ensure emails are personalized and evidence-grounded. Validate that tone options and case-study blocks are correctly implemented.

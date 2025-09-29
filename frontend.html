@@ -1,0 +1,709 @@
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SignalRunner — MVP v0.2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/lucide@0.447.0/dist/umd/lucide.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link id="all-fonts-link-font-geist" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-geist">.font-geist { font-family: 'Geist', sans-serif !important; }</style>
+<link id="all-fonts-link-font-roboto" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-roboto">.font-roboto { font-family: 'Roboto', sans-serif !important; }</style>
+<link id="all-fonts-link-font-montserrat" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-montserrat">.font-montserrat { font-family: 'Montserrat', sans-serif !important; }</style>
+<link id="all-fonts-link-font-poppins" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-poppins">.font-poppins { font-family: 'Poppins', sans-serif !important; }</style>
+<link id="all-fonts-link-font-playfair" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;900&amp;display=swap"><style id="all-fonts-style-font-playfair">.font-playfair { font-family: 'Playfair Display', serif !important; }</style>
+<link id="all-fonts-link-font-instrument-serif" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-instrument-serif">.font-instrument-serif { font-family: 'Instrument Serif', serif !important; }</style>
+<link id="all-fonts-link-font-merriweather" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&amp;display=swap"><style id="all-fonts-style-font-merriweather">.font-merriweather { font-family: 'Merriweather', serif !important; }</style>
+<link id="all-fonts-link-font-bricolage" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-bricolage">.font-bricolage { font-family: 'Bricolage Grotesque', sans-serif !important; }</style>
+<link id="all-fonts-link-font-jakarta" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap"><style id="all-fonts-style-font-jakarta">.font-jakarta { font-family: 'Plus Jakarta Sans', sans-serif !important; }</style>
+<link id="all-fonts-link-font-manrope" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap"><style id="all-fonts-style-font-manrope">.font-manrope { font-family: 'Manrope', sans-serif !important; }</style>
+<link id="all-fonts-link-font-space-grotesk" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-space-grotesk">.font-space-grotesk { font-family: 'Space Grotesk', sans-serif !important; }</style>
+<link id="all-fonts-link-font-work-sans" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;800&amp;display=swap"><style id="all-fonts-style-font-work-sans">.font-work-sans { font-family: 'Work Sans', sans-serif !important; }</style>
+<link id="all-fonts-link-font-pt-serif" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&amp;display=swap"><style id="all-fonts-style-font-pt-serif">.font-pt-serif { font-family: 'PT Serif', serif !important; }</style>
+<link id="all-fonts-link-font-geist-mono" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-geist-mono">.font-geist-mono { font-family: 'Geist Mono', monospace !important; }</style>
+<link id="all-fonts-link-font-space-mono" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&amp;display=swap"><style id="all-fonts-style-font-space-mono">.font-space-mono { font-family: 'Space Mono', monospace !important; }</style>
+<link id="all-fonts-link-font-quicksand" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-quicksand">.font-quicksand { font-family: 'Quicksand', sans-serif !important; }</style>
+<link id="all-fonts-link-font-nunito" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&amp;display=swap"><style id="all-fonts-style-font-nunito">.font-nunito { font-family: 'Nunito', sans-serif !important; }</style></head>
+<body class="bg-neutral-950 text-neutral-100 antialiased font-sans" style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial;" data-demo="true">
+  <!-- App Shell -->
+  <div class="min-h-screen flex flex-col">
+    <!-- Top Nav -->
+    <header class="border-b border-neutral-800/80 bg-neutral-950/80 backdrop-blur supports-[backdrop-filter]:bg-neutral-950/60 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-8 w-8 rounded-md bg-neutral-900 border border-neutral-800 flex items-center justify-center text-sm font-semibold tracking-tight">SR</div>
+          <div class="hidden sm:block">
+            <div class="text-sm text-neutral-400">
+              MVP v0.2
+              <span id="demo-flag" class="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-neutral-900 border border-neutral-800 text-[11px] text-neutral-300">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="sparkles" class="lucide lucide-sparkles w-3 h-3"><path d="m12 3-1.9 5.7a2 2 0 0 1-1.2 1.2L3 12l5.7 1.9a2 2 0 0 1 1.2 1.2L12 21l1.9-5.7a2 2 0 0 1 1.2-1.2L21 12l-5.7-1.9a2 2 0 0 1-1.2-1.2z"></path><path d="M5 3v4"></path><path d="M3 5h4"></path><path d="M19 17v4"></path><path d="M17 19h4"></path></svg>
+                Demo
+              </span>
+            </div>
+            <div class="text-xs text-neutral-500">Node + Fastify · Postgres · Redis/BullMQ · Playwright</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="hidden md:flex items-center gap-2 rounded-md border border-neutral-800 px-2.5 py-1.5 text-xs text-neutral-400">
+            <span class="inline-flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="activity" class="lucide lucide-activity w-3.5 h-3.5"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 H2"></path></svg> Telemetry</span>
+            <span id="telemetry-count" class="px-1.5 rounded bg-neutral-900 border border-neutral-800 text-neutral-300">4</span>
+          </div>
+          <button id="darkToggle" class="inline-flex items-center gap-2 rounded-md border border-neutral-800 bg-neutral-950 hover:bg-neutral-900/80 px-3 py-1.5 text-sm text-neutral-300 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="moon" class="lucide lucide-moon w-4 h-4"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg><span class="hidden sm:inline">Dark</span>
+          </button>
+          <!-- Assistant status (added minimal visual confirmation) -->
+          <div aria-live="polite" class="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-neutral-900 border border-neutral-800 text-[11px] text-neutral-300">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Assistant: Active
+          </div>
+          <div class="text-xs text-neutral-500">User: demo@local</div>
+        </div>
+      </div>
+
+      <!-- Stepper -->
+      <div class="sm:px-6 lg:px-8 max-w-7xl mr-auto ml-auto pr-4 pb-3 pl-4">
+        <nav class="flex items-center overflow-auto no-scrollbar gap-2">
+          <button data-step="1" class="step-btn inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-800 bg-neutral-950 hover:bg-neutral-900/60 text-neutral-300 transition">
+            <span class="w-5 h-5 rounded-md border border-neutral-700 bg-neutral-900 grid place-content-center text-xs">1</span>
+            <span class="text-sm tracking-tight">Welcome / Input</span>
+          </button>
+          <button data-step="2" class="step-btn inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-800 bg-neutral-950 hover:bg-neutral-900/60 text-neutral-300 transition">
+            <span class="w-5 h-5 rounded-md border border-neutral-700 bg-neutral-900 grid place-content-center text-xs">2</span>
+            <span class="text-sm tracking-tight">Discovery Results</span>
+          </button>
+          <button data-step="3" class="step-btn inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-800 bg-neutral-950 hover:bg-neutral-900/60 text-neutral-300 transition">
+            <span class="w-5 h-5 rounded-md border border-neutral-700 bg-neutral-900 grid place-content-center text-xs">3</span>
+            <span class="text-sm tracking-tight">Contacts</span>
+          </button>
+          <button data-step="4" class="step-btn inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-800 bg-neutral-950 hover:bg-neutral-900/60 text-neutral-300 transition">
+            <span class="w-5 h-5 rounded-md border border-neutral-700 bg-neutral-900 grid place-content-center text-xs">4</span>
+            <span class="text-sm tracking-tight">Prioritize</span>
+          </button>
+          <button data-step="5" class="step-btn inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-800 bg-neutral-950 hover:bg-neutral-900/60 text-neutral-300 transition">
+            <span class="w-5 h-5 rounded-md border border-neutral-700 bg-neutral-900 grid place-content-center text-xs">5</span>
+            <span class="text-sm tracking-tight">Drafts</span>
+          </button>
+          <button data-step="6" class="step-btn inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-800 bg-neutral-950 hover:bg-neutral-900/60 text-neutral-300 transition">
+            <span class="w-5 h-5 rounded-md border border-neutral-700 bg-neutral-900 grid place-content-center text-xs">6</span>
+            <span class="text-sm tracking-tight">Handoff</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-1">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+
+        <!-- Screen 1: Welcome / Input -->
+        <section id="screen-1" class="space-y-6">
+          <div class="flex items-center justify-between">
+            <h1 class="sm:text-3xl text-2xl font-semibold tracking-tight">Run Discovery</h1>
+            <div class="text-xs text-neutral-500">SCOPE: Hiring Signals + Business Profile Match (robots.txt respected)</div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Input -->
+            <div class="lg:col-span-2 rounded-xl border border-neutral-800 bg-neutral-950/60">
+              <div class="p-4 border-b border-neutral-800 flex items-center gap-3">
+                <button class="tab-btn inline-flex gap-2 text-neutral-200 bg-neutral-900 border-neutral-800 border rounded-md pt-1.5 pr-3 pb-1.5 pl-3 gap-x-2 gap-y-2 items-center" id="tab-url">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="link" class="lucide lucide-link w-4 h-4"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg> URL
+                </button>
+                <button id="tab-brief" class="tab-btn inline-flex gap-2 hover:border-neutral-800 hover:text-neutral-200 text-neutral-400 bg-transparent border-transparent border rounded-md pt-1.5 pr-3 pb-1.5 pl-3 gap-x-2 gap-y-2 items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-text" class="lucide lucide-file-text w-4 h-4"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg> Brief
+                </button>
+                <div class="ml-auto text-xs text-neutral-500">Auth: JWT (app), OAuth for Gmail/Outlook</div>
+              </div>
+              <div class="p-4 space-y-4">
+                <div id="url-input-wrap" class="space-y-2">
+                  <label class="text-sm text-neutral-300">Company or Market URL</label>
+                  <div class="flex gap-2">
+                    <input id="input-url" type="url" placeholder="https://example.com" class="flex-1 rounded-md bg-neutral-900 border border-neutral-800 px-3 py-2.5 text-sm placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-neutral-700">
+                    <button id="btn-scan-url" class="inline-flex gap-2 hover:bg-indigo-500 transition text-white bg-indigo-600 border-indigo-500/20 border rounded-md pt-2.5 pr-4 pb-2.5 pl-4 gap-x-2 gap-y-2 items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="scan-line" class="lucide lucide-scan-line w-4 h-4"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path><path d="M7 12h10"></path></svg> Run Discovery
+                    </button>
+                  </div>
+                  <p class="text-xs text-neutral-500">We crawl public pages (respect robots.txt). Evidence always includes source URL + snippet.</p>
+                </div>
+                <div id="brief-input-wrap" class="space-y-2 hidden">
+                  <label class="text-sm text-neutral-300">Brief</label>
+                  <textarea id="input-brief" rows="5" placeholder="Target local/professional services in West LA, 10–200 employees, buyer roles: owner or operations, offers: weddings, emergency service, subscription..." class="placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-neutral-700 text-sm bg-neutral-900 w-full border-neutral-800 border rounded-md pt-2.5 pr-3 pb-2.5 pl-3"></textarea>
+                  <div class="flex justify-end">
+                    <button id="btn-scan-brief" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-500/20 transition">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="play" class="lucide lucide-play w-4 h-4"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg> Run Discovery
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Progress -->
+                <div id="run-progress" class="">
+                  <div class="flex items-center justify-between text-xs text-neutral-400 mb-2">
+                    <span>Discovery Progress</span><span id="run-progress-label">0%</span>
+                  </div>
+                  <div class="w-full h-2 rounded-full bg-neutral-900 border border-neutral-800 overflow-hidden">
+                    <div id="run-progress-bar" class="h-full bg-indigo-600 transition-all" style="width: 0%"></div>
+                  </div>
+                  <div class="mt-2 text-xs text-neutral-500 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="timer" class="lucide lucide-timer w-3.5 h-3.5"><line x1="10" x2="14" y1="2" y2="2"></line><line x1="12" x2="15" y1="14" y2="11"></line><circle cx="12" cy="14" r="8"></circle></svg>
+                    <span id="run-eta">ETA: ~2m</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ICP Preview -->
+            <div class="rounded-xl border border-neutral-800 bg-neutral-950/60 overflow-hidden">
+              <div class="flex border-neutral-800 border-b pt-4 pr-4 pb-4 pl-4 items-center justify-between">
+                <h3 class="text-base font-medium tracking-tight">ICP Preview</h3>
+                <span class="text-xs text-neutral-500">v0.2</span>
+              </div>
+              <div class="p-4 space-y-4">
+                <div>
+                  <div class="text-xs text-neutral-400 mb-1.5">Business category / vertical</div>
+                  <div class="flex flex-wrap gap-2">
+                    <button class="icp-pill active inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-neutral-900 border border-neutral-800 text-xs">Local services</button>
+                    <button class="icp-pill inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900">Professional services</button>
+                    <button class="icp-pill inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900">Retail</button>
+                  </div>
+                </div>
+                <div>
+                  <div class="text-xs text-neutral-400 mb-1.5">Company size band</div>
+                  <div class="flex flex-wrap gap-2">
+                    <button class="icp-pill inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900">1–10</button>
+                    <button class="icp-pill inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900">11–50</button>
+                    <button class="icp-pill active inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-neutral-900 border border-neutral-800 text-xs">51–200</button>
+                    <button class="icp-pill inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900">201–500</button>
+                  </div>
+                </div>
+                <div>
+                  <div class="text-xs text-neutral-400 mb-1.5">Region / coverage</div>
+                  <div class="flex flex-wrap gap-2">
+                    <button class="icp-pill active inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-neutral-900 border border-neutral-800 text-xs">West LA</button>
+                    <button class="icp-pill inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900">US</button>
+                    <button class="icp-pill inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900">EU</button>
+                  </div>
+                </div>
+                <div>
+                  <div class="text-xs text-neutral-400 mb-1.5">Buyer roles</div>
+                  <div class="flex flex-wrap gap-2">
+                    <button class="icp-pill active inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-neutral-900 border border-neutral-800 text-xs">Owner</button>
+                    <button class="icp-pill inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900">Operations</button>
+                    <button class="icp-pill inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900">Marketing</button>
+                  </div>
+                </div>
+                <div>
+                  <div class="text-xs text-neutral-400 mb-1.5">Keywords / Offers</div>
+                  <div class="flex flex-wrap gap-2">
+                    <button class="icp-pill active inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-neutral-900 border border-neutral-800 text-xs">weddings</button>
+                    <button class="icp-pill inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900">emergency</button>
+                    <button class="icp-pill inline-flex items-center gap-1.5 px-2 py-1.5 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900">multi‑location</button>
+                  </div>
+                </div>
+                <div class="pt-2 border-t border-neutral-800">
+                  <div class="text-xs text-neutral-400 mb-2">Observability</div>
+                  <div id="telemetry-feed" class="space-y-1 text-xs text-neutral-500 max-h-24 overflow-auto no-scrollbar"><div>22:52:59 • ui_tab</div><div>22:52:57 • run_started</div><div>22:52:56 • ui_tab</div><div>22:52:43 • run_started</div>
+                    <!-- telemetry lines -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-neutral-800 p-4 bg-neutral-950/60">
+            <div class="flex gap-2 text-sm text-neutral-400 gap-x-2 gap-y-2 items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="info" class="lucide lucide-info w-4 h-4"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+              Acceptance: From a live URL, return ≥25 verified contacts (avg score ≥65) in ≤10 minutes using Hiring Signals + Business Profile Match. All reasons &amp; draft lines link to evidence (source + snippet).
+            </div>
+          </div>
+        </section>
+
+        <!-- Screen 2: Discovery Results -->
+        <section id="screen-2" class="space-y-6 hidden">
+          <div class="flex items-center justify-between">
+            <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight">Discovery Results</h2>
+            <div class="flex items-center gap-2 text-xs text-neutral-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="clock" class="lucide lucide-clock w-3.5 h-3.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span>Run ID: <span id="run-id" class="text-neutral-300">run_awa5k6</span></span>
+              <span class="px-1.5 rounded bg-neutral-900 border border-neutral-800 text-neutral-300" id="run-stats">0 accounts</span>
+            </div>
+          </div>
+
+          <!-- Filters -->
+          <div class="rounded-xl border border-neutral-800 bg-neutral-950/60 p-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <div class="col-span-2">
+                <div class="relative">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="search" class="lucide lucide-search w-4 h-4 absolute left-3 top-2.5 text-neutral-500"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                  <input id="filter-search" class="w-full pl-9 pr-3 py-2.5 rounded-md bg-neutral-900 border border-neutral-800 text-sm placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-neutral-700" placeholder="Search company or domain...">
+                </div>
+              </div>
+              <div class="col-span-1">
+                <div class="text-xs text-neutral-400 mb-1">Min Score</div>
+                <div class="flex items-center gap-1.5">
+                  <div class="flex-1 h-2 rounded-full bg-neutral-900 border border-neutral-800 overflow-hidden">
+                    <div id="filter-minscore-bar" class="h-full bg-indigo-600 transition-all" style="width: 65%"></div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <button data-minscore="50" class="minscore-pill px-2 py-1 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900">50</button>
+                    <button data-minscore="65" class="minscore-pill px-2 py-1 rounded-md border border-neutral-800 text-xs bg-neutral-900">65</button>
+                    <button data-minscore="80" class="minscore-pill px-2 py-1 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900">80</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-span-1">
+                <div class="text-xs text-neutral-400 mb-1">Signals</div>
+                <div class="flex items-center gap-2">
+                  <button data-filter-signal="hiring" class="sig-filter px-2.5 py-1.5 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900">Hiring</button>
+                  <button data-filter-signal="profile" class="sig-filter px-2.5 py-1.5 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900">Business Profile</button>
+                  <button id="reset-filters" class="ml-auto px-2.5 py-1.5 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900 text-neutral-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="eraser" class="lucide lucide-eraser w-3.5 h-3.5"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"></path><path d="M22 21H7"></path><path d="m5 11 9 9"></path></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div class="rounded-xl border border-neutral-800 overflow-hidden">
+            <div class="bg-neutral-950/60 p-3 border-b border-neutral-800 flex items-center gap-2">
+              <button id="select-highscore" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-neutral-900 border border-neutral-800 text-sm hover:bg-neutral-800/70">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-square" class="lucide lucide-check-square w-4 h-4"><path d="M21 10.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.5"></path><path d="m9 11 3 3L22 4"></path></svg> Select all ≥65
+              </button>
+              <button id="btn-next-contacts" class="ml-auto inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-500/20">
+                Next: Contacts <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-right" class="lucide lucide-arrow-right w-4 h-4"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+              </button>
+            </div>
+            <div class="overflow-auto">
+              <table class="w-full text-sm">
+                <thead class="bg-neutral-950/60 border-b border-neutral-800 text-neutral-400">
+                  <tr>
+                    <th class="px-3 py-2 text-left w-10"></th>
+                    <th class="px-3 py-2 text-left">Account</th>
+                    <th class="px-3 py-2 text-left">Domain</th>
+                    <th class="px-3 py-2 text-left">Score</th>
+                    <th class="px-3 py-2 text-left">Reasons</th>
+                    <th class="px-3 py-2 text-left">Profile Tags</th>
+                  </tr>
+                </thead>
+                <tbody id="accounts-tbody" class="divide-y divide-neutral-900">
+                  <!-- rows via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Screen 3: Contacts -->
+        <section id="screen-3" class="space-y-6 hidden">
+          <div class="flex items-center justify-between">
+            <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight">Contacts</h2>
+            <div class="text-xs text-neutral-500 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="shield-check" class="lucide lucide-shield-check w-3.5 h-3.5"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg> Verification Provider: Bouncer
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Selected Accounts -->
+            <div class="lg:col-span-1 rounded-xl border border-neutral-800 bg-neutral-950/60">
+              <div class="p-4 border-b border-neutral-800">
+                <h3 class="text-base font-medium tracking-tight">Selected Accounts</h3>
+              </div>
+              <div id="selected-accounts" class="p-4 space-y-3 text-sm">
+                <!-- via JS -->
+              </div>
+            </div>
+
+            <!-- Contacts List -->
+            <div class="lg:col-span-2 rounded-xl border border-neutral-800 bg-neutral-950/60 overflow-hidden">
+              <div class="p-4 border-b border-neutral-800 flex items-center gap-4">
+                <div class="flex-1">
+                  <div class="text-xs text-neutral-400 mb-1">Confidence Threshold</div>
+                  <div class="flex items-center gap-3">
+                    <div class="flex-1 h-2 rounded-full bg-neutral-900 border border-neutral-800 overflow-hidden relative">
+                      <div id="confidence-bar" class="h-full bg-indigo-600 transition-all" style="width: 85%"></div>
+                      <div id="confidence-knob" class="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border border-indigo-400 bg-indigo-500/90 shadow" style="left: 85%"></div>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <button data-th="75" class="th-pill px-2 py-1 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900">75%</button>
+                      <button data-th="85" class="th-pill px-2 py-1 rounded-md border border-neutral-800 text-xs bg-neutral-900">85%</button>
+                      <button data-th="95" class="th-pill px-2 py-1 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900">95%</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="ml-auto">
+                  <button id="toggle-suppress" class="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 text-xs">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye-off" class="lucide lucide-eye-off w-3.5 h-3.5"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"></path><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"></path><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"></path><path d="m2 2 20 20"></path></svg> Suppress low confidence
+                  </button>
+                </div>
+              </div>
+              <div id="contacts-list" class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3">
+                <!-- contacts via JS -->
+              </div>
+              <div class="p-4 border-t border-neutral-800 flex items-center gap-2">
+                <div class="text-xs text-neutral-400 flex-1">
+                  Acceptance: return ≥25 verified in ≤10 minutes with avg score ≥65.
+                </div>
+                <button id="btn-generate-drafts" class="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-500/20">
+                  Next: Generate Drafts <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-right" class="lucide lucide-arrow-right w-4 h-4"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Screen 4: Prioritize -->
+        <section id="screen-4" class="space-y-6 hidden">
+          <div class="flex items-center justify-between">
+            <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight">Prioritize</h2>
+            <div class="text-xs text-neutral-500">Score breakdown with evidence</div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Accounts and Scores -->
+            <div class="lg:col-span-2 rounded-xl border border-neutral-800 bg-neutral-950/60 overflow-hidden">
+              <div class="p-4 border-b border-neutral-800 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="target" class="lucide lucide-target w-4 h-4"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                <span class="text-sm text-neutral-300">Top Matches</span>
+              </div>
+              <div class="divide-y divide-neutral-900" id="prioritize-list">
+                <!-- items via JS -->
+              </div>
+            </div>
+
+            <!-- Drawer / Inspector -->
+            <div class="lg:col-span-1 rounded-xl border border-neutral-800 bg-neutral-950/60">
+              <div class="p-4 border-b border-neutral-800">
+                <h3 class="text-base font-medium tracking-tight flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="notebook-pen" class="lucide lucide-notebook-pen w-4 h-4"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"></path><path d="M2 6h4"></path><path d="M2 10h4"></path><path d="M2 14h4"></path><path d="M2 18h4"></path><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"></path></svg> Evidence
+                </h3>
+              </div>
+              <div class="p-4 space-y-4">
+                <div class="rounded-lg border border-neutral-800 bg-neutral-900/50 p-3">
+                  <div class="text-xs text-neutral-400 mb-2">Score Composition</div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div class="rounded-md border border-neutral-800 bg-neutral-950/40 p-3">
+                      <div class="text-xs text-neutral-400">Fit</div>
+                      <div id="fit-val" class="text-lg font-medium">—</div>
+                    </div>
+                    <div class="rounded-md border border-neutral-800 bg-neutral-950/40 p-3">
+                      <div class="text-xs text-neutral-400">Intent</div>
+                      <div id="intent-val" class="text-lg font-medium">—</div>
+                    </div>
+                    <div class="rounded-md border border-neutral-800 bg-neutral-950/40 p-3">
+                      <div class="text-xs text-neutral-400">Reach</div>
+                      <div id="reach-val" class="text-lg font-medium">—</div>
+                    </div>
+                    <div class="rounded-md border border-neutral-800 bg-neutral-950/40 p-3">
+                      <div class="text-xs text-neutral-400">Recency</div>
+                      <div id="recency-val" class="text-lg font-medium">—</div>
+                    </div>
+                  </div>
+                  <div class="mt-4">
+                    <h4 class="text-xs text-neutral-400 mb-2">Chart</h4>
+                    <div class="rounded-md border border-neutral-800 bg-neutral-950/50 p-3">
+                      <div>
+                        <div class="relative">
+                          <div class="w-full">
+                            <div class="p-1 border border-neutral-800 rounded-md bg-neutral-900/60">
+                              <div>
+                                <div class="relative">
+                                  <div class="w-full">
+                                    <div class="p-2 rounded bg-neutral-900/50">
+                                      <div class="relative">
+                                        <div class="w-full">
+                                          <div class="p-1 rounded bg-neutral-900">
+                                            <div>
+                                              <div class="relative">
+                                                <div class="w-full">
+                                                  <div class="p-2 rounded bg-neutral-900/40">
+                                                    <div>
+                                                      <div class="relative">
+                                                        <div class="w-full">
+                                                          <div class="p-1 rounded bg-neutral-900/30">
+                                                            <div>
+                                                              <div class="relative">
+                                                                <div class="w-full">
+                                                                  <div class="p-1 rounded bg-neutral-900/20">
+                                                                    <div>
+                                                                      <div class="relative">
+                                                                        <div class="w-full">
+                                                                          <div class="p-1 rounded bg-neutral-900/10">
+                                                                            <div class="relative">
+                                                                              <div class="w-full">
+                                                                                <div class="p-1 rounded bg-neutral-900/10">
+                                                                                  <div class="relative">
+                                                                                    <div class="w-full">
+                                                                                      <div class="p-2 rounded bg-neutral-900/0">
+                                                                                        <div class="relative">
+                                                                                          <div class="w-full">
+                                                                                            <div class="relative">
+                                                                                              <div class="w-full">
+                                                                                                <div class="relative">
+                                                                                                  <div class="w-full">
+                                                                                                    <div class="relative">
+                                                                                                      <div class="w-full">
+                                                                                                        <div class="relative">
+                                                                                                          <div class="w-full">
+                                                                                                            <div class="relative">
+                                                                                                              <div class="w-full">
+                                                                                                                <div class="relative">
+                                                                                                                  <div class="w-full">
+                                                                                                                    <div class="relative">
+                                                                                                                      <div class="w-full">
+                                                                                                                        <div class="relative">
+                                                                                                                          <div class="w-full">
+                                                                                                                            <div class="relative">
+                                                                                                                              <div class="w-full">
+                                                                                                                                <div class="relative">
+                                                                                                                                  <div class="w-full">
+                                                                                                                                    <div class="relative">
+                                                                                                                                      <div class="w-full">
+                                                                                                                                        <div class="relative">
+                                                                                                                                          <div class="w-full">
+                                                                                                                                            <div class="relative">
+                                                                                                                                              <div class="w-full">
+                                                                                                                                                <div class="relative">
+                                                                                                                                                  <div class="w-full">
+                                                                                                                                                    <div class="relative">
+                                                                                                                                                      <div class="w-full">
+                                                                                                                                                        <div class="relative">
+                                                                                                                                                          <canvas id="scoreChart" class="w-full h-36"></canvas>
+                                                                                                                                                        </div>
+                                                                                                                                                      </div>
+                                                                                                                                                    </div>
+                                                                                                                                                  </div>
+                                                                                                                                                </div>
+                                                                                                                                              </div>
+                                                                                                                                            </div>
+                                                                                                                                          </div>
+                                                                                                                                        </div>
+                                                                                                                                      </div>
+                                                                                                                                    </div>
+                                                                                                                                  </div>
+                                                                                                                                </div>
+                                                                                                                              </div>
+                                                                                                                            </div>
+                                                                                                                          </div>
+                                                                                                                        </div>
+                                                                                                                      </div>
+                                                                                                                    </div>
+                                                                                                                  </div>
+                                                                                                                </div>
+                                                                                                              </div>
+                                                                                                            </div>
+                                                                                                          </div>
+                                                                                                        </div>
+                                                                                                      </div>
+                                                                                                    </div>
+                                                                                                  </div>
+                                                                                                </div>
+                                                                                              </div>
+                                                                                            </div>
+                                                                                          </div>
+                                                                                        </div>
+                                                                                      </div>
+                                                                                    </div>
+                                                                                  </div>
+                                                                                </div>
+                                                                              </div>
+                                                                            </div>
+                                                                          </div>
+                                                                        </div>
+                                                                      </div>
+                                                                    </div>
+                                                                  </div>
+                                                                </div>
+                                                              </div>
+                                                            </div>
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <!-- End nested wrappers to scope canvas -->
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="text-xs text-neutral-400 mb-2">Evidence Snippets</div>
+                  <div id="evidence-list" class="space-y-2">
+                    <!-- evidence via JS -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Screen 5: Drafts -->
+        <section id="screen-5" class="space-y-6 hidden">
+          <div class="flex items-center justify-between">
+            <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight">Drafts</h2>
+            <div class="flex items-center gap-2">
+              <div class="text-xs text-neutral-500">Tone</div>
+              <div class="flex items-center gap-1">
+                <button class="tone-btn px-2.5 py-1.5 rounded-md border border-neutral-800 text-xs bg-neutral-900" data-tone="direct">Direct</button>
+                <button class="tone-btn px-2.5 py-1.5 rounded-md border border-neutral-800 text-xs hover:bg-neutral-900" data-tone="consultative">Consultative</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Draft Editor -->
+            <div class="lg:col-span-2 rounded-xl border border-neutral-800 bg-neutral-950/60 overflow-hidden">
+              <div class="p-4 border-b border-neutral-800 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="mail" class="lucide lucide-mail w-4 h-4"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                <span class="text-sm text-neutral-300">Editor</span>
+                <div class="ml-auto flex items-center gap-2">
+                  <button id="btn-bulk-apply" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-neutral-900 border border-neutral-800 text-xs hover:bg-neutral-800/70">
+                    Apply to selected
+                  </button>
+                  <button id="btn-insert-case" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-neutral-900 border border-neutral-800 text-xs hover:bg-neutral-800/70">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="library" class="lucide lucide-library w-3.5 h-3.5"><path d="m16 6 4 14"></path><path d="M12 6v14"></path><path d="M8 8v12"></path><path d="M4 4v16"></path></svg> Insert case study
+                  </button>
+                </div>
+              </div>
+              <div class="p-4 space-y-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <input id="draft-subject" class="rounded-md bg-neutral-900 border border-neutral-800 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-neutral-700" placeholder="Subject">
+                  <input id="draft-from" class="rounded-md bg-neutral-900 border border-neutral-800 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-neutral-700" placeholder="From (Name &lt;email@domain&gt;)" value="Alex from Acme &lt;alex@acme.dev&gt;">
+                </div>
+                <div id="draft-body" class="rounded-md bg-neutral-900 border border-neutral-800 px-3 py-2.5 text-sm min-h-[220px]" contenteditable="true">
+                  Hi {{first_name}},<br><br>
+                  Noticed {{company}} serves {{service_area}} and offers {{offer}}; I also saw your directory presence and recent update — thought to share a quick idea tailored to your services.<br><br>
+                  If helpful, I can send a 2‑min overview with examples relevant to {{company}}'s category and coverage.<br><br>
+                  — Alex
+                </div>
+                <div class="text-xs text-neutral-500">Each sentence references evidence with a hoverable source and snippet.</div>
+                <div class="flex items-center justify-end gap-2 pt-2 border-t border-neutral-800">
+                  <button id="btn-goto-handoff" class="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-500/20">
+                    Next: Handoff <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-right" class="lucide lucide-arrow-right w-4 h-4"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Evidence Panel -->
+            <div class="lg:col-span-1 rounded-xl border border-neutral-800 bg-neutral-950/60 overflow-hidden">
+              <div class="p-4 border-b border-neutral-800 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="list" class="lucide lucide-list w-4 h-4"><line x1="8" x2="21" y1="6" y2="6"></line><line x1="8" x2="21" y1="12" y2="12"></line><line x1="8" x2="21" y1="18" y2="18"></line><line x1="3" x2="3.01" y1="6" y2="6"></line><line x1="3" x2="3.01" y1="12" y2="12"></line><line x1="3" x2="3.01" y1="18" y2="18"></line></svg>
+                <span class="text-sm text-neutral-300">Evidence</span>
+              </div>
+              <div id="draft-evidence-panel" class="p-4 space-y-3 text-sm">
+                <div class="text-xs text-neutral-500">Select a sentence to view linked evidence.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Drafts per contact -->
+          <div class="rounded-xl border border-neutral-800 bg-neutral-950/60">
+            <div class="p-4 border-b border-neutral-800 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="users" class="lucide lucide-users w-4 h-4"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              <span class="text-sm text-neutral-300">Generated Drafts</span>
+              <span id="drafts-count" class="ml-2 text-xs px-2 py-0.5 rounded bg-neutral-900 border border-neutral-800 text-neutral-300">0</span>
+              <div class="ml-auto text-xs text-neutral-500">Per‑contact content with evidence refs</div>
+            </div>
+            <div id="drafts-list" class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              <!-- cards via JS -->
+            </div>
+          </div>
+        </section>
+
+        <!-- Screen 6: Handoff -->
+        <section id="screen-6" class="space-y-6 hidden">
+          <div class="flex items-center justify-between">
+            <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight">Handoff</h2>
+            <div class="text-xs text-neutral-500">Compliance gate enforced</div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Methods -->
+            <div class="lg:col-span-2 rounded-xl border border-neutral-800 bg-neutral-950/60 overflow-hidden">
+              <div class="p-4 border-b border-neutral-800 flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="send" class="lucide lucide-send w-4 h-4"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg>
+                <span class="text-sm text-neutral-300">Choose Destination</span>
+                <div class="ml-auto text-xs text-neutral-500">List‑Unsubscribe header required</div>
+              </div>
+              <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- CSV -->
+                <div class="rounded-lg border border-neutral-800 bg-neutral-900/40 p-4 flex flex-col gap-3">
+                  <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-down" class="lucide lucide-file-down w-4 h-4"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M12 18v-6"></path><path d="m9 15 3 3 3-3"></path></svg>
+                    <div class="text-sm font-medium">CSV Export</div>
+                  </div>
+                  <div class="text-xs text-neutral-500">Export selected leads/contacts/scores.</div>
+                  <button id="btn-export-csv" class="mt-auto inline-flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-neutral-900 border border-neutral-800 text-sm hover:bg-neutral-800/70 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Export CSV
+                  </button>
+                </div>
+                <!-- Gmail -->
+                <div class="rounded-lg border border-neutral-800 bg-neutral-900/40 p-4 flex flex-col gap-3">
+                  <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="mail" class="lucide lucide-mail w-4 h-4"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                    <div class="text-sm font-medium">Gmail</div>
+                  </div>
+                  <div class="text-xs text-neutral-500">OAuth + compose. Evidence is preserved and List‑Unsubscribe is required.</div>
+                  <div class="flex items-center gap-2">
+                    <button id="btn-auth-gmail" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-neutral-900 border border-neutral-800 text-xs hover:bg-neutral-800/70">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="link-2" class="lucide lucide-link-2 w-3.5 h-3.5"><path d="M9 17H7A5 5 0 0 1 7 7h2"></path><path d="M15 7h2a5 5 0 1 1 0 10h-2"></path><line x1="8" x2="16" y1="12" y2="12"></line></svg> Connect
+                    </button>
+                    <span id="gmail-status" class="text-xs text-neutral-500">Not connected</span>
+                  </div>
+                  <button id="btn-handoff-gmail" class="mt-auto inline-flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-neutral-900 border border-neutral-800 text-sm hover:bg-neutral-800/70 disabled:opacity-50 disabled:cursor-not-allowed" disabled="">
+                    Compose in Gmail
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Compliance Panel -->
+            <div class="lg:col-span-1 rounded-xl border border-neutral-800 bg-neutral-950/60 overflow-hidden">
+              <div class="p-4 border-b border-neutral-800 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="shield" class="lucide lucide-shield w-4 h-4"><path d="M12 22c7-2 8-5 8-10V5l-8-3-8 3v7c0 5 1 8 8 10"></path></svg>
+                <span class="text-sm text-neutral-300">Compliance Gate</span>
+              </div>
+              <div class="p-4 space-y-3 text-sm">
+                <div class="flex items-center gap-2 text-neutral-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" class="lucide lucide-check w-4 h-4 text-emerald-400"></svg>
+                  Verified contacts ≥ 25
+                </div>
+                <div class="flex items-center gap-2 text-neutral-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" class="lucide lucide-check w-4 h-4 text-emerald-400"></svg>
+                  Avg score ≥ 65
+                </div>
+                <div class="flex items-center gap-2 text-neutral-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" class="lucide lucide-check w-4 h-4 text-emerald-400"></svg>
+                  List‑Unsubscribe header present
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Minimal demo flag: expose and no-op init
+    window.__DEMO__ = true;
+    // Optional: if needed to visually confirm
+    const df = document.getElementById('demo-flag');
+    if (df) df.title = 'Demo mode is active';
+  </script>
+</body></html>

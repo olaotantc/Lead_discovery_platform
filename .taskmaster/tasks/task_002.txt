@@ -1,0 +1,11 @@
+# Task ID: 2
+# Title: Implement ICP Preview Input
+# Status: pending
+# Dependencies: 1
+# Priority: medium
+# Description: Develop the input mechanism for URL and short brief to generate an ICP preview.
+# Details:
+Create a frontend component that accepts a URL and a short brief as input. Implement logic to parse these inputs and generate an industry-agnostic ICP preview, including fields like business category, company size, region, buyer roles, and keywords. Ensure that the input is validated and sanitized before processing.
+
+# Test Strategy:
+Test with various URLs and briefs to ensure accurate ICP previews are generated. Validate that all fields are correctly populated and that invalid inputs are handled gracefully.
