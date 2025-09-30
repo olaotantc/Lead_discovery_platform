@@ -24,6 +24,11 @@ export interface Signal {
 export interface PlaybookInput {
   url: string;
   brief?: string;
+  icp?: {
+    businessCategory?: string;
+    companySize?: string;
+    targetMarket?: string;
+  };
 }
 
 export interface PlaybookResult {

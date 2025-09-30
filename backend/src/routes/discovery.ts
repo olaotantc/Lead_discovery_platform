@@ -4,6 +4,11 @@ import { runDiscovery } from '../services/discovery';
 interface DiscoveryRunBody {
   url: string;
   brief?: string;
+  icp?: {
+    businessCategory?: string;
+    companySize?: string;
+    targetMarket?: string;
+  };
 }
 
 interface DiscoveryRunRequest {
@@ -28,11 +33,19 @@ export default async function discoveryRoutes(fastify: FastifyInstance) {
         properties: {
           url: { type: 'string', minLength: 1, maxLength: 2048 },
           brief: { type: 'string', minLength: 0, maxLength: 1000 },
+          icp: {
+            type: 'object',
+            properties: {
+              businessCategory: { type: 'string' },
+              companySize: { type: 'string' },
+              targetMarket: { type: 'string' },
+            },
+          },
         },
       },
     },
   }, async (request: FastifyRequest<DiscoveryRunRequest>, reply: FastifyReply) => {
-    const { url, brief } = request.body;
+    const { url, brief, icp } = request.body;
 
     // Basic guardrails (server-side) without importing the full validation service
     if (!/^https?:\/\//i.test(url) && !/^[\w.-]+\.[a-z]{2,}$/i.test(url)) {
@@ -44,7 +57,7 @@ export default async function discoveryRoutes(fastify: FastifyInstance) {
       return;
     }
 
-    const result = await runDiscovery({ url, brief });
+    const result = await runDiscovery({ url, brief, icp });
     reply.send({ success: true, data: result });
   });
 }

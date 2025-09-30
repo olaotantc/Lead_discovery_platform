@@ -54,19 +54,43 @@ export const BusinessProfilePlaybook: Playbook = {
     const domain = extractDomain(input.url);
     const brief = (input.brief || '').toLowerCase();
 
+    // Prefer ICP data if available (AI-inferred), otherwise fallback to heuristics
     const text = `${domain} ${brief}`;
-    const industry = guessIndustry(text);
-    const size = guessSize(text);
-    const region = guessRegion(text);
+    const industry = input.icp?.businessCategory || guessIndustry(text);
+    const size = input.icp?.companySize || guessSize(text);
+    const region = input.icp?.targetMarket || guessRegion(text);
 
     const sources: Source[] = [
       { type: 'Website', url: `https://${domain}`, notes: 'Heuristic profile analysis (offline)' },
     ];
 
+    // Higher confidence if using ICP data (AI-inferred)
+    const usingIcp = !!input.icp;
     const signals: Signal[] = [
-      { category: 'profile', name: 'IndustryGuess', value: industry, confidence: industry === 'General Business' ? 40 : 65, source: sources[0] },
-      { category: 'profile', name: 'CompanySizeHint', value: size, confidence: size === 'Unknown' ? 30 : 55, source: sources[0] },
-      { category: 'profile', name: 'RegionHint', value: region, confidence: region === 'Unknown' ? 30 : 50, source: sources[0] },
+      {
+        category: 'profile',
+        name: 'IndustryGuess',
+        value: industry,
+        confidence: usingIcp ? 95 : (industry === 'General Business' ? 40 : 65),
+        source: sources[0],
+        evidence: usingIcp ? ['AI-inferred from ICP analysis'] : undefined
+      },
+      {
+        category: 'profile',
+        name: 'CompanySizeHint',
+        value: size,
+        confidence: usingIcp ? 90 : (size === 'Unknown' ? 30 : 55),
+        source: sources[0],
+        evidence: usingIcp ? ['AI-inferred from ICP analysis'] : undefined
+      },
+      {
+        category: 'profile',
+        name: 'RegionHint',
+        value: region,
+        confidence: usingIcp ? 85 : (region === 'Unknown' ? 30 : 50),
+        source: sources[0],
+        evidence: usingIcp ? ['AI-inferred from ICP analysis'] : undefined
+      },
     ];
 
     const finishedAt = nowIso();
