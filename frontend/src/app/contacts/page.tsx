@@ -76,6 +76,9 @@ export default function ContactsPage() {
   const [draftLoadingId, setDraftLoadingId] = useState<string | null>(null)
   const [draftTone, setDraftTone] = useState<Tone>('direct')
   const [latestDraft, setLatestDraft] = useState<DraftJobData | null>(null)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [fromEmail, setFromEmail] = useState('sender@example.com')
+  const [subject, setSubject] = useState('Quick idea for your team')
 
   // Dev diagnostic: log API base and origin to validate CORS/base URL assumptions
   useEffect(() => {
@@ -96,6 +99,72 @@ export default function ContactsPage() {
 
   const toggleRole = (r: string) => {
     setRoles((prev) => (prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]))
+  }
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id); else next.add(id)
+      return next
+    })
+  }
+
+  const selectAllFiltered = () => {
+    setSelectedIds(new Set(filteredContacts.map(c => c.id)))
+  }
+
+  const exportContactsCsv = async () => {
+    if (!data?.jobId) return
+    try {
+      const res = await fetch(`${apiBase}/api/exports/contacts/csv`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobId: data.jobId, selectedIds: Array.from(selectedIds) }),
+      })
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `contacts_${data.jobId}.csv`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('export csv failed', e)
+    }
+  }
+
+  const downloadEml = async () => {
+    if (!latestDraft) return
+    try {
+      const senderDomain = (fromEmail.split('@')[1] || '').toLowerCase()
+      const comp = await fetch(`${apiBase}/api/handoff/compliance-check`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ senderDomain })
+      }).then(r => r.json())
+      if (!comp?.data?.okToSend) {
+        alert('Compliance not satisfied: ' + (comp?.data?.reasons || []).join(', '))
+        return
+      }
+      const bodyText = `${latestDraft.drafts.opener}\n\n--\nCitations:\n${(latestDraft.citations||[]).map(c=>`[${c.id}] ${c.title} ${c.url}`).join('\n')}`
+      const res = await fetch(`${apiBase}/api/handoff/eml`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: latestDraft.email, from: fromEmail, subject, bodyText })
+      })
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `draft_${latestDraft.contactId}.eml`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('download eml failed', e)
+    }
   }
 
   const statusIcon = (s: VerificationStatus) => {
@@ -275,6 +344,7 @@ export default function ContactsPage() {
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="text-left text-gray-600 border-b">
+                    <th className="py-2 pr-2"><input type="checkbox" onChange={selectAllFiltered} title="Select all"/></th>
                     <th className="py-2 pr-4">Name</th>
                     <th className="py-2 pr-4">Email</th>
                     <th className="py-2 pr-4">Role/Title</th>
@@ -291,6 +361,7 @@ export default function ContactsPage() {
                 <tbody>
                   {filteredContacts.map((c) => (
                     <tr key={c.id} className="border-b last:border-0">
+                      <td className="py-2 pr-2"><input type="checkbox" checked={selectedIds.has(c.id)} onChange={()=>toggleSelect(c.id)} /></td>
                       <td className="py-2 pr-4">{c.name || `${c.firstName || ''} ${c.lastName || ''}`.trim() || '—'}</td>
                       <td className="py-2 pr-4 font-mono text-xs">{c.email}</td>
                       <td className="py-2 pr-4">{c.role || c.title || '—'}</td>
@@ -345,8 +416,11 @@ export default function ContactsPage() {
                   ))}
                 </tbody>
               </table>
-            </div>
-            {filteredContacts.length === 0 && (
+          </div>
+          <div className="mt-3 flex items-center gap-3">
+            <button onClick={exportContactsCsv} className="inline-flex items-center gap-2 px-3 py-2 rounded-md border bg-white hover:bg-gray-50">Export Contacts CSV</button>
+          </div>
+          {filteredContacts.length === 0 && (
               <div className="text-sm text-gray-500">No contacts above the current threshold.</div>
             )}
           </div>
@@ -382,6 +456,11 @@ export default function ContactsPage() {
                 </div>
                 <div className="text-xs text-gray-600">
                   Compliance headers: List-Unsubscribe is included
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <input className="border rounded px-2 py-1 text-xs" value={fromEmail} onChange={(e)=>setFromEmail(e.target.value)} placeholder="from@example.com" />
+                  <input className="border rounded px-2 py-1 text-xs flex-1" value={subject} onChange={(e)=>setSubject(e.target.value)} placeholder="Subject" />
+                  <button onClick={downloadEml} className="inline-flex items-center gap-2 px-3 py-2 rounded-md border bg-white hover:bg-gray-50 text-xs">Download EML</button>
                 </div>
               </div>
             </div>
