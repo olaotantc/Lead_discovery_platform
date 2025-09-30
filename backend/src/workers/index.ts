@@ -8,7 +8,8 @@ import {
   DraftGenerationJobData,
   ContactDiscoveryJobData,
 } from '../config/jobs';
-import { completeDraftJob, failDraftJob } from '../services/drafts';
+import { completeDraftJob, failDraftJob, generateDraftsPackage } from '../services/drafts';
+import { DraftJobPayload } from '../types/draft';
 import { completeContactDiscovery, failContactDiscovery, processContactDiscoveryJob, startContactDiscovery } from '../services/contactDiscovery';
 
 // Redis connection for workers
@@ -119,54 +120,34 @@ const processDraftGenerationJob = async (job: Job<DraftGenerationJobData>) => {
 
   console.log(`✍️ Generating draft for contact: ${contactId} (${tone} tone)`);
 
-  // Simulate draft generation
-  await new Promise(resolve => setTimeout(resolve, 3000));
-
-  // Mock draft content
-  const templates = {
-    direct: [
-      "Hi [Name], I noticed your company is hiring for [role]. We help companies like yours reduce [pain point] by [solution].",
-      "Hi [Name], saw your recent [activity]. Quick question about [specific challenge] at [company]."
-    ],
-    consultative: [
-      "Hi [Name], I've been following [company]'s growth in [industry]. Curious about how you're handling [specific challenge]?",
-      "Hi [Name], congratulations on [recent milestone]. I'd love to share how other [industry] leaders are tackling [challenge]."
-    ]
-  };
-
-  const draftTemplates = templates[tone];
-
-  const result = {
-    jobId: job.id,
+  // Generate drafts package with citations + headers
+  const pkg = generateDraftsPackage({
     contactId,
-    tone,
-    drafts: {
-      opener: draftTemplates[0],
-      followUp1: draftTemplates[1],
-      followUp2: "Hi [Name], thought you might find this [resource] relevant given [specific context].",
-    },
-    evidenceLinks: Object.keys(evidenceData).length,
-    status: 'completed',
-  };
+    email: (evidenceData as any)?.email || 'unknown@example.com',
+    name: (evidenceData as any)?.name as string | undefined,
+    tone: (tone as any) || 'direct',
+    evidenceData,
+  });
 
   console.log(`✅ Draft generation ${job.id} completed for ${contactId}`);
 
   try {
-    await completeDraftJob(job.id as string, {
+    const payload: DraftJobPayload = {
       jobId: job.id as string,
       contactId,
       email: (evidenceData as any)?.email || 'unknown@example.com',
-      tone,
-      drafts: result.drafts,
-      evidenceLinks: result.evidenceLinks,
+      tone: (tone as any) || 'direct',
+      drafts: pkg.content,
+      citations: pkg.citations,
+      emailHeaders: pkg.emailHeaders,
       status: 'completed',
       generatedAt: new Date().toISOString(),
-    });
+    };
+    await completeDraftJob(job.id as string, payload);
   } catch (e) {
     console.error('Failed to persist draft job result', e);
   }
-
-  return result;
+  return { jobId: job.id, contactId, status: 'completed' };
 };
 
 // Create workers

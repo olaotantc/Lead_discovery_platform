@@ -47,7 +47,7 @@ export interface ContactEnrichmentJobData {
 export interface DraftGenerationJobData {
   contactId: string;
   evidenceData: Record<string, any>;
-  tone: 'direct' | 'consultative';
+  tone: 'direct' | 'consultative' | 'warm';
   userId?: string;
 }
 

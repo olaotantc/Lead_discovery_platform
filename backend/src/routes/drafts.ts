@@ -6,7 +6,7 @@ interface GenerateDraftBody {
   contactId: string; // may be email if no persisted id exists
   email: string;
   name?: string;
-  tone?: 'direct' | 'consultative';
+  tone?: 'direct' | 'consultative' | 'warm';
   evidenceData?: Record<string, unknown>;
 }
 
@@ -23,7 +23,7 @@ export default async function draftsRoutes(fastify: FastifyInstance) {
           contactId: { type: 'string', minLength: 1 },
           email: { type: 'string', minLength: 3 },
           name: { type: 'string' },
-          tone: { type: 'string', enum: ['direct', 'consultative'] },
+          tone: { type: 'string', enum: ['direct', 'consultative', 'warm'] },
           evidenceData: { type: 'object' },
         },
       },
@@ -53,4 +53,3 @@ export default async function draftsRoutes(fastify: FastifyInstance) {
     reply.send({ success: true, data: res });
   });
 }
-

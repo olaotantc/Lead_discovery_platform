@@ -49,7 +49,7 @@ interface DiscoveryData {
   error?: string
 }
 
-type Tone = 'direct' | 'consultative'
+type Tone = 'direct' | 'consultative' | 'warm'
 interface DraftContent { opener: string; followUp1: string; followUp2: string }
 interface DraftJobData {
   jobId: string
@@ -57,7 +57,8 @@ interface DraftJobData {
   email: string
   tone: Tone
   drafts: DraftContent
-  evidenceLinks: number
+  citations?: Array<{ id: number; url: string; title: string; snippet?: string }>
+  emailHeaders?: Record<string, string>
   status: 'completed' | 'failed'
   generatedAt: string
 }
@@ -247,11 +248,19 @@ export default function ContactsPage() {
             <label className="flex items-center gap-2"><input type="checkbox" checked={roles.includes('Owner/GM')} onChange={() => toggleRole('Owner/GM')} /> Owner/GM</label>
             <label className="flex items-center gap-2"><input type="checkbox" checked={roles.includes('Decision Makers')} onChange={() => toggleRole('Decision Makers')} /> Decision Makers</label>
           </div>
-          <div className="mt-6">
+          <div className="mt-6 flex items-center gap-4">
             <button disabled={!url || isLoading} onClick={submit} className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-indigo-600 disabled:opacity-50 hover:bg-indigo-700 text-white">
               {isLoading ? <RefreshCcw className="h-4 w-4 animate-spin" /> : null}
               {isLoading ? 'Discovering…' : 'Start Discovery'}
             </button>
+            <div className="text-sm text-gray-700 flex items-center gap-2">
+              <span>Draft tone:</span>
+              <select className="border rounded px-2 py-1" value={draftTone} onChange={(e)=>setDraftTone(e.target.value as Tone)}>
+                <option value="direct">Direct</option>
+                <option value="consultative">Consultative</option>
+                <option value="warm">Warm</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -359,6 +368,20 @@ export default function ContactsPage() {
                 <div>
                   <div className="text-gray-700 font-medium mb-1">Follow Up 2</div>
                   <div className="p-3 rounded-md border bg-gray-50">{latestDraft.drafts.followUp2}</div>
+                </div>
+                <div>
+                  <div className="text-gray-700 font-medium mb-1">Citations</div>
+                  <ul className="list-disc list-inside text-sm text-indigo-700">
+                    {(latestDraft.citations || []).map((c)=> (
+                      <li key={c.id}>
+                        <a className="underline" href={c.url} target="_blank" rel="noopener noreferrer">[{c.id}] {c.title}</a>
+                        {c.snippet ? <span className="text-gray-600"> — {c.snippet}</span> : null}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="text-xs text-gray-600">
+                  Compliance headers: List-Unsubscribe is included
                 </div>
               </div>
             </div>
