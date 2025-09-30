@@ -294,43 +294,55 @@ export default function SignalRunnerApp() {
               </div>
 
               {/* FAQ */}
-              <div id="faq" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="tilt rounded-xl border border-neutral-200 bg-white p-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-md bg-neutral-50 border border-neutral-200 grid place-items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" data-lucide="clock" className="w-4 h-4 text-neutral-700"></svg>
+              <div id="faq" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl font-bold text-neutral-900 mb-3">Common Questions</h2>
+                  <p className="text-neutral-600">Everything you need to know about SignalRunner</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="group tilt rounded-2xl border border-neutral-200 bg-white p-6 hover:shadow-lg hover:border-neutral-300 transition-all duration-300">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 grid place-items-center flex-shrink-0 group-hover:bg-slate-100 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" data-lucide="clock" className="w-5 h-5 text-slate-700"></svg>
                       </div>
-                      <div className="text-sm font-medium tracking-tight">How long does a run take?</div>
+                      <div className="flex-1">
+                        <h3 className="text-base font-semibold text-neutral-900 mb-2">How long does a run take?</h3>
+                        <p className="text-sm text-neutral-600 leading-relaxed">Most runs complete in under 10 minutes, depending on scope and target size. You&apos;ll see real-time progress as we discover accounts and verify contacts.</p>
+                      </div>
                     </div>
-                    <p className="mt-2 text-sm text-neutral-600">Most runs complete in under 10 minutes, depending on scope and target size.</p>
                   </div>
-                  <div className="tilt rounded-xl border border-neutral-200 bg-white p-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-md bg-neutral-50 border border-neutral-200 grid place-items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" data-lucide="file-check" className="w-4 h-4 text-neutral-700"></svg>
+                  <div className="group tilt rounded-2xl border border-neutral-200 bg-white p-6 hover:shadow-lg hover:border-neutral-300 transition-all duration-300">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 grid place-items-center flex-shrink-0 group-hover:bg-amber-100 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" data-lucide="file-check" className="w-5 h-5 text-amber-700"></svg>
                       </div>
-                      <div className="text-sm font-medium tracking-tight">What about evidence?</div>
+                      <div className="flex-1">
+                        <h3 className="text-base font-semibold text-neutral-900 mb-2">What about evidence?</h3>
+                        <p className="text-sm text-neutral-600 leading-relaxed">Every reason, score, and draft links back to a source URL with a snippet for full auditability. No black-box recommendations—you see exactly where each insight comes from.</p>
+                      </div>
                     </div>
-                    <p className="mt-2 text-sm text-neutral-600">Every reason, score, and draft links back to a source URL with a snippet for auditability.</p>
                   </div>
-                  <div className="tilt rounded-xl border border-neutral-200 bg-white p-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-md bg-neutral-50 border border-neutral-200 grid place-items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" data-lucide="shield" className="w-4 h-4 text-neutral-700"></svg>
+                  <div className="group tilt rounded-2xl border border-neutral-200 bg-white p-6 hover:shadow-lg hover:border-neutral-300 transition-all duration-300">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 grid place-items-center flex-shrink-0 group-hover:bg-emerald-100 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" data-lucide="shield" className="w-5 h-5 text-emerald-700"></svg>
                       </div>
-                      <div className="text-sm font-medium tracking-tight">Is it compliant?</div>
+                      <div className="flex-1">
+                        <h3 className="text-base font-semibold text-neutral-900 mb-2">Is it compliant?</h3>
+                        <p className="text-sm text-neutral-600 leading-relaxed">Built-in compliance gate enforces email verification, score thresholds, and List-Unsubscribe headers. We respect robots.txt and implement polite rate limiting.</p>
+                      </div>
                     </div>
-                    <p className="mt-2 text-sm text-neutral-600">Compliance gate enforces verification, score thresholds, and List‑Unsubscribe headers.</p>
                   </div>
-                  <div className="tilt rounded-xl border border-neutral-200 bg-white p-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-md bg-neutral-50 border border-neutral-200 grid place-items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" data-lucide="mail" className="w-4 h-4 text-neutral-700"></svg>
+                  <div className="group tilt rounded-2xl border border-neutral-200 bg-white p-6 hover:shadow-lg hover:border-neutral-300 transition-all duration-300">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 grid place-items-center flex-shrink-0 group-hover:bg-rose-100 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" data-lucide="mail" className="w-5 h-5 text-rose-700"></svg>
                       </div>
-                      <div className="text-sm font-medium tracking-tight">Where can I send?</div>
+                      <div className="flex-1">
+                        <h3 className="text-base font-semibold text-neutral-900 mb-2">Where can I send?</h3>
+                        <p className="text-sm text-neutral-600 leading-relaxed">Export to CSV for your sequencer or compose directly via Gmail OAuth. All evidence and context is preserved regardless of export method.</p>
+                      </div>
                     </div>
-                    <p className="mt-2 text-sm text-neutral-600">Export CSV or compose directly via Gmail with OAuth — evidence preserved.</p>
                   </div>
                 </div>
 

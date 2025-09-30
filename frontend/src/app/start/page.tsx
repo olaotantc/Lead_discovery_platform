@@ -581,7 +581,7 @@ export default function StartPage() {
 
             <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>What's Next:</strong> These signals help prioritize your outreach. Higher confidence scores indicate stronger evidence of fit with your ICP.
+                <strong>What&apos;s Next:</strong> These signals help prioritize your outreach. Higher confidence scores indicate stronger evidence of fit with your ICP.
               </p>
             </div>
           </div>

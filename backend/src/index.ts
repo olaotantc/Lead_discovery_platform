@@ -13,6 +13,7 @@ import {
 import './workers'; // Initialize workers
 // import icpRoutes from './routes/icp';
 import discoveryRoutes from './routes/discovery';
+import contactRoutes from './routes/contacts';
 
 // Load environment variables
 dotenv.config();
@@ -28,12 +29,26 @@ const redisClient = createRedisClient();
 
 // Register CORS plugin
 server.register(cors, {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: (origin, cb) => {
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3002',
+      'http://127.0.0.1:3002',
+      'http://127.0.0.1:3000'
+    ];
+    if (!origin || allowedOrigins.includes(origin)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Not allowed by CORS'), false);
+    }
+  },
+  credentials: true,
 });
 
 // Register routes
 // server.register(icpRoutes, { prefix: '/api/icp' }); // Temporarily disabled
 server.register(discoveryRoutes, { prefix: '/api/discovery' });
+server.register(contactRoutes, { prefix: '/api/contacts' });
 
 // Health check route with database and queue status
 server.get('/health', async (request, reply) => {

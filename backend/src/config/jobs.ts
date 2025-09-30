@@ -22,6 +22,16 @@ export interface DiscoveryJobData {
   timestamp: string;
 }
 
+export interface ContactDiscoveryJobData {
+  url: string;
+  roles?: string[];
+  threshold?: number;
+  limit?: number;
+  brief?: string;
+  userId?: string;
+  timestamp: string;
+}
+
 export interface EmailVerificationJobData {
   email: string;
   contactId: string;
@@ -134,6 +144,12 @@ export const checkQueuesHealth = async (): Promise<Record<string, any>> => {
 export const addDiscoveryJob = async (data: DiscoveryJobData) => {
   return await discoveryQueue.add('process-discovery', data, {
     priority: 10,
+  });
+};
+
+export const addContactDiscoveryJob = async (data: ContactDiscoveryJobData) => {
+  return await discoveryQueue.add('contact-discovery', data, {
+    priority: 9,
   });
 };
 

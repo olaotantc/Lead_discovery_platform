@@ -6,7 +6,9 @@ import {
   EmailVerificationJobData,
   ContactEnrichmentJobData,
   DraftGenerationJobData,
+  ContactDiscoveryJobData,
 } from '../config/jobs';
+import { completeContactDiscovery, failContactDiscovery, processContactDiscoveryJob, startContactDiscovery } from '../services/contactDiscovery';
 
 // Redis connection for workers
 const redisConnection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
@@ -14,13 +16,30 @@ const redisConnection = new Redis(process.env.REDIS_URL || 'redis://localhost:63
 });
 
 // Discovery job processor
-const processDiscoveryJob = async (job: Job<DiscoveryJobData>) => {
-  const { url, brief, userId, timestamp } = job.data;
+const processDiscoveryJob = async (job: Job<DiscoveryJobData | ContactDiscoveryJobData>) => {
+  // Branch on job name
+  if (job.name === 'contact-discovery') {
+    const data = job.data as ContactDiscoveryJobData;
+    console.log(`👥 Contact discovery job ${job.id} for ${data.url}`);
+    try {
+      await startContactDiscovery(job.id as string, { url: data.url, roles: data.roles, threshold: data.threshold, limit: data.limit, brief: data.brief });
+      const contacts = await processContactDiscoveryJob(job.id as string, { url: data.url, roles: data.roles, threshold: data.threshold, limit: data.limit, brief: data.brief });
+      await completeContactDiscovery(job.id as string, contacts);
+      console.log(`✅ Contact discovery job ${job.id} completed with ${contacts.length} contacts`);
+      return { jobId: job.id, contacts: contacts.length };
+    } catch (err: any) {
+      console.error(`❌ Contact discovery job ${job.id} failed:`, err?.message || err);
+      await failContactDiscovery(job.id as string, err?.message || 'Unknown error');
+      throw err;
+    }
+  }
+
+  const { url, brief, userId, timestamp } = job.data as DiscoveryJobData;
 
   console.log(`🔍 Processing discovery job for URL: ${url}`);
 
   // Simulate discovery processing
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  await new Promise((resolve) => setTimeout(resolve, 2000));
 
   // Mock discovery results
   const result = {

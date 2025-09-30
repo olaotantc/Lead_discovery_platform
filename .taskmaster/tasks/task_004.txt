@@ -1,11 +1,28 @@
 # Task ID: 4
 # Title: Implement Contact Discovery and Verification
-# Status: pending
+# Status: in_progress
 # Dependencies: 3
 # Priority: high
 # Description: Develop the functionality to discover and verify contacts for target roles.
 # Details:
 Use pattern detection and provider lookup to discover emails for target roles like Owner/GM. Integrate with a verification provider (Bouncer or NeverBounce) to verify email addresses. Implement logic to include contacts with ≥ 85% confidence and allow user adjustments.
+
+<info added on 2025-09-30T00:55:00.000Z>
+Progress update:
+
+- 4.1 Email Pattern Detection: Implemented `backend/src/services/emailPatterns.ts` returning common patterns with confidence and candidate generation.
+- 4.2 Provider Lookup Integration: Added provider interface and mock adapters in `backend/src/services/providers/emailDiscovery.ts` (Hunter/Clearbit) with deterministic offline outputs and source attribution.
+- Orchestrator & Storage: Implemented `backend/src/services/contactDiscovery.ts` using Redis to persist job state and BullMQ to process a new `contact-discovery` job name on the existing DISCOVERY queue; worker updated to branch by job.name.
+- API Endpoints: `backend/src/routes/contacts.ts` exposes:
+  - POST /api/contacts/discover
+  - GET /api/contacts/:jobId
+  - POST /api/contacts/verify
+  - PATCH /api/contacts/:id/confidence
+- Frontend UI: Added `/contacts` page to trigger discovery, poll results, adjust threshold (70–95%), and visualize contacts with color-coded badges.
+- Env: Extended `backend/.env.example` with HUNTER_API_KEY and CLEARBIT_API_KEY.
+
+Note: Providers and verification operate in mock mode due to restricted network. Real provider clients can be wired in later with HTTP calls and API keys.
+</info added on 2025-09-30T00:55:00.000Z>
 
 # Test Strategy:
 Test contact discovery with various company profiles to ensure accurate role identification and email discovery. Verify that email verification works correctly and that confidence thresholds are enforced.
