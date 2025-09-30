@@ -148,7 +148,7 @@
         "dependencies": [
           3
         ],
-        "status": "in_progress",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -178,7 +178,7 @@
               "4.2"
             ],
             "details": "Set up API connections to verify email addresses and filter based on confidence levels.",
-            "status": "in_progress",
+            "status": "done",
             "testStrategy": "Test email verification process to ensure only valid emails with ≥ 85% confidence are included."
           },
           {
@@ -200,7 +200,7 @@
               "4.4"
             ],
             "details": "Test the entire workflow from discovery to verification, ensuring all components work seamlessly.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Use various company profiles to test the complete process and validate the accuracy and reliability of the system."
           }
         ]
@@ -215,8 +215,63 @@
         "dependencies": [
           4
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design Scoring Algorithm",
+            "description": "Develop a detailed algorithm to calculate Fit, Intent, Reachability, and Recency scores based on predefined criteria.",
+            "dependencies": [],
+            "details": "Define the mathematical formulas and logic for each score component. Ensure that each score reflects the intended criteria accurately. Document the criteria and scoring logic in a technical specification document.",
+            "status": "done",
+            "testStrategy": "Review the algorithm design with stakeholders to ensure it meets business requirements. Use sample data to manually calculate scores and verify the algorithm's accuracy."
+          },
+          {
+            "id": 2,
+            "title": "Implement Real-Time Scoring System",
+            "description": "Develop the backend system to calculate scores in real-time as data is gathered.",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "Use Node.js with Fastify to implement the scoring logic. Integrate with the data collection system to trigger score calculations as new data is received. Ensure the system is optimized for performance to handle real-time calculations.",
+            "status": "done",
+            "testStrategy": "Simulate data input and verify that scores are calculated and updated in real-time. Measure system performance under load to ensure it meets real-time requirements."
+          },
+          {
+            "id": 3,
+            "title": "Develop Score Display Interface",
+            "description": "Create a frontend interface to display total and facet scores with reason codes and evidence links.",
+            "dependencies": [
+              "5.2"
+            ],
+            "details": "Use Next.js and Tailwind CSS to design a user-friendly interface. Ensure that scores are displayed clearly with associated reason codes and evidence links. Implement React Query for efficient data fetching and state management.",
+            "status": "done",
+            "testStrategy": "Conduct user testing to ensure the interface is intuitive and displays all necessary information. Verify that reason codes and evidence links are correctly associated with scores."
+          },
+          {
+            "id": 4,
+            "title": "Integrate Evidence and Reason Code System",
+            "description": "Implement a system to generate and associate reason codes and evidence links with each score.",
+            "dependencies": [
+              "5.2"
+            ],
+            "details": "Develop logic to generate reason codes based on scoring criteria. Store evidence links in a database and associate them with the relevant scores. Ensure that the system is flexible to accommodate changes in scoring criteria.",
+            "status": "done",
+            "testStrategy": "Verify that reason codes and evidence links are correctly generated and associated with scores. Test with various scenarios to ensure robustness."
+          },
+          {
+            "id": 5,
+            "title": "Validate Scoring System Accuracy",
+            "description": "Conduct comprehensive testing to ensure the scoring system accurately reflects the criteria and provides reliable prioritization.",
+            "dependencies": [
+              "5.3",
+              "5.4"
+            ],
+            "details": "Develop a suite of test cases that cover all aspects of the scoring system. Use both automated and manual testing methods to validate the accuracy and reliability of scores. Compare calculated scores against expected outcomes for a variety of test scenarios.",
+            "status": "done",
+            "testStrategy": "Perform regression testing to ensure that changes do not affect existing functionality. Use test data to validate the scoring system's accuracy and reliability."
+          }
+        ]
       },
       {
         "id": 6,
@@ -282,8 +337,7 @@
         ],
         "status": "pending",
         "subtasks": []
-      }
-      ,
+      },
       {
         "id": 11,
         "title": "Account Discovery from ICP (Lookalike Search)",
@@ -291,20 +345,71 @@
         "details": "Add 'Prospecting for my company' entry point. Infer ICP from the user site and create structured ICP + keywords. Implement candidate sourcing (provider discovery & web search) with robots.txt respect and rate limits. Score/rank candidates against ICP (enhanced later by Task 5). Persist accounts with provenance; expose accounts API and UI to select accounts and run contact discovery in batch.",
         "testStrategy": "Seed with known companies (stripe.com, notion.so, figma.com) and validate returned candidates with reasons within ≤10 minutes path. Verify provenance and batch orchestration to contacts.",
         "priority": "high",
-        "dependencies": [2, 3],
+        "dependencies": [
+          2,
+          3
+        ],
         "status": "pending",
         "subtasks": [
-          {"id": 1, "title": "Infer ICP from my company site", "description": "Crawl key pages; extract ICP fields and keywords.", "dependencies": [], "details": "Homepage, product/solutions, pricing/case studies where available.", "status": "pending", "testStrategy": "Validate coherent ICP for 3 seed companies."},
-          {"id": 2, "title": "Candidate sourcing adapters", "description": "Provider and web search adapters with robots.txt + rate limits.", "dependencies": ["11.1"], "details": "Clearbit Discovery or web search fallback.", "status": "pending", "testStrategy": "Return ≥30 candidates with provenance."},
-          {"id": 3, "title": "Ranking & scoring integration", "description": "Score/rank by fit to ICP.", "dependencies": ["11.2"], "details": "Hook to Task 5 once ready; temporary heuristic before.", "status": "pending", "testStrategy": "Top-10 look reasonable vs ICP."},
-          {"id": 4, "title": "Accounts persistence + API", "description": "Store accounts + provenance; list/paginate.", "dependencies": ["11.3"], "details": "Postgres schema and Fastify routes.", "status": "pending", "testStrategy": "CRUD + pagination works."},
-          {"id": 5, "title": "Accounts UI", "description": "UI to review, select, and trigger contacts.", "dependencies": ["11.4"], "details": "Select rows → add to batch discovery.", "status": "pending", "testStrategy": "Selection → jobs kicked; status shown."}
+          {
+            "id": 1,
+            "title": "Infer ICP from my company site",
+            "description": "Crawl key pages; extract ICP fields and keywords.",
+            "dependencies": [],
+            "details": "Homepage, product/solutions, pricing/case studies where available.",
+            "status": "pending",
+            "testStrategy": "Validate coherent ICP for 3 seed companies."
+          },
+          {
+            "id": 2,
+            "title": "Candidate sourcing adapters",
+            "description": "Provider and web search adapters with robots.txt + rate limits.",
+            "dependencies": [
+              "11.1"
+            ],
+            "details": "Clearbit Discovery or web search fallback.",
+            "status": "pending",
+            "testStrategy": "Return ≥30 candidates with provenance."
+          },
+          {
+            "id": 3,
+            "title": "Ranking & scoring integration",
+            "description": "Score/rank by fit to ICP.",
+            "dependencies": [
+              "11.2"
+            ],
+            "details": "Hook to Task 5 once ready; temporary heuristic before.",
+            "status": "pending",
+            "testStrategy": "Top-10 look reasonable vs ICP."
+          },
+          {
+            "id": 4,
+            "title": "Accounts persistence + API",
+            "description": "Store accounts + provenance; list/paginate.",
+            "dependencies": [
+              "11.3"
+            ],
+            "details": "Postgres schema and Fastify routes.",
+            "status": "pending",
+            "testStrategy": "CRUD + pagination works."
+          },
+          {
+            "id": 5,
+            "title": "Accounts UI",
+            "description": "UI to review, select, and trigger contacts.",
+            "dependencies": [
+              "11.4"
+            ],
+            "details": "Select rows → add to batch discovery.",
+            "status": "pending",
+            "testStrategy": "Selection → jobs kicked; status shown."
+          }
         ]
       }
     ],
     "metadata": {
       "created": "2025-09-29T02:54:40.788Z",
-      "updated": "2025-09-30T01:20:00.000Z",
+      "updated": "2025-09-30T13:06:50.474Z",
       "description": "Tasks for master context"
     }
   }

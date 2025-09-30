@@ -15,6 +15,7 @@ import {
 import discoveryRoutes from './routes/discovery';
 import contactRoutes from './routes/contacts';
 import draftsRoutes from './routes/drafts';
+import scoringRoutes from './routes/scoring';
 
 // Load environment variables
 dotenv.config();
@@ -79,6 +80,7 @@ server.register(cors, {
 server.register(discoveryRoutes, { prefix: '/api/discovery' });
 server.register(contactRoutes, { prefix: '/api/contacts' });
 server.register(draftsRoutes, { prefix: '/api/drafts' });
+server.register(scoringRoutes, { prefix: '/api/scoring' });
 
 // Initialize workers conditionally (avoid hard fail if Redis not running during dev)
 async function initWorkersIfEnabled() {

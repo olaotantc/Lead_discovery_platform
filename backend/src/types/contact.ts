@@ -6,6 +6,18 @@ export interface ContactSource {
   notes?: string;
 }
 
+export interface ScoreFacet {
+  score: number;
+  maxScore: number;
+  weight: number;
+  reasonCodes: string[];
+  evidence: Array<{
+    reason: string;
+    source?: string;
+    timestamp?: string;
+  }>;
+}
+
 export interface Contact {
   id: string;
   firstName?: string;
@@ -17,6 +29,7 @@ export interface Contact {
   domain: string;
   pattern?: string;
   confidence: number; // 0-100
+  company?: string;
   verification: {
     status: VerificationStatus;
     score?: number; // 0-100 from provider
@@ -24,6 +37,13 @@ export interface Contact {
     verifiedAt?: string;
   };
   sources: ContactSource[];
+  score?: number; // Total prioritization score (0-100)
+  scoreFacets?: {
+    fit: ScoreFacet;
+    intent: ScoreFacet;
+    reachability: ScoreFacet;
+    recency: ScoreFacet;
+  };
 }
 
 export interface PatternSuggestion {

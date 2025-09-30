@@ -6,6 +6,18 @@ import { CheckCircle2, Clock, XCircle, ShieldCheck, Users, RefreshCcw, Sparkles 
 
 type VerificationStatus = 'unverified' | 'verified' | 'invalid' | 'unknown' | 'pending'
 
+interface ScoreFacet {
+  score: number
+  maxScore: number
+  weight: number
+  reasonCodes: string[]
+  evidence: Array<{
+    reason: string
+    source?: string
+    timestamp?: string
+  }>
+}
+
 interface Contact {
   id: string
   name?: string
@@ -19,6 +31,13 @@ interface Contact {
   confidence: number
   verification: { status: VerificationStatus; score?: number }
   sources: Array<{ provider: string; url?: string; notes?: string }>
+  score?: number
+  scoreFacets?: {
+    fit: ScoreFacet
+    intent: ScoreFacet
+    reachability: ScoreFacet
+    recency: ScoreFacet
+  }
 }
 
 interface DiscoveryData {
@@ -250,39 +269,68 @@ export default function ContactsPage() {
                     <th className="py-2 pr-4">Name</th>
                     <th className="py-2 pr-4">Email</th>
                     <th className="py-2 pr-4">Role/Title</th>
-                    <th className="py-2 pr-4">Pattern</th>
+                    <th className="py-2 pr-4">Score</th>
+                    <th className="py-2 pr-4">Fit</th>
+                    <th className="py-2 pr-4">Intent</th>
+                    <th className="py-2 pr-4">Reach</th>
+                    <th className="py-2 pr-4">Recency</th>
                     <th className="py-2 pr-4">Confidence</th>
                     <th className="py-2 pr-4">Verification</th>
-                    <th className="py-2 pr-4">Sources</th>
+                    <th className="py-2 pr-4">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredContacts.map((c) => (
                     <tr key={c.id} className="border-b last:border-0">
                       <td className="py-2 pr-4">{c.name || `${c.firstName || ''} ${c.lastName || ''}`.trim() || '—'}</td>
-                      <td className="py-2 pr-4 font-mono">{c.email}</td>
+                      <td className="py-2 pr-4 font-mono text-xs">{c.email}</td>
                       <td className="py-2 pr-4">{c.role || c.title || '—'}</td>
-                      <td className="py-2 pr-4 text-gray-600">{c.pattern || '—'}</td>
-                      <td className="py-2 pr-4"><span className={`inline-flex items-center px-2 py-1 rounded-md border ${badgeFor(c.confidence)}`}>{c.confidence}%</span></td>
+                      <td className="py-2 pr-4">
+                        {c.score !== undefined ? (
+                          <span className={`inline-flex items-center px-3 py-1 text-sm font-semibold rounded-md border ${badgeFor(c.score)}`}>
+                            {c.score}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">—</span>
+                        )}
+                      </td>
+                      <td className="py-2 pr-4 text-xs text-gray-600">
+                        {c.scoreFacets?.fit ? (
+                          <span title={c.scoreFacets.fit.reasonCodes.join(', ')}>{Math.round(c.scoreFacets.fit.score)}</span>
+                        ) : '—'}
+                      </td>
+                      <td className="py-2 pr-4 text-xs text-gray-600">
+                        {c.scoreFacets?.intent ? (
+                          <span title={c.scoreFacets.intent.reasonCodes.join(', ')}>{Math.round(c.scoreFacets.intent.score)}</span>
+                        ) : '—'}
+                      </td>
+                      <td className="py-2 pr-4 text-xs text-gray-600">
+                        {c.scoreFacets?.reachability ? (
+                          <span title={c.scoreFacets.reachability.reasonCodes.join(', ')}>{Math.round(c.scoreFacets.reachability.score)}</span>
+                        ) : '—'}
+                      </td>
+                      <td className="py-2 pr-4 text-xs text-gray-600">
+                        {c.scoreFacets?.recency ? (
+                          <span title={c.scoreFacets.recency.reasonCodes.join(', ')}>{Math.round(c.scoreFacets.recency.score)}</span>
+                        ) : '—'}
+                      </td>
+                      <td className="py-2 pr-4"><span className={`inline-flex items-center px-2 py-1 text-xs rounded-md border ${badgeFor(c.confidence)}`}>{c.confidence}%</span></td>
                       <td className="py-2 pr-4">
                         <div className="flex items-center gap-2">
                           {statusIcon(c.verification.status || 'unknown')}
-                          <span className={`inline-flex items-center px-2 py-1 rounded-md border ${badgeFor(c.verification.score)}`}>{c.verification.score ?? '—'}{typeof c.verification.score === 'number' ? '%' : ''}</span>
+                          <span className={`inline-flex items-center px-2 py-1 text-xs rounded-md border ${badgeFor(c.verification.score)}`}>{c.verification.score ?? '—'}{typeof c.verification.score === 'number' ? '%' : ''}</span>
                         </div>
                       </td>
-                      <td className="py-2 pr-4 text-gray-600">
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-600">{c.sources.map((s) => s.provider).join(', ') || '—'}</span>
-                          <button
-                            onClick={() => generateDraft(c)}
-                            disabled={draftLoadingId === c.id}
-                            title="Generate drafts"
-                            className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md border border-indigo-200 text-indigo-700 hover:bg-indigo-50 disabled:opacity-50"
-                          >
-                            {draftLoadingId === c.id ? <RefreshCcw className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
-                            Draft
-                          </button>
-                        </div>
+                      <td className="py-2 pr-4">
+                        <button
+                          onClick={() => generateDraft(c)}
+                          disabled={draftLoadingId === c.id}
+                          title="Generate drafts"
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md border border-indigo-200 text-indigo-700 hover:bg-indigo-50 disabled:opacity-50"
+                        >
+                          {draftLoadingId === c.id ? <RefreshCcw className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                          Draft
+                        </button>
                       </td>
                     </tr>
                   ))}

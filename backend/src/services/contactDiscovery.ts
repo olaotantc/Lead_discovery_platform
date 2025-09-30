@@ -4,6 +4,7 @@ import { detectEmailPatterns } from './emailPatterns';
 import { selectDiscoveryProviders } from './providers/emailDiscovery';
 import { applyVerificationToContacts, verifyEmails } from './emailVerification';
 import { Contact, DiscoveryRequest, DiscoveryResult } from '../types/contact';
+import { calculateContactScore, ContactData } from './scoring';
 
 const redis: Redis = createRedisClient();
 const useMemoryStore = (process.env.CONTACTS_USE_MEMORY || '').toLowerCase() === 'true'
@@ -48,7 +49,35 @@ export async function completeContactDiscovery(jobId: string, contacts: Contact[
   const raw = await getter();
   if (!raw) return;
   const stored = JSON.parse(raw) as DiscoveryResult;
-  stored.contacts = contacts;
+
+  // Calculate scores for all contacts
+  const contactsWithScores = contacts.map(contact => {
+    // Map verification status to scoring service type
+    let verificationStatus: 'verified' | 'pending' | 'invalid' | undefined;
+    if (contact.verification?.status === 'verified') verificationStatus = 'verified';
+    else if (contact.verification?.status === 'invalid') verificationStatus = 'invalid';
+    else verificationStatus = 'pending';
+
+    const contactData: ContactData = {
+      id: contact.id,
+      email: contact.email,
+      name: contact.name,
+      role: contact.role,
+      company: contact.company,
+      domain: stored.domain,
+      confidence: contact.confidence,
+      verificationStatus,
+      discoveredAt: new Date().toISOString(),
+    };
+    const score = calculateContactScore(contactData);
+    return {
+      ...contact,
+      score: score.totalScore,
+      scoreFacets: score.facets,
+    };
+  });
+
+  stored.contacts = contactsWithScores;
   stored.finishedAt = new Date().toISOString();
   stored.status = 'completed';
   await setter(JSON.stringify(stored));
