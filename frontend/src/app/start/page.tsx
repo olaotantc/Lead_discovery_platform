@@ -1,10 +1,36 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronRight, Globe, PenTool, Sparkles, ArrowLeft, AlertCircle } from 'lucide-react'
+import { ChevronRight, Globe, PenTool, Sparkles, ArrowLeft, AlertCircle, Target, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 import { validateUrl, validateBrief, validateIcpInputs, ValidationRateLimit } from '@/utils/validation'
 import { parseUrl, parseBrief, generateIcpPreview, IcpPreview } from '@/utils/parsing'
+
+interface DiscoverySignal {
+  category: string
+  name: string
+  value: string
+  confidence: number
+  source?: {
+    type: string
+    url: string
+  }
+  evidence?: string[]
+}
+
+interface PlaybookResult {
+  id: string
+  name: string
+  signals: DiscoverySignal[]
+}
+
+interface DiscoveryResult {
+  playbooks: PlaybookResult[]
+  summary: {
+    totalSignals: number
+    byCategory: Record<string, number>
+  }
+}
 
 export default function StartPage() {
   const [url, setUrl] = useState('')
@@ -13,6 +39,7 @@ export default function StartPage() {
   const [errors, setErrors] = useState<{url?: string; brief?: string; general?: string}>({})
   const [rateLimit] = useState(() => new ValidationRateLimit())
   const [icpPreview, setIcpPreview] = useState<IcpPreview | null>(null)
+  const [discoveryResults, setDiscoveryResults] = useState<DiscoveryResult | null>(null)
 
   const validateInputs = () => {
     const newErrors: {url?: string; brief?: string; general?: string} = {}
@@ -65,21 +92,51 @@ export default function StartPage() {
       console.log('Generating ICP preview for:', { url: sanitizedUrl, brief: sanitizedBrief });
 
       // Parse URL and brief to extract business information
-      const urlData = parseUrl(sanitizedUrl);
-      const briefData = parseBrief(sanitizedBrief);
+      let urlData, briefData;
+      try {
+        urlData = parseUrl(sanitizedUrl);
+        briefData = parseBrief(sanitizedBrief);
+      } catch {
+        setErrors({ general: 'Failed to analyze the provided information. Please check your inputs and try again.' })
+        return
+      }
       
       // Generate ICP preview
       const preview = generateIcpPreview(urlData, briefData, metadata);
-      
-      // Simulate processing time
-      setTimeout(() => {
-        setIsLoading(false);
-        setIcpPreview(preview);
-        
-        console.log('Generated ICP Preview:', preview);
-      }, 1500)
-    } catch {
-      setErrors({ general: 'An unexpected error occurred. Please try again.' })
+      setIcpPreview(preview);
+
+      // Call discovery API to get hiring signals and business profile
+      try {
+        console.log('Calling discovery API for:', sanitizedUrl);
+        const discoveryResponse = await fetch('http://localhost:8000/api/discovery/run', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            url: sanitizedUrl,
+            brief: sanitizedBrief || undefined,
+          }),
+        });
+
+        if (!discoveryResponse.ok) {
+          throw new Error(`Discovery API returned ${discoveryResponse.status}`);
+        }
+
+        const discoveryData = await discoveryResponse.json();
+        console.log('Discovery results:', discoveryData);
+
+        if (discoveryData.success && discoveryData.data) {
+          setDiscoveryResults(discoveryData.data);
+        }
+      } catch (discoveryError) {
+        console.error('Discovery API error:', discoveryError);
+        // Don't fail the entire request if discovery fails
+        // User still gets ICP preview
+      }
+    } catch (error) {
+      console.error('ICP generation error:', error);
+      setErrors({ general: 'An unexpected error occurred while generating the ICP preview. Please try again.' })
     } finally {
       setIsLoading(false)
     }
@@ -91,9 +148,12 @@ export default function StartPage() {
       // Clear URL error on change
       setErrors(prev => ({ ...prev, url: undefined }))
     }
-    // Clear previous ICP preview when inputs change
+    // Clear previous results when inputs change
     if (icpPreview) {
       setIcpPreview(null)
+    }
+    if (discoveryResults) {
+      setDiscoveryResults(null)
     }
   }
 
@@ -103,9 +163,12 @@ export default function StartPage() {
       // Clear brief error on change
       setErrors(prev => ({ ...prev, brief: undefined }))
     }
-    // Clear previous ICP preview when inputs change
+    // Clear previous results when inputs change
     if (icpPreview) {
       setIcpPreview(null)
+    }
+    if (discoveryResults) {
+      setDiscoveryResults(null)
     }
   }
 
@@ -123,13 +186,15 @@ export default function StartPage() {
                 Back to Home
               </Link>
             </div>
-            <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 bg-gradient-to-br from-blue-600 to-purple-700 rounded-lg flex items-center justify-center">
-                <Sparkles className="h-5 w-5 text-white" />
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="h-8 w-8 bg-gradient-to-br from-blue-600 to-purple-700 rounded-lg flex items-center justify-center">
+                  <Sparkles className="h-5 w-5 text-white" />
+                </div>
+                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-700 bg-clip-text text-transparent">
+                  SignalRunner
+                </span>
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-700 bg-clip-text text-transparent">
-                SignalRunner
-              </span>
             </div>
           </div>
         </div>
@@ -151,12 +216,20 @@ export default function StartPage() {
         <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 mb-8">
           {/* General Error */}
           {errors.general && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-3">
-              <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-sm text-red-700 font-medium">Validation Error</p>
-                <p className="text-sm text-red-600">{errors.general}</p>
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start justify-between">
+              <div className="flex items-start space-x-3">
+                <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm text-red-700 font-medium">Error</p>
+                  <p className="text-sm text-red-600">{errors.general}</p>
+                </div>
               </div>
+              <button
+                onClick={() => setErrors({})}
+                className="text-red-600 hover:text-red-800 text-sm font-medium ml-4"
+              >
+                Dismiss
+              </button>
             </div>
           )}
 
@@ -174,7 +247,7 @@ export default function StartPage() {
                   value={url}
                   onChange={handleUrlChange}
                   placeholder="example.com or https://example.com"
-                  className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-all ${
+                  className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-all bg-white text-gray-900 ${
                     errors.url
                       ? 'border-red-300 focus:ring-red-500'
                       : 'border-gray-300 focus:ring-blue-500'
@@ -207,7 +280,7 @@ export default function StartPage() {
                   onChange={handleBriefChange}
                   placeholder="Optional: Add context about the company, industry, or your sales goals..."
                   rows={4}
-                  className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-all resize-none ${
+                  className={`w-full pl-12 pr-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-all resize-none bg-white text-gray-900 ${
                     errors.brief
                       ? 'border-red-300 focus:ring-red-500'
                       : 'border-gray-300 focus:ring-blue-500'
@@ -235,7 +308,7 @@ export default function StartPage() {
               {isLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  <span>Generating ICP Preview...</span>
+                  <span>Analyzing Business Intelligence...</span>
                 </>
               ) : (
                 <>
@@ -432,6 +505,84 @@ export default function StartPage() {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Discovery Results */}
+        {discoveryResults && (
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <Target className="h-6 w-6 text-blue-600" />
+                <h2 className="text-2xl font-semibold text-gray-900">Discovery Signals</h2>
+              </div>
+              <div className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                {discoveryResults.summary.totalSignals} signals detected
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {discoveryResults.playbooks.map((playbook, playbookIndex) => (
+                <div key={playbookIndex} className="border border-gray-200 rounded-lg p-6">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <TrendingUp className="h-5 w-5 text-purple-600" />
+                    <h3 className="text-lg font-semibold text-gray-900">{playbook.name}</h3>
+                    <span className="text-sm text-gray-500">({playbook.signals.length} signals)</span>
+                  </div>
+
+                  <div className="space-y-4">
+                    {playbook.signals.map((signal, signalIndex) => (
+                      <div key={signalIndex} className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-1">
+                              <span className="font-medium text-gray-900">{signal.name.replace(/([A-Z])/g, ' $1').trim()}</span>
+                              <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                signal.confidence >= 70
+                                  ? 'bg-green-100 text-green-800'
+                                  : signal.confidence >= 50
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-gray-100 text-gray-800'
+                              }`}>
+                                {signal.confidence}% confidence
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-700">{signal.value}</p>
+                          </div>
+                        </div>
+
+                        {signal.evidence && signal.evidence.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-gray-200">
+                            <p className="text-xs font-medium text-gray-600 mb-2">Evidence:</p>
+                            <ul className="space-y-1">
+                              {signal.evidence.map((evidence, evidenceIndex) => (
+                                <li key={evidenceIndex} className="text-xs text-gray-600 flex items-start">
+                                  <span className="text-gray-400 mr-2">•</span>
+                                  <span>{evidence}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {signal.source && (
+                          <div className="mt-2 text-xs text-gray-500">
+                            Source: {signal.source.type}
+                            {signal.source.url && ` - ${signal.source.url}`}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>What's Next:</strong> These signals help prioritize your outreach. Higher confidence scores indicate stronger evidence of fit with your ICP.
+              </p>
             </div>
           </div>
         )}

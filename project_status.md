@@ -1,8 +1,8 @@
 # Lead Discovery Platform - Project Status
 
-**Last Updated:** 2025-09-29 04:00 UTC
+**Last Updated:** 2025-09-30 00:40 UTC
 **Current Phase:** Initial Setup & Infrastructure
-**Overall Progress:** 60% (Task 1 complete; preparing Task 2)
+**Overall Progress:** 65% (Tasks 1–2 complete; starting Task 3)
 
 ## 🎯 Project Overview
 
@@ -27,7 +27,7 @@
 - **Job Management**: BullMQ queues and workers implemented with test endpoints
 
 ### 🔄 In Progress
-- **ICP Preview**: Input mechanism for URL/brief processing
+- **Discovery Playbooks**: Hiring signals + business profile matching
 
 ### ⏳ Upcoming
 - **Discovery Playbooks**: Hiring signals + business profile matching
@@ -70,7 +70,6 @@
 - **1.5** ✅ Set Up Job Management (BullMQ queues + workers)
 
 ### Upcoming Tasks (Dependencies blocked until Task 1 complete)
-- **Task 2**: Implement ICP Preview Input
 - **Task 3**: Develop Discovery Playbooks
 - **Task 4**: Implement Contact Discovery & Verification
 - **Task 5**: Build Scoring and Prioritization
@@ -156,7 +155,7 @@ taskmaster set-status --id=<id> --status=done  # Mark complete
 
 ## 🎯 Next Steps (Priority Order)
 
-1. **Begin Task 2**: ICP Preview implementation
+1. **Begin Task 3**: Discovery Playbooks
 2. **Frontend Migration**: Convert existing HTML to Next.js components
 3. **Start Discovery Playbooks**: Hiring signals + business profile matching
 4. **Configure Monitoring**: OpenTelemetry + PostHog

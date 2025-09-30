@@ -1,6 +1,6 @@
 # Task ID: 2
 # Title: Implement ICP Preview Input
-# Status: pending
+# Status: done
 # Dependencies: 1
 # Priority: medium
 # Description: Develop the input mechanism for URL and short brief to generate an ICP preview.

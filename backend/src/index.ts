@@ -12,6 +12,7 @@ import {
 } from './config/jobs';
 import './workers'; // Initialize workers
 // import icpRoutes from './routes/icp';
+import discoveryRoutes from './routes/discovery';
 
 // Load environment variables
 dotenv.config();
@@ -30,8 +31,9 @@ server.register(cors, {
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
 });
 
-// Register ICP routes (temporarily disabled due to compilation issues)
-// server.register(icpRoutes, { prefix: '/api/icp' });
+// Register routes
+// server.register(icpRoutes, { prefix: '/api/icp' }); // Temporarily disabled
+server.register(discoveryRoutes, { prefix: '/api/discovery' });
 
 // Health check route with database and queue status
 server.get('/health', async (request, reply) => {

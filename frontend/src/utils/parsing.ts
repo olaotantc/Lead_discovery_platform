@@ -575,7 +575,7 @@ function selectBestSize(sizes: string[]): string {
     if (sizes.includes(size)) return size;
   }
   
-  return sizes[0];
+  return sizes[0] || 'Unknown';
 }
 
 function selectBestRegion(regions: string[]): string {
@@ -644,7 +644,7 @@ function analyzeBusinessModel(text: string, businessCategory: string): string {
   if (businessCategory.includes('Professional Services')) return 'B2B Services';
   if (businessCategory.includes('Local Services')) return 'Local Services';
   
-  return 'Unknown';
+  return 'General Business';
 }
 
 function analyzeTargetMarket(text: string, companySize: string, region: string): string {
