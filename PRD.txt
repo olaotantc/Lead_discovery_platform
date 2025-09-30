@@ -93,6 +93,22 @@ Keywords/Offers (what they sell/serve)
 
 Notes: Remove tech-stack as a required field. If detected incidentally, treat as optional evidence only.
 
+Account Discovery from ICP (Lookalike Search)
+
+Entry points:
+- Prospecting for my company: paste my domain; infer my ICP; discover lookalike accounts.
+- Analyzing a target company: paste a target domain; analyze signals/contacts for that single account.
+
+Requirements (MVP intent, phased delivery):
+- Candidate sourcing: provider/search adapters (e.g., Clearbit Discovery, web search) with robots.txt respect and rate limiting.
+- Fit scoring/ranking against derived ICP (later enhanced by Scoring section D).
+- Provenance: for each candidate account, store source URL(s), snippet(s), and captured_at.
+- Performance: return 30–100 candidate accounts in ≤ 10 minutes (demo path), with enough evidence for prioritization.
+
+UI:
+- Toggle on /start to choose entry point (my company vs target company).
+- Accounts table view with score, reason tags; select accounts → run Contact Discovery.
+
 B) Discovery (Playbooks)
 
 Playbook 1 — Hiring Signals: scan careers pages and job boards for relevant role keywords; capture counts and dates.
@@ -172,6 +188,7 @@ Privacy & Compliance: provenance stored (source URL, captured_at), suppression l
 6) UX Flow & Screens
 
 Welcome / Input — URL/brief → ICP preview (Category, Size, Region, Buyer roles, Keywords/Offers) → Run discovery
+Prospecting for my company — infer ICP → discover lookalike accounts → select → run contact discovery
 
 Discovery Results (Accounts) — table with score, reason tags (category/offer/location/activity); filters
 

@@ -148,7 +148,7 @@
         "dependencies": [
           3
         ],
-        "status": "pending",
+        "status": "in_progress",
         "subtasks": [
           {
             "id": 1,
@@ -156,7 +156,7 @@
             "description": "Develop the logic to detect email patterns for target roles such as Owner/GM.",
             "dependencies": [],
             "details": "Create algorithms to identify common email patterns based on company domain and role.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with various company domains to ensure accurate pattern detection for different roles."
           },
           {
@@ -167,7 +167,7 @@
               "4.1"
             ],
             "details": "Use APIs from providers to fetch potential email addresses for specified roles.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify integration with provider APIs and test email discovery accuracy."
           },
           {
@@ -178,7 +178,7 @@
               "4.2"
             ],
             "details": "Set up API connections to verify email addresses and filter based on confidence levels.",
-            "status": "pending",
+            "status": "in_progress",
             "testStrategy": "Test email verification process to ensure only valid emails with ≥ 85% confidence are included."
           },
           {
@@ -189,7 +189,7 @@
               "4.3"
             ],
             "details": "Implement frontend components for users to modify confidence thresholds and manage contacts.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test user interface for adjusting confidence levels and ensure changes are reflected in contact lists."
           },
           {
@@ -283,10 +283,28 @@
         "status": "pending",
         "subtasks": []
       }
+      ,
+      {
+        "id": 11,
+        "title": "Account Discovery from ICP (Lookalike Search)",
+        "description": "From the user’s company URL, infer ICP and discover lookalike accounts across providers/web; rank and persist candidates for batch contact discovery.",
+        "details": "Add 'Prospecting for my company' entry point. Infer ICP from the user site and create structured ICP + keywords. Implement candidate sourcing (provider discovery & web search) with robots.txt respect and rate limits. Score/rank candidates against ICP (enhanced later by Task 5). Persist accounts with provenance; expose accounts API and UI to select accounts and run contact discovery in batch.",
+        "testStrategy": "Seed with known companies (stripe.com, notion.so, figma.com) and validate returned candidates with reasons within ≤10 minutes path. Verify provenance and batch orchestration to contacts.",
+        "priority": "high",
+        "dependencies": [2, 3],
+        "status": "pending",
+        "subtasks": [
+          {"id": 1, "title": "Infer ICP from my company site", "description": "Crawl key pages; extract ICP fields and keywords.", "dependencies": [], "details": "Homepage, product/solutions, pricing/case studies where available.", "status": "pending", "testStrategy": "Validate coherent ICP for 3 seed companies."},
+          {"id": 2, "title": "Candidate sourcing adapters", "description": "Provider and web search adapters with robots.txt + rate limits.", "dependencies": ["11.1"], "details": "Clearbit Discovery or web search fallback.", "status": "pending", "testStrategy": "Return ≥30 candidates with provenance."},
+          {"id": 3, "title": "Ranking & scoring integration", "description": "Score/rank by fit to ICP.", "dependencies": ["11.2"], "details": "Hook to Task 5 once ready; temporary heuristic before.", "status": "pending", "testStrategy": "Top-10 look reasonable vs ICP."},
+          {"id": 4, "title": "Accounts persistence + API", "description": "Store accounts + provenance; list/paginate.", "dependencies": ["11.3"], "details": "Postgres schema and Fastify routes.", "status": "pending", "testStrategy": "CRUD + pagination works."},
+          {"id": 5, "title": "Accounts UI", "description": "UI to review, select, and trigger contacts.", "dependencies": ["11.4"], "details": "Select rows → add to batch discovery.", "status": "pending", "testStrategy": "Selection → jobs kicked; status shown."}
+        ]
+      }
     ],
     "metadata": {
       "created": "2025-09-29T02:54:40.788Z",
-      "updated": "2025-09-30T00:47:19.769Z",
+      "updated": "2025-09-30T01:20:00.000Z",
       "description": "Tasks for master context"
     }
   }

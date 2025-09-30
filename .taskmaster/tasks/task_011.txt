@@ -1,0 +1,11 @@
+# Task ID: 11
+# Title: Account Discovery from ICP (Lookalike Search)
+# Status: pending
+# Dependencies: 2, 3
+# Priority: high
+# Description: From the user’s own company URL, infer ICP and discover lookalike accounts across the open web/providers, then surface candidates for contact discovery.
+# Details:
+Add a second entry point: “Prospecting for my company.” Infer ICP from the user’s site (homepage, product/solutions, case studies) and generate structured ICP fields + keywords. Implement candidate sourcing adapters (provider discovery and web search) that respect robots.txt and rate limits. Score and rank candidates against the ICP (later enhanced by Task 5). Persist accounts with provenance (source URLs, snippets, captured_at). Provide an accounts API and UI to select accounts → run contact discovery in batch.
+
+# Test Strategy:
+Use seed companies (e.g., stripe.com, notion.so, figma.com) to validate that lookalike accounts are returned with explainable reasons and within time constraints. Verify provenance is stored and that batch contact discovery can be triggered from selected accounts. Ensure rate limiting and robots.txt compliance in crawlers.

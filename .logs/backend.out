@@ -1,0 +1,7 @@
+
+> backend@1.0.0 start
+> node dist/index.js
+
+[dotenv@17.2.2] injecting env (20) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+✅ Contact routes registered at /api/contacts
+{"level":50,"time":1759206121179,"pid":99660,"hostname":"Mac.lan","err":{"type":"Error","message":"listen EPERM: operation not permitted 0.0.0.0:8000","stack":"Error: listen EPERM: operation not permitted 0.0.0.0:8000\n    at Server.setupListenHandle [as _listen2] (node:net:1917:21)\n    at listenInCluster (node:net:1996:12)\n    at node:net:2205:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)","code":"EPERM","errno":-1,"syscall":"listen","address":"0.0.0.0","port":8000},"msg":"listen EPERM: operation not permitted 0.0.0.0:8000"}

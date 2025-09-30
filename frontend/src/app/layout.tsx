@@ -14,13 +14,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // SSR diagnostics: log each render of the root layout
+  // This helps identify if server-side rendering crashes before route code runs
+  // eslint-disable-next-line no-console
+  console.log('[layout] render', { env: process.env.NODE_ENV })
   return (
     <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-      </head>
+      <head />
       <body className="antialiased font-sans">
         <QueryProvider>
           {children}

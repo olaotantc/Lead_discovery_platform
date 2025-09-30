@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { CheckCircle2, Clock, XCircle, ShieldCheck, Users, RefreshCcw } from 'lucide-react'
+import { CheckCircle2, Clock, XCircle, ShieldCheck, Users, RefreshCcw, Sparkles } from 'lucide-react'
 
 type VerificationStatus = 'unverified' | 'verified' | 'invalid' | 'unknown' | 'pending'
 
@@ -30,6 +30,19 @@ interface DiscoveryData {
   error?: string
 }
 
+type Tone = 'direct' | 'consultative'
+interface DraftContent { opener: string; followUp1: string; followUp2: string }
+interface DraftJobData {
+  jobId: string
+  contactId: string
+  email: string
+  tone: Tone
+  drafts: DraftContent
+  evidenceLinks: number
+  status: 'completed' | 'failed'
+  generatedAt: string
+}
+
 export default function ContactsPage() {
   const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000'
 
@@ -40,6 +53,21 @@ export default function ContactsPage() {
   const [data, setData] = useState<DiscoveryData | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [draftLoadingId, setDraftLoadingId] = useState<string | null>(null)
+  const [draftTone, setDraftTone] = useState<Tone>('direct')
+  const [latestDraft, setLatestDraft] = useState<DraftJobData | null>(null)
+
+  // Dev diagnostic: log API base and origin to validate CORS/base URL assumptions
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // eslint-disable-next-line no-console
+      console.debug('[contacts] apiBase', apiBase, 'origin', window.location.origin, 'protocol', window.location.protocol)
+      if (window.location.protocol === 'https:' && apiBase.startsWith('http:')) {
+        // eslint-disable-next-line no-console
+        console.warn('[contacts] Mixed content risk: HTTPS page calling HTTP API')
+      }
+    }
+  }, [apiBase])
 
   const filteredContacts = useMemo(() => {
     if (!data) return [] as Contact[]
@@ -137,6 +165,40 @@ export default function ContactsPage() {
     } catch {}
   }
 
+  const generateDraft = async (c: Contact) => {
+    setError(null)
+    setDraftLoadingId(c.id)
+    setLatestDraft(null)
+    try {
+      const res = await fetch(`${apiBase}/api/drafts/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ contactId: c.id, email: c.email, name: c.name, tone: draftTone }),
+      })
+      const json = await res.json()
+      if (!json.success) throw new Error(json.error || 'Failed to start draft job')
+      const jobId: string = json.jobId
+      // Poll
+      const poll = async () => {
+        const r = await fetch(`${apiBase}/api/drafts/${jobId}`, { credentials: 'include' })
+        const j = await r.json()
+        if (!j.success) throw new Error(j.error || 'Failed to fetch draft')
+        if (j.data.status !== 'completed') {
+          setTimeout(poll, 700)
+          return
+        }
+        setLatestDraft(j.data as DraftJobData)
+        setDraftLoadingId(null)
+      }
+      poll()
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Draft generation failed'
+      setError(msg)
+      setDraftLoadingId(null)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm">
@@ -175,6 +237,7 @@ export default function ContactsPage() {
         </div>
 
         {data && (
+          <>
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Results for {data.domain}</h2>
@@ -207,7 +270,20 @@ export default function ContactsPage() {
                           <span className={`inline-flex items-center px-2 py-1 rounded-md border ${badgeFor(c.verification.score)}`}>{c.verification.score ?? '—'}{typeof c.verification.score === 'number' ? '%' : ''}</span>
                         </div>
                       </td>
-                      <td className="py-2 pr-4 text-gray-600">{c.sources.map((s) => s.provider).join(', ') || '—'}</td>
+                      <td className="py-2 pr-4 text-gray-600">
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-600">{c.sources.map((s) => s.provider).join(', ') || '—'}</span>
+                          <button
+                            onClick={() => generateDraft(c)}
+                            disabled={draftLoadingId === c.id}
+                            title="Generate drafts"
+                            className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md border border-indigo-200 text-indigo-700 hover:bg-indigo-50 disabled:opacity-50"
+                          >
+                            {draftLoadingId === c.id ? <RefreshCcw className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                            Draft
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -217,6 +293,29 @@ export default function ContactsPage() {
               <div className="text-sm text-gray-500">No contacts above the current threshold.</div>
             )}
           </div>
+          {latestDraft && (
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-base font-semibold">Drafts for {latestDraft.email}</h3>
+                <div className="text-xs text-gray-500">Tone: {latestDraft.tone}</div>
+              </div>
+              <div className="space-y-3 text-sm">
+                <div>
+                  <div className="text-gray-700 font-medium mb-1">Opener</div>
+                  <div className="p-3 rounded-md border bg-gray-50">{latestDraft.drafts.opener}</div>
+                </div>
+                <div>
+                  <div className="text-gray-700 font-medium mb-1">Follow Up 1</div>
+                  <div className="p-3 rounded-md border bg-gray-50">{latestDraft.drafts.followUp1}</div>
+                </div>
+                <div>
+                  <div className="text-gray-700 font-medium mb-1">Follow Up 2</div>
+                  <div className="p-3 rounded-md border bg-gray-50">{latestDraft.drafts.followUp2}</div>
+                </div>
+              </div>
+            </div>
+          )}
+          </>
         )}
       </main>
     </div>

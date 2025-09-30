@@ -8,6 +8,7 @@ import {
   DraftGenerationJobData,
   ContactDiscoveryJobData,
 } from '../config/jobs';
+import { completeDraftJob, failDraftJob } from '../services/drafts';
 import { completeContactDiscovery, failContactDiscovery, processContactDiscoveryJob, startContactDiscovery } from '../services/contactDiscovery';
 
 // Redis connection for workers
@@ -149,6 +150,21 @@ const processDraftGenerationJob = async (job: Job<DraftGenerationJobData>) => {
   };
 
   console.log(`✅ Draft generation ${job.id} completed for ${contactId}`);
+
+  try {
+    await completeDraftJob(job.id as string, {
+      jobId: job.id as string,
+      contactId,
+      email: (evidenceData as any)?.email || 'unknown@example.com',
+      tone,
+      drafts: result.drafts,
+      evidenceLinks: result.evidenceLinks,
+      status: 'completed',
+      generatedAt: new Date().toISOString(),
+    });
+  } catch (e) {
+    console.error('Failed to persist draft job result', e);
+  }
 
   return result;
 };

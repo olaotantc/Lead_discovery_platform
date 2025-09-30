@@ -1,8 +1,7 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 
 interface QueryProviderProps {
   children: ReactNode;
@@ -21,10 +20,15 @@ export default function QueryProvider({ children }: QueryProviderProps) {
       })
   );
 
+  useEffect(() => {
+    // Client-side diagnostics: confirm provider mounts
+    // eslint-disable-next-line no-console
+    console.debug('[QueryProvider] mounted');
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

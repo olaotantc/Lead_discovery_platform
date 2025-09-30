@@ -6,6 +6,9 @@ import { applyVerificationToContacts, verifyEmails } from './emailVerification';
 import { Contact, DiscoveryRequest, DiscoveryResult } from '../types/contact';
 
 const redis: Redis = createRedisClient();
+const useMemoryStore = (process.env.CONTACTS_USE_MEMORY || '').toLowerCase() === 'true'
+  || ((process.env.NODE_ENV || 'development') !== 'production' && !process.env.REDIS_URL);
+const memStore = new Map<string, string>();
 
 const KEY_PREFIX = 'contacts:job:';
 
@@ -19,23 +22,46 @@ export async function startContactDiscovery(jobId: string, req: DiscoveryRequest
     startedAt: new Date().toISOString(),
     status: 'pending',
   };
-  await redis.set(`${KEY_PREFIX}${jobId}`, JSON.stringify(result));
+  const key = `${KEY_PREFIX}${jobId}`;
+  const payload = JSON.stringify(result);
+  if (useMemoryStore) {
+    memStore.set(key, payload);
+    return;
+  }
+  try {
+    await redis.set(key, payload);
+  } catch (err) {
+    memStore.set(key, payload);
+  }
 }
 
 export async function completeContactDiscovery(jobId: string, contacts: Contact[]): Promise<void> {
   const key = `${KEY_PREFIX}${jobId}`;
-  const raw = await redis.get(key);
+  const getter = async () => {
+    if (useMemoryStore) return memStore.get(key) || null;
+    try { return await redis.get(key); } catch { return memStore.get(key) || null; }
+  };
+  const setter = async (val: string) => {
+    if (useMemoryStore) { memStore.set(key, val); return; }
+    try { await redis.set(key, val); } catch { memStore.set(key, val); }
+  };
+  const raw = await getter();
   if (!raw) return;
   const stored = JSON.parse(raw) as DiscoveryResult;
   stored.contacts = contacts;
   stored.finishedAt = new Date().toISOString();
   stored.status = 'completed';
-  await redis.set(key, JSON.stringify(stored));
+  await setter(JSON.stringify(stored));
 }
 
 export async function failContactDiscovery(jobId: string, error: string): Promise<void> {
   const key = `${KEY_PREFIX}${jobId}`;
-  const raw = await redis.get(key);
+  let raw: string | null = null;
+  if (useMemoryStore) {
+    raw = memStore.get(key) || null;
+  } else {
+    try { raw = await redis.get(key); } catch { raw = memStore.get(key) || null; }
+  }
   const base: DiscoveryResult = raw ? JSON.parse(raw) : {
     jobId,
     domain: 'unknown',
@@ -47,11 +73,22 @@ export async function failContactDiscovery(jobId: string, error: string): Promis
   base.status = 'failed';
   (base as any).error = error;
   base.finishedAt = new Date().toISOString();
-  await redis.set(key, JSON.stringify(base));
+  const payload = JSON.stringify(base);
+  if (useMemoryStore) {
+    memStore.set(key, payload);
+  } else {
+    try { await redis.set(key, payload); } catch { memStore.set(key, payload); }
+  }
 }
 
 export async function getContactDiscovery(jobId: string): Promise<DiscoveryResult | null> {
-  const raw = await redis.get(`${KEY_PREFIX}${jobId}`);
+  const key = `${KEY_PREFIX}${jobId}`;
+  let raw: string | null = null;
+  if (useMemoryStore) {
+    raw = memStore.get(key) || null;
+  } else {
+    try { raw = await redis.get(key); } catch { raw = memStore.get(key) || null; }
+  }
   return raw ? (JSON.parse(raw) as DiscoveryResult) : null;
 }
 
@@ -60,7 +97,12 @@ export async function updateThreshold(jobId: string, threshold: number): Promise
   const stored = await getContactDiscovery(jobId);
   if (!stored) return null;
   stored.threshold = clampThreshold(threshold);
-  await redis.set(key, JSON.stringify(stored));
+  const payload = JSON.stringify(stored);
+  if (useMemoryStore) {
+    memStore.set(key, payload);
+  } else {
+    try { await redis.set(key, payload); } catch { memStore.set(key, payload); }
+  }
   return stored;
 }
 
@@ -114,4 +156,3 @@ function sanitizeDomain(domainOrUrl: string): string {
 function clampThreshold(n: number): number {
   return Math.max(70, Math.min(95, Math.round(n)));
 }
-

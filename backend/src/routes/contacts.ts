@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { addContactDiscoveryJob } from '../config/jobs';
-import { getContactDiscovery, updateThreshold } from '../services/contactDiscovery';
+import { getContactDiscovery, updateThreshold, startContactDiscovery } from '../services/contactDiscovery';
 import { verifyEmails } from '../services/emailVerification';
 import { DiscoveryRequest } from '../types/contact';
 
@@ -44,24 +44,48 @@ export default async function contactRoutes(fastify: FastifyInstance) {
     console.log('📨 POST /api/contacts/discover received:', request.body);
     const { url, roles, threshold, limit, brief } = request.body;
     const safeUrl = sanitizeUrlOrDomain(url);
-    const job = await addContactDiscoveryJob({
-      url: safeUrl,
-      roles,
-      threshold,
-      limit,
-      brief,
-      timestamp: new Date().toISOString(),
-    });
-
-    reply.send({ success: true, jobId: job.id });
+    try {
+      const job = await addContactDiscoveryJob({
+        url: safeUrl,
+        roles,
+        threshold,
+        limit,
+        brief,
+        timestamp: new Date().toISOString(),
+      });
+      // Eagerly create a pending record so clients can poll immediately even if workers are not running
+      try {
+        await startContactDiscovery(job.id as string, { url: safeUrl, roles, threshold, limit, brief });
+      } catch (preErr) {
+        request.log.warn({ preErr, jobId: job.id }, 'contacts.discover could not seed pending record');
+      }
+      request.log.info({ jobId: job.id, safeUrl }, 'contacts.discover enqueued');
+      reply.send({ success: true, jobId: job.id });
+    } catch (err: any) {
+      // Fallback: inline processing + in-memory/redis store
+      try {
+        const { startContactDiscovery, processContactDiscoveryJob, completeContactDiscovery } = await import('../services/contactDiscovery');
+        const jobId = `inline-${Date.now()}`;
+        await startContactDiscovery(jobId, { url: safeUrl, roles, threshold, limit, brief });
+        const contacts = await processContactDiscoveryJob(jobId, { url: safeUrl, roles, threshold, limit, brief });
+        await completeContactDiscovery(jobId, contacts);
+        request.log.warn({ jobId, err }, 'contacts.discover queued failed; served via inline fallback');
+        reply.send({ success: true, jobId });
+      } catch (inner: any) {
+        request.log.error({ err, inner }, 'contacts.discover failed (no queue, inline fallback failed)');
+        reply.status(500).send({ success: false, error: 'Contact discovery unavailable (queue and fallback failed)' });
+      }
+    }
   });
 
   // Get discovery results by jobId
   fastify.get<{ Params: { jobId: string } }>('/:jobId', async (request, reply) => {
     const { jobId } = request.params;
     const res = await getContactDiscovery(jobId);
+    request.log.info({ jobId, found: !!res }, 'contacts.status');
     if (!res) {
-      reply.status(404).send({ success: false, error: 'Job not found' });
+      // Gracefully return pending status instead of 404 to tolerate race conditions
+      reply.send({ success: true, data: { jobId, status: 'pending' } });
       return;
     }
     reply.send({ success: true, data: res });
@@ -104,4 +128,3 @@ export default async function contactRoutes(fastify: FastifyInstance) {
     reply.send({ success: true, data: updated });
   });
 }
-

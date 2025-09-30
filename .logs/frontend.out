@@ -1,0 +1,14 @@
+
+> frontend@0.1.0 dev
+> next dev -H 127.0.0.1 -p 3002
+
+ ⨯ Failed to start server
+Error: listen EPERM: operation not permitted 127.0.0.1:3002
+    at <unknown> (Error: listen EPERM: operation not permitted 127.0.0.1:3002) {
+  code: 'EPERM',
+  errno: -1,
+  syscall: 'listen',
+  address: '127.0.0.1',
+  port: 3002
+}
+[?25h

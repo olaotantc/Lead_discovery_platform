@@ -10,10 +10,11 @@ import {
   addDraftGenerationJob,
   closeQueues
 } from './config/jobs';
-import './workers'; // Initialize workers
+// Workers are initialized conditionally below to avoid crashes in dev when Redis is unavailable
 // import icpRoutes from './routes/icp';
 import discoveryRoutes from './routes/discovery';
 import contactRoutes from './routes/contacts';
+import draftsRoutes from './routes/drafts';
 
 // Load environment variables
 dotenv.config();
@@ -27,16 +28,44 @@ const server = fastify({
 const postgresPool = createPostgresPool();
 const redisClient = createRedisClient();
 
+// CORS configuration (env-driven)
+const buildAllowedOrigins = () => {
+  const envList = (process.env.CORS_ORIGINS || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+  const frontend = process.env.FRONTEND_URL ? [process.env.FRONTEND_URL.trim()] : [];
+  const defaults = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3001',
+    'http://localhost:3002',
+    'http://127.0.0.1:3002',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+  ];
+  // If user provided env list, use it plus FRONTEND_URL; else use defaults + FRONTEND_URL
+  const list = (envList.length > 0 ? envList : defaults).concat(frontend);
+  // De-duplicate
+  return Array.from(new Set(list));
+};
+
+const isDev = (process.env.NODE_ENV || 'development') !== 'production';
+const allowAll = isDev || (process.env.CORS_ALLOW_ALL || '').toLowerCase() === 'true' || (process.env.CORS_ORIGINS || '').trim() === '*';
+
 // Register CORS plugin
 server.register(cors, {
   origin: (origin, cb) => {
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:3002',
-      'http://127.0.0.1:3002',
-      'http://127.0.0.1:3000'
-    ];
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (allowAll) {
+      server.log.info({ origin: origin || 'undefined' }, 'CORS allowAll enabled');
+      cb(null, true);
+      return;
+    }
+    const allowedOrigins = buildAllowedOrigins();
+    const decision = !origin || allowedOrigins.includes(origin);
+    server.log.info({ origin: origin || 'undefined', decision, allowedOrigins }, 'CORS origin check');
+    if (decision) {
       cb(null, true);
     } else {
       cb(new Error('Not allowed by CORS'), false);
@@ -49,9 +78,31 @@ server.register(cors, {
 // server.register(icpRoutes, { prefix: '/api/icp' }); // Temporarily disabled
 server.register(discoveryRoutes, { prefix: '/api/discovery' });
 server.register(contactRoutes, { prefix: '/api/contacts' });
+server.register(draftsRoutes, { prefix: '/api/drafts' });
+
+// Initialize workers conditionally (avoid hard fail if Redis not running during dev)
+async function initWorkersIfEnabled() {
+  const disableWorkers = (process.env.DISABLE_WORKERS || '').toLowerCase() === 'true';
+  const hasRedisUrl = !!process.env.REDIS_URL;
+  if (disableWorkers) {
+    server.log.warn('Workers disabled via DISABLE_WORKERS env');
+    return;
+  }
+  if (isDev && !hasRedisUrl) {
+    server.log.warn('Skipping workers init in dev (no REDIS_URL set)');
+    return;
+  }
+  try {
+    await import('./workers');
+    server.log.info('🚀 Job workers initialized');
+  } catch (err) {
+    server.log.error({ err }, 'Failed to initialize workers');
+  }
+}
 
 // Health check route with database and queue status
 server.get('/health', async (request, reply) => {
+  server.log.info({ origin: request.headers.origin || 'undefined' }, 'Health check request');
   const postgresHealthy = await checkPostgresHealth(postgresPool);
   const redisHealthy = await checkRedisHealth(redisClient);
   const queuesHealth = await checkQueuesHealth();
@@ -172,7 +223,10 @@ const start = async () => {
     const host = process.env.HOST || '0.0.0.0';
 
     await server.listen({ port, host });
+    const allowedOrigins = allowAll ? ['*'] : buildAllowedOrigins();
     console.log(`🚀 Server running at http://${host}:${port}`);
+    server.log.info({ allowedOrigins, frontendUrl: process.env.FRONTEND_URL }, 'Server started with CORS allowlist');
+    await initWorkersIfEnabled();
   } catch (err) {
     server.log.error(err);
     process.exit(1);

@@ -1,8 +1,8 @@
 # Lead Discovery Platform - Project Status
 
-**Last Updated:** 2025-09-30 00:40 UTC
+**Last Updated:** 2025-09-30 01:20 UTC
 **Current Phase:** Initial Setup & Infrastructure
-**Overall Progress:** 65% (Tasks 1–2 complete; starting Task 3)
+**Overall Progress:** 70% (Tasks 1–3 complete; Task 4 in progress)
 
 ## 🎯 Project Overview
 
@@ -27,12 +27,12 @@
 - **Job Management**: BullMQ queues and workers implemented with test endpoints
 
 ### 🔄 In Progress
-- **Discovery Playbooks**: Hiring signals + business profile matching
+- **Contact Discovery & Verification**: Pattern detection, provider lookup, verification, UI
+ - **Account Discovery (My Company → Lookalikes)**: Planning and task defined; adds multi‑account discovery step
 
 ### ⏳ Upcoming
-- **Discovery Playbooks**: Hiring signals + business profile matching
-- **Contact Discovery & Verification**: Provider integration + thresholds
 - **Scoring & Prioritization**: Fit, intent, reach, recency facets
+ - **Account Discovery Providers**: Clearbit Discovery / Web search adapters; robots.txt + rate limits
 
 ## 🏗️ Architecture Status
 
@@ -42,7 +42,9 @@
 - ✅ **Build System**: Working (verified with `npm run build`)
 - ✅ **State Management**: React Query installed and configured
 - ✅ **API Integration**: Successfully connecting to backend API
-- ⏳ **UI Components**: Migration from existing HTML needed
+ - ⏳ **UI Components**: Migration from existing HTML needed
+ - ⏳ **Start Toggle**: “Prospecting for my company” vs “Analyze a target company”
+- ✅ **Contacts Page**: Discovery form, threshold filter, status badges
 
 ### Backend (`/backend/`)
 - ✅ **Framework**: Fastify with TypeScript
@@ -51,6 +53,9 @@
 - ✅ **Database**: PostgreSQL integration configured (pool + health checks)
 - ✅ **Cache**: Redis integration configured (client + ping health)
 - ✅ **Jobs**: BullMQ queues + workers implemented (test routes available)
+- ✅ **Discovery Playbooks**: Heuristic hiring + business profile playbooks and routes
+- 🔄 **Contacts System**: Pattern detection, provider lookup (mock), verification (mock), API routes
+ - ⏳ **Account Discovery**: Candidate sourcing adapters, ranking, persistence, accounts API
 
 ### Infrastructure
 - ✅ **Environment**: .env files structured
@@ -69,9 +74,7 @@
 - **1.4** ✅ Initialize Databases (PostgreSQL + Redis configured)
 - **1.5** ✅ Set Up Job Management (BullMQ queues + workers)
 
-### Upcoming Tasks (Dependencies blocked until Task 1 complete)
-- **Task 3**: Develop Discovery Playbooks
-- **Task 4**: Implement Contact Discovery & Verification
+### Upcoming Tasks
 - **Task 5**: Build Scoring and Prioritization
 - **Task 6**: Generate Evidence-Grounded Drafts
 - **Task 7**: Develop Export and Handoff
