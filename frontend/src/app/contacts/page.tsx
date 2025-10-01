@@ -78,6 +78,18 @@ export default function ContactsPage() {
   const [draftLoadingId, setDraftLoadingId] = useState<string | null>(null)
   const [draftTone, setDraftTone] = useState<Tone>('direct')
   const [latestDraft, setLatestDraft] = useState<DraftJobData | null>(null)
+
+  // Read URL parameter from query string (passed from /accounts page)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const urlParam = params.get('url')
+      if (urlParam) {
+        console.log('[ContactsPage] Setting URL from query param:', urlParam)
+        setUrl(urlParam)
+      }
+    }
+  }, [])
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [fromEmail, setFromEmail] = useState('sender@example.com')
   const [subject, setSubject] = useState('Quick idea for your team')
