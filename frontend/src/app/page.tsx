@@ -3,6 +3,8 @@
 import Link from 'next/link'
 
 export default function HomePage() {
+  console.log('[HomePage] Rendering homepage at', new Date().toISOString())
+
   return (
     <>
       {/* Top Nav */}
@@ -37,7 +39,11 @@ export default function HomePage() {
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-3">
-              <Link href="/start" className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-md transition-colors">
+              <Link
+                href="/start"
+                className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-md transition-colors"
+                onClick={() => console.log('[HomePage] Get Started link clicked, navigating to /start')}
+              >
                 <span>Get Started</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="m9 18 6-6-6-6"></path>

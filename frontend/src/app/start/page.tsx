@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronRight, Globe, PenTool, Sparkles, ArrowLeft, AlertCircle, Target, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 import { validateUrl, validateBrief, validateIcpInputs, ValidationRateLimit } from '@/utils/validation'
@@ -62,6 +62,15 @@ interface CandidateSourcingResult {
 }
 
 export default function StartPage() {
+  console.log('[StartPage] Component mounted/rendered at', new Date().toISOString())
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      console.log('[StartPage] useEffect - window.location:', window.location.href)
+      console.log('[StartPage] useEffect - document.referrer:', document.referrer)
+    }
+  }, [])
+
   const [url, setUrl] = useState('')
   const [brief, setBrief] = useState('')
   const [isLoading, setIsLoading] = useState(false)

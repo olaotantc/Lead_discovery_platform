@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { CheckCircle2, Clock, XCircle, ShieldCheck, Users, RefreshCcw, Sparkles } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
 
 type VerificationStatus = 'unverified' | 'verified' | 'invalid' | 'unknown' | 'pending'
 
@@ -65,6 +66,7 @@ interface DraftJobData {
 
 export default function ContactsPage() {
   const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000'
+  const { token } = useAuth()
 
   const [url, setUrl] = useState('')
   const [roles, setRoles] = useState<string[]>(['Owner/GM', 'Decision Makers'])
@@ -79,6 +81,17 @@ export default function ContactsPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [fromEmail, setFromEmail] = useState('sender@example.com')
   const [subject, setSubject] = useState('Quick idea for your team')
+
+  // Load ICP data from localStorage if available
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedUrl = localStorage.getItem('currentICPUrl')
+      if (storedUrl && !url) {
+        setUrl(storedUrl)
+        console.log('[contacts] Auto-populated URL from ICP:', storedUrl)
+      }
+    }
+  }, [])
 
   // Dev diagnostic: log API base and origin to validate CORS/base URL assumptions
   useEffect(() => {
@@ -191,9 +204,14 @@ export default function ContactsPage() {
       console.log('🚀 Sending POST to:', endpoint)
       console.log('📦 Body:', { url, roles, threshold })
 
+      const headers: HeadersInit = { 'Content-Type': 'application/json' }
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ url, roles, threshold }),
         credentials: 'include',
       })
@@ -203,8 +221,11 @@ export default function ContactsPage() {
 
       const json = await res.json()
       console.log('📬 Response body:', json)
-
-      if (!json.success) throw new Error(json.error || 'Failed to start discovery')
+      if (!json.success) {
+        if (res.status === 401) { window.location.href = '/login'; return }
+        if (res.status === 429) { alert('Rate limit exceeded'); setIsLoading(false); return }
+        throw new Error(json.error || 'Failed to start discovery')
+      }
       setJobId(json.jobId)
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Failed to start discovery'
