@@ -349,7 +349,7 @@
           2,
           3
         ],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -401,7 +401,7 @@
               "11.4"
             ],
             "details": "Select rows → add to batch discovery.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Selection → jobs kicked; status shown."
           }
         ]
@@ -409,7 +409,7 @@
     ],
     "metadata": {
       "created": "2025-09-29T02:54:40.788Z",
-      "updated": "2025-10-01T03:11:42.568Z",
+      "updated": "2025-10-01T03:17:48.851Z",
       "description": "Tasks for master context"
     }
   }

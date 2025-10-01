@@ -31,14 +31,14 @@ const candidateSourcingRoutes: FastifyPluginAsync = async (server) => {
         });
       }
 
-      console.log(`[Candidate Sourcing] Starting search for ICP: ${icp.businessCategory}`);
+      console.log(`[Candidate Sourcing] Starting search for ICP: ${icp.businessCategory}, limit: ${limit || 'none'}`);
 
-      // Source candidates
-      const result = await sourceCandidates(icp);
+      // Source candidates with limit for performance
+      const result = await sourceCandidates(icp, limit);
 
-      // Apply limit if specified
+      // Results are already limited by service
       const fullTotalFound = result.totalFound;
-      const candidates = limit ? result.candidates.slice(0, limit) : result.candidates;
+      const candidates = result.candidates;
 
       console.log(`[Candidate Sourcing] Found ${fullTotalFound} candidates, returning ${candidates.length} in ${result.durationMs}ms`);
 

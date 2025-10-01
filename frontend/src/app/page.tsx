@@ -143,44 +143,46 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Feature Grid */}
+          {/* Features Section */}
           <div id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-14 sm:pb-20">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="rounded-xl border border-neutral-200 bg-white p-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-md bg-neutral-50 border border-neutral-200 grid place-items-center text-indigo-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><circle cx="12" cy="12" r="2"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="m16.24 7.76 2.83-2.83"/></svg>
-                  </div>
-                  <div className="text-sm font-medium tracking-tight">Automated discovery</div>
+            {/* Section Header */}
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-neutral-900 mb-3">Powerful Features for Modern Sales Teams</h2>
+              <p className="text-lg text-neutral-600">Everything you need to find, verify, and engage your ideal customers</p>
+            </div>
+
+            {/* Feature Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="group rounded-2xl border-2 border-neutral-200 bg-white p-6 hover:border-indigo-300 hover:shadow-lg transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-indigo-100 grid place-items-center text-indigo-600 mb-4 group-hover:scale-110 transition-transform">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><circle cx="12" cy="12" r="2"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="m16.24 7.76 2.83-2.83"/></svg>
                 </div>
-                <p className="mt-2 text-sm text-neutral-600">Crawl public pages for hiring and profile signals with full source attribution.</p>
+                <h3 className="text-lg font-bold text-neutral-900 mb-2">Automated Discovery</h3>
+                <p className="text-sm text-neutral-600 leading-relaxed">Crawl public pages for hiring and profile signals with full source attribution. Respects robots.txt and rate limits.</p>
               </div>
-              <div className="rounded-xl border border-neutral-200 bg-white p-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-md bg-neutral-50 border border-neutral-200 grid place-items-center text-emerald-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                  </div>
-                  <div className="text-sm font-medium tracking-tight">Verified contacts</div>
+
+              <div className="group rounded-2xl border-2 border-neutral-200 bg-white p-6 hover:border-emerald-300 hover:shadow-lg transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-emerald-100 grid place-items-center text-emerald-600 mb-4 group-hover:scale-110 transition-transform">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </div>
-                <p className="mt-2 text-sm text-neutral-600">Return ≥25 verified contacts on average per run in ≤10 minutes.</p>
+                <h3 className="text-lg font-bold text-neutral-900 mb-2">Verified Contacts</h3>
+                <p className="text-sm text-neutral-600 leading-relaxed">Return ≥25 verified contacts on average per run in ≤10 minutes. Email verification included.</p>
               </div>
-              <div className="rounded-xl border border-neutral-200 bg-white p-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-md bg-neutral-50 border border-neutral-200 grid place-items-center text-amber-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-                  </div>
-                  <div className="text-sm font-medium tracking-tight">Scoring & intent</div>
+
+              <div className="group rounded-2xl border-2 border-neutral-200 bg-white p-6 hover:border-amber-300 hover:shadow-lg transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-amber-100 grid place-items-center text-amber-600 mb-4 group-hover:scale-110 transition-transform">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
                 </div>
-                <p className="mt-2 text-sm text-neutral-600">Fit, intent, reach, and recency with visual breakdowns and evidence.</p>
+                <h3 className="text-lg font-bold text-neutral-900 mb-2">Scoring & Intent</h3>
+                <p className="text-sm text-neutral-600 leading-relaxed">Multi-factor scoring: fit, intent, reach, and recency with visual breakdowns and evidence links.</p>
               </div>
-              <div className="rounded-xl border border-neutral-200 bg-white p-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-md bg-neutral-50 border border-neutral-200 grid place-items-center text-sky-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
-                  </div>
-                  <div className="text-sm font-medium tracking-tight">Compliance‑first</div>
+
+              <div className="group rounded-2xl border-2 border-neutral-200 bg-white p-6 hover:border-sky-300 hover:shadow-lg transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-sky-100 grid place-items-center text-sky-600 mb-4 group-hover:scale-110 transition-transform">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
                 </div>
-                <p className="mt-2 text-sm text-neutral-600">Evidence‑linked drafts, verification, and required unsubscribe headers.</p>
+                <h3 className="text-lg font-bold text-neutral-900 mb-2">Compliance-First</h3>
+                <p className="text-sm text-neutral-600 leading-relaxed">Evidence-linked drafts, verification gates, and required unsubscribe headers. Built for modern compliance.</p>
               </div>
             </div>
 

@@ -252,10 +252,11 @@ Focus on real, existing companies. Prioritize well-known companies in the space.
 /**
  * Main candidate sourcing function with scoring and ranking
  */
-export async function sourceCandidates(icp: ICPData): Promise<CandidateSourcingResult> {
+export async function sourceCandidates(icp: ICPData, limit?: number): Promise<CandidateSourcingResult> {
   const startTime = Date.now();
+  const targetCount = limit || 30; // Default to 30 if no limit specified
 
-  console.log('Starting candidate sourcing with ICP:', icp.businessCategory);
+  console.log(`Starting candidate sourcing with ICP: ${icp.businessCategory}, target: ${targetCount}`);
 
   // Try adapters in order of preference
   const adapters = [
@@ -276,7 +277,7 @@ export async function sourceCandidates(icp: ICPData): Promise<CandidateSourcingR
         console.log(`${adapter.name}: Found ${candidates.length} candidates`);
 
         // Stop if we have enough candidates
-        if (allCandidates.length >= 30) break;
+        if (allCandidates.length >= targetCount) break;
       }
     } catch (error) {
       console.error(`${adapter.name} adapter failed:`, error);
