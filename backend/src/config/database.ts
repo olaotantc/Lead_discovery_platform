@@ -1,23 +1,22 @@
 import { Pool } from 'pg';
 import Redis from 'ioredis';
 
-// PostgreSQL connection pool
-export const createPostgresPool = () => {
-  const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    // Connection pool settings
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
-  });
+// PostgreSQL connection pool - singleton instance
+export const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  // Connection pool settings
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+});
 
-  // Handle pool errors
-  pool.on('error', (err) => {
-    console.error('Unexpected error on idle PostgreSQL client', err);
-  });
+// Handle pool errors
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle PostgreSQL client', err);
+});
 
-  return pool;
-};
+// Keep the old function for backward compatibility
+export const createPostgresPool = () => pool;
 
 // Redis connection
 export const createRedisClient = () => {

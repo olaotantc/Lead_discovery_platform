@@ -30,5 +30,6 @@ export interface DraftJobPayload {
   status: 'completed' | 'failed';
   error?: string;
   generatedAt: string;
+  draftId?: string; // Database ID for permanent storage
 }
 

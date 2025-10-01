@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { addDraftGenerationJob } from '../config/jobs';
-import { getDraftJob, startDraftJob } from '../services/drafts';
+import { getDraftJob, startDraftJob, getDraftsFromDatabase, getDraftById } from '../services/drafts';
 
 interface GenerateDraftBody {
   contactId: string; // may be email if no persisted id exists
@@ -51,5 +51,41 @@ export default async function draftsRoutes(fastify: FastifyInstance) {
       return;
     }
     reply.send({ success: true, data: res });
+  });
+
+  // Get all drafts with filters
+  fastify.get('/list/all', async (request, reply) => {
+    const { contactId, email, domain, limit, offset } = request.query as any;
+
+    try {
+      const drafts = await getDraftsFromDatabase({
+        contactId,
+        email,
+        domain,
+        limit: limit ? parseInt(limit) : 50,
+        offset: offset ? parseInt(offset) : 0,
+      });
+
+      reply.send({ success: true, data: drafts, total: drafts.length });
+    } catch (error: any) {
+      reply.status(500).send({ success: false, error: error.message || 'Failed to fetch drafts' });
+    }
+  });
+
+  // Get single draft by database ID
+  fastify.get<{ Params: { id: string } }>('/db/:id', async (request, reply) => {
+    const { id } = request.params;
+
+    try {
+      const draft = await getDraftById(id);
+      if (!draft) {
+        reply.status(404).send({ success: false, error: 'Draft not found' });
+        return;
+      }
+
+      reply.send({ success: true, data: draft });
+    } catch (error: any) {
+      reply.status(500).send({ success: false, error: error.message || 'Failed to fetch draft' });
+    }
   });
 }

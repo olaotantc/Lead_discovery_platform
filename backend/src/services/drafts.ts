@@ -1,5 +1,5 @@
 import Redis from 'ioredis';
-import { createRedisClient } from '../config/database';
+import { createRedisClient, pool } from '../config/database';
 import { DraftEmailPackage, DraftEvidence, DraftJobPayload, DraftTone } from '../types/draft';
 
 const redis: Redis = createRedisClient();
@@ -82,8 +82,8 @@ export function generateDraftsPackage(inputs: DraftInputs): DraftEmailPackage {
 
   const openings = {
     direct: `Hi ${name}, noticed ${domain} is growing (${claim}). We help teams like yours reduce time-to-value by 40% (${claim2}). Would a 12‑minute chat be useful?`,
-    consultative: `Hi ${name}, I’ve been following ${domain}’s progress (${claim}). Curious how you’re approaching [specific challenge] lately. Happy to share patterns we’ve seen (${claim2}).`,
-    warm: `Hi ${name}, congrats on the momentum at ${domain} (${claim}). Thought I’d share a quick idea others in your space found helpful (${claim2}). Open to a brief chat?`,
+    consultative: `Hi ${name}, I've been following ${domain}'s progress (${claim}). Curious how you're approaching [specific challenge] lately. Happy to share patterns we've seen (${claim2}).`,
+    warm: `Hi ${name}, congrats on the momentum at ${domain} (${claim}). Thought I'd share a quick idea others in your space found helpful (${claim2}). Open to a brief chat?`,
   } as const;
 
   const follow1 = {
@@ -95,7 +95,7 @@ export function generateDraftsPackage(inputs: DraftInputs): DraftEmailPackage {
   const follow2 = {
     direct: `Last note—if not a priority, I can close the loop. If it is, I can tailor a one‑pager to ${domain} with specifics (${claim2}).`,
     consultative: `If helpful, I can draft a brief approach tailored to ${domain} and your goals (${claim2}).`,
-    warm: `If timing’s not right, I can circle back next quarter. If it is, I can send a short summary tailored to ${domain} (${claim}).`,
+    warm: `If timing's not right, I can circle back next quarter. If it is, I can send a short summary tailored to ${domain} (${claim}).`,
   } as const;
 
   return {
@@ -107,5 +107,87 @@ export function generateDraftsPackage(inputs: DraftInputs): DraftEmailPackage {
     citations,
     emailHeaders: buildUnsubscribeHeaders(inputs.email),
   };
+}
+
+// Save draft to PostgreSQL for permanent storage
+export async function saveDraftToDatabase(inputs: DraftInputs, pkg: DraftEmailPackage): Promise<string> {
+  const domain = (inputs.email.split('@')[1] || '').toLowerCase();
+
+  const query = `
+    INSERT INTO drafts (
+      contact_id, email, name, domain, tone,
+      opener, follow_up_1, follow_up_2,
+      citations, email_headers, evidence_data
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+    RETURNING id
+  `;
+
+  const values = [
+    inputs.contactId,
+    inputs.email,
+    inputs.name || null,
+    domain,
+    inputs.tone || 'direct',
+    pkg.content.opener,
+    pkg.content.followUp1,
+    pkg.content.followUp2,
+    JSON.stringify(pkg.citations),
+    JSON.stringify(pkg.emailHeaders),
+    inputs.evidenceData ? JSON.stringify(inputs.evidenceData) : null,
+  ];
+
+  const result = await pool.query(query, values);
+  return result.rows[0].id;
+}
+
+// Retrieve drafts from database
+export async function getDraftsFromDatabase(filters?: {
+  contactId?: string;
+  email?: string;
+  domain?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<any[]> {
+  let query = 'SELECT * FROM drafts WHERE 1=1';
+  const values: any[] = [];
+  let paramCount = 1;
+
+  if (filters?.contactId) {
+    query += ` AND contact_id = $${paramCount++}`;
+    values.push(filters.contactId);
+  }
+
+  if (filters?.email) {
+    query += ` AND email ILIKE $${paramCount++}`;
+    values.push(`%${filters.email}%`);
+  }
+
+  if (filters?.domain) {
+    query += ` AND domain ILIKE $${paramCount++}`;
+    values.push(`%${filters.domain}%`);
+  }
+
+  query += ' ORDER BY created_at DESC';
+
+  if (filters?.limit) {
+    query += ` LIMIT $${paramCount++}`;
+    values.push(filters.limit);
+  }
+
+  if (filters?.offset) {
+    query += ` OFFSET $${paramCount++}`;
+    values.push(filters.offset);
+  }
+
+  const result = await pool.query(query, values);
+  return result.rows;
+}
+
+// Get single draft by ID
+export async function getDraftById(id: string): Promise<any | null> {
+  const query = 'SELECT * FROM drafts WHERE id = $1';
+  const result = await pool.query(query, [id]);
+  return result.rows[0] || null;
 }
 

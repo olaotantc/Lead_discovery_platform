@@ -8,7 +8,7 @@ import {
   DraftGenerationJobData,
   ContactDiscoveryJobData,
 } from '../config/jobs';
-import { completeDraftJob, failDraftJob, generateDraftsPackage } from '../services/drafts';
+import { completeDraftJob, failDraftJob, generateDraftsPackage, saveDraftToDatabase } from '../services/drafts';
 import { DraftJobPayload } from '../types/draft';
 import { completeContactDiscovery, failContactDiscovery, processContactDiscoveryJob, startContactDiscovery } from '../services/contactDiscovery';
 
@@ -120,28 +120,36 @@ const processDraftGenerationJob = async (job: Job<DraftGenerationJobData>) => {
 
   console.log(`✍️ Generating draft for contact: ${contactId} (${tone} tone)`);
 
-  // Generate drafts package with citations + headers
-  const pkg = generateDraftsPackage({
+  const inputs = {
     contactId,
     email: (evidenceData as any)?.email || 'unknown@example.com',
     name: (evidenceData as any)?.name as string | undefined,
     tone: (tone as any) || 'direct',
     evidenceData,
-  });
+  };
+
+  // Generate drafts package with citations + headers
+  const pkg = generateDraftsPackage(inputs);
 
   console.log(`✅ Draft generation ${job.id} completed for ${contactId}`);
 
   try {
+    // Save to PostgreSQL for permanent storage
+    const draftId = await saveDraftToDatabase(inputs, pkg);
+    console.log(`💾 Draft saved to database with ID: ${draftId}`);
+
+    // Also save to Redis for immediate retrieval
     const payload: DraftJobPayload = {
       jobId: job.id as string,
       contactId,
-      email: (evidenceData as any)?.email || 'unknown@example.com',
-      tone: (tone as any) || 'direct',
+      email: inputs.email,
+      tone: inputs.tone,
       drafts: pkg.content,
       citations: pkg.citations,
       emailHeaders: pkg.emailHeaders,
       status: 'completed',
       generatedAt: new Date().toISOString(),
+      draftId, // Include database ID in payload
     };
     await completeDraftJob(job.id as string, payload);
   } catch (e) {
