@@ -1,9 +1,11 @@
 'use client'
 
 import Link from 'next/link'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function HomePage() {
   console.log('[HomePage] Rendering homepage at', new Date().toISOString())
+  const { user, logout } = useAuth()
 
   return (
     <>
@@ -26,29 +28,68 @@ export default function HomePage() {
             <nav className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors">Features</a>
               <a href="#pricing" className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors">Pricing</a>
-              <a href="#docs" className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors">Docs</a>
               <a href="#faq" className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors">FAQ</a>
-              <div className="h-4 w-px bg-neutral-300"></div>
-              <div className="flex items-center gap-2 text-xs text-neutral-500">
-                <div className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  <span>API Status</span>
-                </div>
-              </div>
             </nav>
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-3">
-              <Link
-                href="/start"
-                className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-md transition-colors"
-                onClick={() => console.log('[HomePage] Get Started link clicked, navigating to /start')}
-              >
-                <span>Get Started</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m9 18 6-6-6-6"></path>
-                </svg>
-              </Link>
+              {user ? (
+                <>
+                  {/* Logged in - show user menu */}
+                  <Link
+                    href="/accounts"
+                    className="text-sm text-neutral-700 hover:text-neutral-900 font-medium transition-colors"
+                  >
+                    Accounts
+                  </Link>
+                  <Link
+                    href="/contacts"
+                    className="text-sm text-neutral-700 hover:text-neutral-900 font-medium transition-colors"
+                  >
+                    Contacts
+                  </Link>
+                  <div className="h-4 w-px bg-neutral-300"></div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                      <span className="text-indigo-600 text-sm font-semibold">
+                        {user.email?.[0].toUpperCase()}
+                      </span>
+                    </div>
+                    <button
+                      onClick={logout}
+                      className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Logged out - show auth buttons */}
+                  <Link
+                    href="/login"
+                    className="text-sm text-neutral-700 hover:text-neutral-900 font-medium transition-colors"
+                  >
+                    Log in
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="inline-flex items-center gap-2 px-4 py-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-sm rounded-md border border-neutral-300 transition-colors"
+                  >
+                    Sign up
+                  </Link>
+                  <Link
+                    href="/start"
+                    className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-md transition-colors"
+                    onClick={() => console.log('[HomePage] Get Started link clicked, navigating to /start')}
+                  >
+                    <span>Get Started</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m9 18 6-6-6-6"></path>
+                    </svg>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
