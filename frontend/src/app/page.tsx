@@ -202,6 +202,151 @@ export default function HomePage() {
             </div>
           </div>
 
+          {/* Pricing */}
+          <div id="pricing" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-14 sm:pb-20">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-neutral-900 mb-3">Simple, Transparent Pricing</h2>
+              <p className="text-neutral-600">Pay only for what you use. No hidden fees, no commitments.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {/* Free Tier */}
+              <div className="rounded-2xl border-2 border-neutral-200 bg-white p-8 hover:shadow-lg transition-all">
+                <div className="mb-6">
+                  <h3 className="text-xl font-bold text-neutral-900 mb-2">Free</h3>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-bold text-neutral-900">$0</span>
+                    <span className="text-neutral-600">/month</span>
+                  </div>
+                  <p className="mt-2 text-sm text-neutral-600">Perfect for trying out SignalRunner</p>
+                </div>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-start gap-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-emerald-600 flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span className="text-neutral-700">5 discovery runs/month</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-emerald-600 flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span className="text-neutral-700">Up to 25 contacts per run</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-emerald-600 flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span className="text-neutral-700">Basic scoring & verification</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-emerald-600 flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span className="text-neutral-700">CSV export</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-neutral-400 flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span className="text-neutral-400">Email integrations</span>
+                  </li>
+                </ul>
+                <Link href="/start" className="block w-full text-center px-4 py-2.5 rounded-md bg-neutral-100 hover:bg-neutral-200 text-neutral-900 border border-neutral-300 transition-all">
+                  Get Started
+                </Link>
+              </div>
+
+              {/* Pro Tier */}
+              <div className="rounded-2xl border-2 border-indigo-500 bg-white p-8 relative hover:shadow-xl transition-all">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-indigo-600 text-white text-xs font-medium rounded-full">
+                  Most Popular
+                </div>
+                <div className="mb-6">
+                  <h3 className="text-xl font-bold text-neutral-900 mb-2">Pro</h3>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-bold text-neutral-900">$99</span>
+                    <span className="text-neutral-600">/month</span>
+                  </div>
+                  <p className="mt-2 text-sm text-neutral-600">For growing sales teams</p>
+                </div>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-start gap-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-emerald-600 flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span className="text-neutral-700"><strong>Unlimited</strong> discovery runs</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-emerald-600 flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span className="text-neutral-700">Up to 100 contacts per run</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-emerald-600 flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span className="text-neutral-700">Advanced scoring with evidence</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-emerald-600 flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span className="text-neutral-700">Gmail/Outlook integration</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-emerald-600 flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span className="text-neutral-700">Priority support</span>
+                  </li>
+                </ul>
+                <Link href="/start" className="block w-full text-center px-4 py-2.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white transition-all">
+                  Start Free Trial
+                </Link>
+              </div>
+
+              {/* Enterprise Tier */}
+              <div className="rounded-2xl border-2 border-neutral-200 bg-white p-8 hover:shadow-lg transition-all">
+                <div className="mb-6">
+                  <h3 className="text-xl font-bold text-neutral-900 mb-2">Enterprise</h3>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-bold text-neutral-900">Custom</span>
+                  </div>
+                  <p className="mt-2 text-sm text-neutral-600">For large organizations</p>
+                </div>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-start gap-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-emerald-600 flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span className="text-neutral-700">Unlimited everything</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-emerald-600 flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span className="text-neutral-700">Custom integrations</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-emerald-600 flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span className="text-neutral-700">Dedicated support & SLA</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-emerald-600 flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span className="text-neutral-700">API access</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-emerald-600 flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span className="text-neutral-700">Custom playbooks</span>
+                  </li>
+                </ul>
+                <a href="mailto:sales@signalrunner.com" className="block w-full text-center px-4 py-2.5 rounded-md bg-neutral-900 hover:bg-neutral-800 text-white transition-all">
+                  Contact Sales
+                </a>
+              </div>
+            </div>
+
+            {/* Pricing FAQ */}
+            <div className="mt-12 max-w-3xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="p-4 rounded-lg bg-neutral-50 border border-neutral-200">
+                  <h4 className="font-semibold text-neutral-900 mb-1">💳 No credit card for trial</h4>
+                  <p className="text-neutral-600">Start with 5 free runs. Upgrade anytime without commitment.</p>
+                </div>
+                <div className="p-4 rounded-lg bg-neutral-50 border border-neutral-200">
+                  <h4 className="font-semibold text-neutral-900 mb-1">📊 Usage-based add-ons</h4>
+                  <p className="text-neutral-600">Need more contacts? Pay $0.50/contact above your plan limit.</p>
+                </div>
+                <div className="p-4 rounded-lg bg-neutral-50 border border-neutral-200">
+                  <h4 className="font-semibold text-neutral-900 mb-1">🔄 Cancel anytime</h4>
+                  <p className="text-neutral-600">No lock-in contracts. Cancel or downgrade with one click.</p>
+                </div>
+                <div className="p-4 rounded-lg bg-neutral-50 border border-neutral-200">
+                  <h4 className="font-semibold text-neutral-900 mb-1">🎯 Volume discounts</h4>
+                  <p className="text-neutral-600">Running 100+ discovery runs/month? Contact us for custom pricing.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* FAQ */}
           <div id="faq" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
             <div className="text-center mb-12">
