@@ -57,7 +57,7 @@ export default function Navigation() {
                   </div>
                   <button
                     onClick={logout}
-                    className="text-neutral-600 hover:text-neutral-900 transition-colors text-sm font-medium"
+                    className="text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-all text-sm font-medium px-3 py-1.5 rounded-md cursor-pointer"
                   >
                     Logout
                   </button>
@@ -156,7 +156,7 @@ export default function Navigation() {
                       logout()
                       setMobileMenuOpen(false)
                     }}
-                    className="text-red-600 hover:text-red-700 transition-colors py-2 text-left font-medium"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50 transition-all py-2 text-left font-medium rounded-md px-2 cursor-pointer"
                   >
                     Logout
                   </button>
