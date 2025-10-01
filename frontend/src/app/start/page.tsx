@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ChevronRight, Globe, PenTool, Sparkles, ArrowLeft, AlertCircle, Target, TrendingUp, Save } from 'lucide-react'
-import Link from 'next/link'
+import { ChevronRight, Globe, PenTool, AlertCircle, Target, TrendingUp, Save, Sparkles } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { validateUrl, validateBrief, validateIcpInputs, ValidationRateLimit } from '@/utils/validation'
 import { parseUrl, parseBrief, generateIcpPreview, IcpPreview } from '@/utils/parsing'
 import { ICPCard } from '@/components/ICPCard'
+import Navigation from '@/components/Navigation'
 
 interface DiscoverySignal {
   category: string
@@ -397,29 +397,7 @@ export default function StartPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
-                <ArrowLeft className="h-5 w-5 mr-2" />
-                Back to Home
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="h-8 w-8 bg-gradient-to-br from-blue-600 to-purple-700 rounded-lg flex items-center justify-center">
-                  <Sparkles className="h-5 w-5 text-white" />
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-700 bg-clip-text text-transparent">
-                  SignalRunner
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

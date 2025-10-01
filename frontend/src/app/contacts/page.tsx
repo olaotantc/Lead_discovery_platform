@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import Link from 'next/link'
-import { CheckCircle2, Clock, XCircle, ShieldCheck, Users, RefreshCcw, Sparkles } from 'lucide-react'
+import { CheckCircle2, Clock, XCircle, ShieldCheck, RefreshCcw, Sparkles } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import Navigation from '@/components/Navigation'
 
 type VerificationStatus = 'unverified' | 'verified' | 'invalid' | 'unknown' | 'pending'
 
@@ -323,14 +323,7 @@ export default function ContactsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <Link href="/" className="text-gray-600 hover:text-gray-900">← Back</Link>
-            <div className="flex items-center gap-2 text-gray-700"><Users className="h-5 w-5" /> Contacts</div>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">

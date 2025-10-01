@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { Building2, CheckSquare, Square, Trash2, ArrowRight, Filter, Search } from 'lucide-react'
+import Navigation from '@/components/Navigation'
 
 interface Account {
   id: string
@@ -202,29 +203,17 @@ export default function AccountsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Link href="/" className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700">
-                <Building2 className="w-6 h-6" />
-                <span className="text-xl font-bold">SignalRunner</span>
-              </Link>
-              <span className="text-gray-400">/</span>
-              <h1 className="text-xl font-semibold text-gray-900">Saved Accounts</h1>
-            </div>
-            <Link
-              href="/start"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-            >
-              Find More Accounts
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Header */}
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-2">
+            <Building2 className="w-6 h-6 text-indigo-600" />
+            <h1 className="text-2xl font-bold text-gray-900">Saved Accounts</h1>
+          </div>
+          <p className="text-gray-600">Manage your discovered accounts and start contact discovery</p>
+        </div>
         {/* Filters and Actions */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
