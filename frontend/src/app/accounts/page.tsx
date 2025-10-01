@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
-import { Building2, CheckSquare, Square, Trash2, ArrowRight, Filter, Search } from 'lucide-react'
+import { Building2, CheckSquare, Square, Trash2, ArrowRight, Filter, Search, ArrowLeft } from 'lucide-react'
 import Navigation from '@/components/Navigation'
 
 interface Account {
@@ -206,6 +206,15 @@ export default function AccountsPage() {
       <Navigation />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Back Button */}
+        <Link
+          href="/start"
+          className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-6"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to ICP Generator
+        </Link>
+
         {/* Page Header */}
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-2">

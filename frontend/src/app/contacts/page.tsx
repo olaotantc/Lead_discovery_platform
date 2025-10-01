@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { CheckCircle2, Clock, XCircle, ShieldCheck, RefreshCcw, Sparkles } from 'lucide-react'
+import Link from 'next/link'
+import { CheckCircle2, Clock, XCircle, ShieldCheck, RefreshCcw, Sparkles, ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import Navigation from '@/components/Navigation'
 
@@ -326,6 +327,15 @@ export default function ContactsPage() {
       <Navigation />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+        {/* Back Button */}
+        <Link
+          href="/accounts"
+          className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Accounts
+        </Link>
+
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
           <h2 className="text-xl font-semibold mb-4">Discover Contacts</h2>
           {error && <div className="mb-4 text-sm text-red-600">{error}</div>}

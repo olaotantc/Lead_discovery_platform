@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ChevronRight, Globe, PenTool, AlertCircle, Target, TrendingUp, Save, Sparkles } from 'lucide-react'
+import Link from 'next/link'
+import { ChevronRight, Globe, PenTool, AlertCircle, Target, TrendingUp, Save, Sparkles, ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { validateUrl, validateBrief, validateIcpInputs, ValidationRateLimit } from '@/utils/validation'
 import { parseUrl, parseBrief, generateIcpPreview, IcpPreview } from '@/utils/parsing'
@@ -401,6 +402,15 @@ export default function StartPage() {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Back Button */}
+        <Link
+          href="/"
+          className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-8"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Home
+        </Link>
+
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Generate Your
