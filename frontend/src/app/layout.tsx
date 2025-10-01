@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import QueryProvider from "@/components/providers/QueryProvider";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 // Removed next/font (Geist) to avoid network fetch during dev/build.
 
@@ -23,7 +24,9 @@ export default function RootLayout({
       <head />
       <body className="antialiased font-sans">
         <QueryProvider>
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>

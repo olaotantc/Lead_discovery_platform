@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ChevronRight, Globe, PenTool, Sparkles, ArrowLeft, AlertCircle, Target, TrendingUp } from 'lucide-react'
+import { ChevronRight, Globe, PenTool, Sparkles, ArrowLeft, AlertCircle, Target, TrendingUp, Save } from 'lucide-react'
 import Link from 'next/link'
+import { useAuth } from '@/contexts/AuthContext'
 import { validateUrl, validateBrief, validateIcpInputs, ValidationRateLimit } from '@/utils/validation'
 import { parseUrl, parseBrief, generateIcpPreview, IcpPreview } from '@/utils/parsing'
 import { ICPCard } from '@/components/ICPCard'
@@ -71,6 +72,7 @@ export default function StartPage() {
     }
   }, [])
 
+  const { token } = useAuth()
   const [url, setUrl] = useState('')
   const [brief, setBrief] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -81,6 +83,8 @@ export default function StartPage() {
   const [discoveryResults, setDiscoveryResults] = useState<DiscoveryResult | null>(null)
   const [candidates, setCandidates] = useState<CandidateSourcingResult | null>(null)
   const [loadingCandidates, setLoadingCandidates] = useState(false)
+  const [savingAccounts, setSavingAccounts] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
 
   const validateInputs = () => {
     const newErrors: {url?: string; brief?: string; general?: string} = {}
@@ -319,6 +323,75 @@ export default function StartPage() {
       setErrors({ general: 'Failed to find lookalike companies. Please try again.' })
     } finally {
       setLoadingCandidates(false)
+    }
+  }
+
+  async function handleSaveToAccounts() {
+    if (!candidates || !token) {
+      console.error('Cannot save: missing candidates or auth token')
+      return
+    }
+
+    setSavingAccounts(true)
+    setSaveSuccess(false)
+
+    try {
+      // Map candidates to SaveAccountInput format
+      const accountsToSave = candidates.candidates.map(candidate => ({
+        name: candidate.name,
+        domain: candidate.domain,
+        description: candidate.description,
+        industry: candidate.industry,
+        size: candidate.size,
+        businessModel: icpPreview?.businessModel,
+        confidence: candidate.confidence,
+        score: candidate.score,
+        scoreFacets: candidate.scoreFacets,
+        source: candidate.source,
+        matchReasons: candidate.matchReasons,
+        sourcedFrom: {
+          icpUrl: url,
+          icpBrief: brief,
+          discoveryTimestamp: new Date().toISOString(),
+        },
+      }))
+
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      }
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
+      const response = await fetch('http://localhost:8000/api/accounts/save/bulk', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ accounts: accountsToSave }),
+        credentials: 'include',
+      })
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          window.location.href = '/login'
+          return
+        }
+        throw new Error(`Save accounts API returned ${response.status}`)
+      }
+
+      const data = await response.json()
+      console.log('Save accounts result:', data)
+
+      if (data.success) {
+        setSaveSuccess(true)
+        setTimeout(() => {
+          window.location.href = '/accounts'
+        }, 1500)
+      }
+    } catch (error) {
+      console.error('Save accounts error:', error)
+      setErrors({ general: 'Failed to save accounts. Please try again.' })
+    } finally {
+      setSavingAccounts(false)
     }
   }
 
@@ -656,7 +729,7 @@ export default function StartPage() {
                 Discover companies similar to your ICP profile, ranked by fit score
               </p>
               <button
-                onClick={handleFindLookalikes}
+                onClick={() => handleFindLookalikes(false)}
                 disabled={loadingCandidates}
                 className="bg-gradient-to-r from-blue-600 to-purple-700 text-white py-3 px-8 rounded-lg font-medium hover:from-blue-700 hover:to-purple-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2 mx-auto"
               >
@@ -691,6 +764,16 @@ export default function StartPage() {
                 <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                   Avg Score: {candidates.averageScore}/100
                 </span>
+                <button
+                  onClick={handleSaveToAccounts}
+                  disabled={savingAccounts || saveSuccess}
+                  className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  <Save className="h-4 w-4" />
+                  <span>
+                    {saveSuccess ? 'Saved!' : savingAccounts ? 'Saving...' : 'Save to Accounts'}
+                  </span>
+                </button>
               </div>
             </div>
 

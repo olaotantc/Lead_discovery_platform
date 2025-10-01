@@ -401,7 +401,7 @@
               "11.4"
             ],
             "details": "Select rows → add to batch discovery.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Selection → jobs kicked; status shown."
           }
         ]
@@ -409,7 +409,7 @@
     ],
     "metadata": {
       "created": "2025-09-29T02:54:40.788Z",
-      "updated": "2025-10-01T03:09:50.252Z",
+      "updated": "2025-10-01T03:11:42.568Z",
       "description": "Tasks for master context"
     }
   }

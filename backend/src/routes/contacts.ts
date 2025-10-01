@@ -1,6 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { addContactDiscoveryJob } from '../config/jobs';
 import { getContactDiscovery, updateThreshold, startContactDiscovery } from '../services/contactDiscovery';
+import { requireAuth, checkRateLimitMw } from '../middleware/auth';
+import { incrementUsage } from '../services/auth';
 import { verifyEmails } from '../services/emailVerification';
 import { DiscoveryRequest } from '../types/contact';
 
@@ -40,6 +42,7 @@ export default async function contactRoutes(fastify: FastifyInstance) {
         },
       },
     },
+    preHandler: [requireAuth, checkRateLimitMw]
   }, async (request: FastifyRequest<DiscoverRequest>, reply: FastifyReply) => {
     console.log('📨 POST /api/contacts/discover received:', request.body);
     const { url, roles, threshold, limit, brief } = request.body;
@@ -60,6 +63,7 @@ export default async function contactRoutes(fastify: FastifyInstance) {
         request.log.warn({ preErr, jobId: job.id }, 'contacts.discover could not seed pending record');
       }
       request.log.info({ jobId: job.id, safeUrl }, 'contacts.discover enqueued');
+      try { await incrementUsage((request as any).user.userId); } catch {}
       reply.send({ success: true, jobId: job.id });
     } catch (err: any) {
       // Fallback: inline processing + in-memory/redis store
