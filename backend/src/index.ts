@@ -1,6 +1,9 @@
+// Load environment variables FIRST before any other imports
+import dotenv from 'dotenv';
+dotenv.config();
+
 import fastify from 'fastify';
 import cors from '@fastify/cors';
-import dotenv from 'dotenv';
 import { createPostgresPool, createRedisClient, checkPostgresHealth, checkRedisHealth } from './config/database';
 import {
   checkQueuesHealth,
@@ -13,14 +16,15 @@ import {
 // Workers are initialized conditionally below to avoid crashes in dev when Redis is unavailable
 // import icpRoutes from './routes/icp';
 import discoveryRoutes from './routes/discovery';
+import icpInferenceRoutes from './routes/icpInference';
+import candidateSourcingRoutes from './routes/candidateSourcing';
 import contactRoutes from './routes/contacts';
 import draftsRoutes from './routes/drafts';
 import exportsRoutes from './routes/exports';
 import handoffRoutes from './routes/handoff';
+import authRoutes from './routes/auth';
 import scoringRoutes from './routes/scoring';
-
-// Load environment variables
-dotenv.config();
+import accountsRoutes from './routes/accounts';
 
 // Create Fastify instance
 const server = fastify({
@@ -80,11 +84,15 @@ server.register(cors, {
 // Register routes
 // server.register(icpRoutes, { prefix: '/api/icp' }); // Temporarily disabled
 server.register(discoveryRoutes, { prefix: '/api/discovery' });
+server.register(icpInferenceRoutes, { prefix: '/api/icp-inference' });
+server.register(candidateSourcingRoutes, { prefix: '/api/candidate-sourcing' });
 server.register(contactRoutes, { prefix: '/api/contacts' });
 server.register(draftsRoutes, { prefix: '/api/drafts' });
 server.register(exportsRoutes, { prefix: '/api/exports' });
 server.register(handoffRoutes, { prefix: '/api/handoff' });
+server.register(authRoutes, { prefix: '/api/auth' });
 server.register(scoringRoutes, { prefix: '/api/scoring' });
+server.register(accountsRoutes, { prefix: '/api/accounts' });
 
 // Initialize workers conditionally (avoid hard fail if Redis not running during dev)
 async function initWorkersIfEnabled() {

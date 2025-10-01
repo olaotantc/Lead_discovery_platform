@@ -296,7 +296,7 @@
         "dependencies": [
           6
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -349,7 +349,7 @@
           2,
           3
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": [
           {
             "id": 1,
@@ -357,7 +357,7 @@
             "description": "Crawl key pages; extract ICP fields and keywords.",
             "dependencies": [],
             "details": "Homepage, product/solutions, pricing/case studies where available.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Validate coherent ICP for 3 seed companies."
           },
           {
@@ -368,7 +368,7 @@
               "11.1"
             ],
             "details": "Clearbit Discovery or web search fallback.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Return ≥30 candidates with provenance."
           },
           {
@@ -379,7 +379,7 @@
               "11.2"
             ],
             "details": "Hook to Task 5 once ready; temporary heuristic before.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Top-10 look reasonable vs ICP."
           },
           {
@@ -390,7 +390,7 @@
               "11.3"
             ],
             "details": "Postgres schema and Fastify routes.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "CRUD + pagination works."
           },
           {
@@ -409,7 +409,7 @@
     ],
     "metadata": {
       "created": "2025-09-29T02:54:40.788Z",
-      "updated": "2025-09-30T17:28:41.299Z",
+      "updated": "2025-10-01T03:09:50.252Z",
       "description": "Tasks for master context"
     }
   }
