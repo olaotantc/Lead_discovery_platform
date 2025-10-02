@@ -186,10 +186,143 @@ async function sourceWebSearch(icp: ICPData): Promise<CandidateCompany[]> {
 }
 
 /**
+ * Extract Industry Verticals from ICP (Phase 1: Multi-Pass Refinement)
+ */
+async function extractVerticals(icp: ICPData): Promise<string[]> {
+  console.log('Extracting industry verticals from ICP...');
+
+  const prompt = `Given this target customer profile, identify 5-7 SPECIFIC INDUSTRY VERTICALS that would buy this product/service.
+
+TARGET CUSTOMER PROFILE:
+- Who buys: ${icp.targetMarket}
+- Customer types: ${(icp.customerSegments || []).join(', ')}
+- Business model: ${icp.businessModel}
+- Company size: ${icp.companySize}
+
+CRITICAL INSTRUCTIONS:
+1. Return SPECIFIC verticals, NOT broad categories
+2. Each vertical should be actionable for company search
+3. Focus on industries where target buyers work/exist
+
+EXAMPLES:
+- Target: "Founders, Developers" → ["Mobile app development agencies", "B2B SaaS startups (Series A-B)", "E-commerce technology teams", "Design and product studios", "Developer tools companies"]
+- Target: "Marketing teams" → ["Digital marketing agencies", "E-commerce brands", "SaaS marketing departments", "Content creation studios", "Growth-stage startups"]
+- Target: "HR managers" → ["Mid-market tech companies", "Professional services firms", "Healthcare organizations", "Financial services companies", "Retail chains"]
+
+Return ONLY a JSON array of 5-7 specific verticals:
+["vertical 1", "vertical 2", "vertical 3", "vertical 4", "vertical 5"]`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: process.env.ICP_MODEL || 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: 'You are an expert at identifying specific industry verticals. Return ONLY a JSON array of 5-7 specific, actionable industry verticals.' },
+        { role: 'user', content: prompt },
+      ],
+      temperature: 0.7,
+      max_tokens: 500,
+      response_format: { type: "json_object" }
+    });
+
+    const responseText = completion.choices[0]?.message?.content || '{"verticals":[]}';
+    console.log('Vertical extraction response:', responseText);
+
+    const parsed = JSON.parse(responseText);
+    const verticals = parsed.verticals || parsed.industries || parsed.segments || [];
+
+    if (!Array.isArray(verticals)) {
+      console.error('Failed to extract verticals array, using fallback');
+      return [`${icp.targetMarket} companies`, `${icp.customerSegments?.[0] || 'target'} organizations`];
+    }
+
+    console.log(`Extracted ${verticals.length} verticals:`, verticals);
+    return verticals.slice(0, 7); // Max 7 verticals
+  } catch (error) {
+    console.error('Vertical extraction error:', error);
+    // Fallback: use customer segments as verticals
+    const fallbackVerticals = icp.customerSegments || (icp.targetMarket ? [icp.targetMarket] : []);
+    return fallbackVerticals.slice(0, 5);
+  }
+}
+
+/**
+ * AI-Generated Customer Matches for Specific Vertical
+ */
+async function sourceAIGeneratedForVertical(icp: ICPData, vertical: string, companiesPerVertical: number = 10): Promise<CandidateCompany[]> {
+  console.log(`Searching vertical: "${vertical}" for ${companiesPerVertical} companies`);
+
+  const prompt = `Find ${companiesPerVertical} REAL companies in this specific vertical: "${vertical}"
+
+ADDITIONAL CONTEXT:
+- Target buyer profile: ${icp.targetMarket}
+- Company size preference: ${icp.companySize}
+- Business model: ${icp.businessModel}
+
+CRITICAL INSTRUCTIONS:
+1. Return ONLY companies that fit the vertical: "${vertical}"
+2. Prioritize SPECIFIC, REACHABLE companies (not just famous brands)
+3. Include a mix of well-known and lesser-known companies in this vertical
+4. Companies should have ${icp.companySize} employees if possible
+
+Return JSON:
+{
+  "companies": [
+    {
+      "name": "Company Name",
+      "domain": "company.com",
+      "description": "What they do",
+      "industry": "${vertical}",
+      "size": "Employee count",
+      "confidence": 85,
+      "matchReasons": ["Specific characteristic about THIS company"]
+    }
+  ]
+}
+
+MATCH REASON EXAMPLES (describe THEIR characteristics):
+✅ CORRECT: "B2B SaaS company with 100 employees", "Mobile-first development agency in SF", "Has distributed engineering team"
+❌ WRONG: "Needs our product", "Would benefit from our solution"`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: process.env.ICP_MODEL || 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: `You are a B2B sales researcher specializing in finding companies in specific industry verticals. Return ONLY valid JSON with exactly ${companiesPerVertical} companies.` },
+        { role: 'user', content: prompt },
+      ],
+      temperature: 0.8, // Slightly higher for diversity
+      max_tokens: 2000,
+      response_format: { type: "json_object" }
+    });
+
+    const responseText = completion.choices[0]?.message?.content || '{"companies":[]}';
+    const parsed = JSON.parse(responseText);
+    const companies = parsed.companies || [];
+
+    console.log(`Found ${companies.length} companies for vertical: ${vertical}`);
+
+    return companies.map((c: any) => ({
+      name: c.name,
+      domain: c.domain,
+      description: c.description,
+      industry: c.industry || vertical,
+      size: c.size || icp.companySize,
+      confidence: c.confidence || 75,
+      matchReasons: c.matchReasons || [`Matches vertical: ${vertical}`],
+      source: 'ai-generated' as const,
+    }));
+  } catch (error) {
+    console.error(`Error searching vertical "${vertical}":`, error);
+    return [];
+  }
+}
+
+/**
  * AI-Generated Customer Matches (Fallback when no API keys available)
+ * Now uses multi-pass refinement strategy
  */
 async function sourceAIGenerated(icp: ICPData): Promise<CandidateCompany[]> {
-  console.log('Using AI to generate companies matching ICP target customers');
+  console.log('Using AI multi-pass strategy to generate companies matching ICP target customers');
   console.log('ICP fields:', {
     targetMarket: icp.targetMarket,
     customerSegments: icp.customerSegments,
@@ -197,6 +330,38 @@ async function sourceAIGenerated(icp: ICPData): Promise<CandidateCompany[]> {
     companySize: icp.companySize,
     businessModel: icp.businessModel,
   });
+
+  // Phase 1: Extract specific industry verticals
+  const verticals = await extractVerticals(icp);
+
+  if (verticals.length === 0) {
+    console.error('No verticals extracted, falling back to single-pass search');
+    return sourceAIGeneratedSinglePass(icp);
+  }
+
+  // Phase 2: Search each vertical in parallel (limit to 5 verticals for API efficiency)
+  const verticalsToSearch = verticals.slice(0, 5);
+  const companiesPerVertical = 10; // 5 verticals × 10 companies = 50 total
+
+  console.log(`Searching ${verticalsToSearch.length} verticals in parallel (${companiesPerVertical} companies each)...`);
+
+  const searchPromises = verticalsToSearch.map(vertical =>
+    sourceAIGeneratedForVertical(icp, vertical, companiesPerVertical)
+  );
+
+  const results = await Promise.all(searchPromises);
+  const allCompanies = results.flat();
+
+  console.log(`Multi-pass search complete: ${allCompanies.length} companies found across ${verticalsToSearch.length} verticals`);
+
+  return allCompanies;
+}
+
+/**
+ * Single-Pass AI Search (Fallback for multi-pass)
+ */
+async function sourceAIGeneratedSinglePass(icp: ICPData): Promise<CandidateCompany[]> {
+  console.log('Using single-pass AI search (fallback)');
 
   const prompt = `You must find POTENTIAL CUSTOMER COMPANIES (businesses that would BUY/SUBSCRIBE to the product/service).
 

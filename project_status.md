@@ -1,8 +1,8 @@
 # Lead Discovery Platform - Project Status
 
-**Last Updated:** 2025-09-30 01:20 UTC
-**Current Phase:** Initial Setup & Infrastructure
-**Overall Progress:** 70% (Tasks 1–3 complete; Task 4 in progress)
+**Last Updated:** 2025-10-02 13:35 UTC
+**Current Phase:** Discovery System Multi-Pass Refinement Implemented
+**Overall Progress:** 80% (Multi-pass discovery working, testing needed)
 
 ## 🎯 Project Overview
 
@@ -12,171 +12,245 @@
 
 ## 📊 Current Status
 
-### ✅ Completed
-- **Project Structure**: Next.js frontend + Fastify backend with TypeScript
-- **Taskmaster Integration**: AI-powered task management initialized
-- **Basic Infrastructure**: Package.json files, build systems, development environments
-- **Version Control**: Git repository with proper .gitignore
-- **Documentation**: project_status.md and enhanced CLAUDE.md for seamless handoffs
-- **Build Verification**: Both frontend and backend compile successfully
-- **React Query Integration**: Installed, configured, and tested with API connectivity
-- **Tailwind CSS Integration**: Verified working with gradient backgrounds and responsive design
-- **Test Components**: Created verification components for both integrations
-- **Development Servers**: Both frontend (3000) and backend (8000) running successfully
-- **Database Setup**: PostgreSQL + Redis configured with connectivity health checks
-- **Job Management**: BullMQ queues and workers implemented with test endpoints
+### ✅ Completed (Latest Session - 2025-10-02)
+- **Multi-Pass Discovery System**: ✅ IMPLEMENTED Phase 1 from refinement analysis
+  - Extracts 5-7 specific industry verticals from ICP
+  - Searches each vertical separately with 10 companies each
+  - Parallel API calls for efficiency (5 verticals × 10 = 50 companies)
+  - Includes fallback to single-pass if vertical extraction fails
+- **ICP Generation**: Enhanced industry-agnostic system working
+- **Candidate Discovery System**: MAJOR OVERHAUL - now finds customers not competitors
+- **Scoring Algorithm**: Fixed to score against target segments, not seller's industry
+- **Discovery Flow**: New 3-page flow (Start → Summary → Results)
+- **JSON Parsing**: Fixed with JSON mode + fallback parsing
+- **Match Reasons**: Now describe company characteristics, not their needs
+- **Navigation**: Added Discover dropdown with Summary and Results links
 
-### 🔄 In Progress
-- **Contact Discovery & Verification**: Pattern detection, provider lookup, verification, UI
- - **Account Discovery (My Company → Lookalikes)**: Planning and task defined; adds multi‑account discovery step
+### 🔧 Fixed Critical Issues
+1. **Competitor vs Customer Bug**: System was finding Asana/ClickUp instead of startups/agencies
+   - Root cause: Using `businessCategory` instead of `targetMarket` + `customerSegments`
+   - Fix: Rewrote AI prompts and scoring logic
 
-### ⏳ Upcoming
-- **Scoring & Prioritization**: Fit, intent, reach, recency facets
- - **Account Discovery Providers**: Clearbit Discovery / Web search adapters; robots.txt + rate limits
+2. **Zero Companies Bug**: JSON parsing errors causing no results
+   - Root cause: Malformed JSON from AI responses
+   - Fix: Implemented JSON mode with fallback parsing
+
+3. **Wrong Scoring**: Competitors ranked highest
+   - Root cause: Scoring against seller's industry instead of target customer profile
+   - Fix: Complete rewrite of `companyScoring.ts`
+
+4. **Incorrect Match Reasons**: "Founders need better workflows"
+   - Root cause: AI describing what companies need vs what they are
+   - Fix: Added explicit examples in prompt
+
+### 🔄 Current Issues (Under Active Development)
+- **Quality Problem**: Multi-pass system should reduce famous company bias (TESTING NEEDED)
+- **Discovery Time**: May take 90-120 seconds (6 API calls vs 1) - acceptable trade-off
+- **Next Phase**: Vertical selector UI to let users choose specific segments
+
+### 📋 Solution Documented
+Created `DISCOVERY_REFINEMENT_ANALYSIS.md` with:
+- 7 proposed solutions evaluated
+- **Recommended Phase 1**: Multi-Pass Industry Refinement (2-3 hours to implement)
+- **Recommended Phase 2**: Vertical Selector + Geographic Filter (4-6 hours to implement)
 
 ## 🏗️ Architecture Status
 
 ### Frontend (`/frontend/`)
 - ✅ **Framework**: Next.js 15.5.4 with TypeScript
 - ✅ **Styling**: Tailwind CSS configured and verified
-- ✅ **Build System**: Working (verified with `npm run build`)
-- ✅ **State Management**: React Query installed and configured
-- ✅ **API Integration**: Successfully connecting to backend API
- - ⏳ **UI Components**: Migration from existing HTML needed
- - ⏳ **Start Toggle**: “Prospecting for my company” vs “Analyze a target company”
-- ✅ **Contacts Page**: Discovery form, threshold filter, status badges
+- ✅ **State Management**: React Query provider configured
+- ✅ **New Pages**:
+  - `/start` - ICP generation (cleaned up, localStorage cleared)
+  - `/discover/summary` - Shows company count, user selects type (NEW)
+  - `/discover/results` - Displays scored companies (NEW)
+  - `/contacts` - Contact discovery UI
+  - `/drafts` - Draft generation UI (placeholder)
+  - `/accounts` - Account management UI (placeholder)
+- ✅ **Navigation**: Dropdown menus for Discover workflow
 
 ### Backend (`/backend/`)
 - ✅ **Framework**: Fastify with TypeScript
-- ✅ **Build System**: TypeScript compilation working
-- ✅ **Development**: Nodemon configured for hot reload
-- ✅ **Database**: PostgreSQL integration configured (pool + health checks)
-- ✅ **Cache**: Redis integration configured (client + ping health)
-- ✅ **Jobs**: BullMQ queues + workers implemented (test routes available)
-- ✅ **Discovery Playbooks**: Heuristic hiring + business profile playbooks and routes
-- 🔄 **Contacts System**: Pattern detection, provider lookup (mock), verification (mock), API routes
- - ⏳ **Account Discovery**: Candidate sourcing adapters, ranking, persistence, accounts API
+- ✅ **Database**: PostgreSQL + Redis + BullMQ configured
+- ✅ **ICP Inference** (`icpInference.ts`):
+  - Industry-agnostic generation
+  - Extracts targetMarket, customerSegments, businessCategory
+  - **Known Issue**: targetMarket sometimes contains job titles instead of company types
 
-### Infrastructure
-- ✅ **Environment**: .env files structured
-- ✅ **API Keys**: OpenAI configured, others pending
-- ✅ **Database**: PostgreSQL + Redis configured; see `backend/.env.example`
-- ⏳ **Monitoring**: OpenTelemetry + PostHog integration pending
+- ✅ **Candidate Sourcing** (`candidateSourcing.ts`):
+  - Multi-adapter system (Clearbit, Bing, AI-generated)
+  - JSON mode for reliable parsing
+  - Explicit prompt engineering to find customers not competitors
+  - Blacklists known competitors (Asana, ClickUp, Monday.com)
+  - **Current**: Returns 35-50 companies
+  - **Next**: Implement multi-pass refinement for better quality
 
-## 📋 Task Management Status
+- ✅ **Company Scoring** (`companyScoring.ts`):
+  - Scores against `customerSegments` and `targetMarket` (NOT `businessCategory`)
+  - 4 facets: industryFit (40%), sizeFit (25%), modelFit (20%), keywordMatch (15%)
+  - Returns scored and ranked candidates
+  - **Working Correctly**: Startups/agencies rank high, competitors rank low
 
-**Using Taskmaster AI** for project coordination:
-
-### Task 1: Setup Project Repository (COMPLETED - 100%)
-- **1.1** ✅ Initialize Git Repository
-- **1.2** ✅ Set Up Project Structure
-- **1.3** ✅ Integrate Styling and Data Fetching Tools
-- **1.4** ✅ Initialize Databases (PostgreSQL + Redis configured)
-- **1.5** ✅ Set Up Job Management (BullMQ queues + workers)
-
-### Upcoming Tasks
-- **Task 5**: Build Scoring and Prioritization
-- **Task 6**: Generate Evidence-Grounded Drafts
-- **Task 7**: Develop Export and Handoff
-- **Task 8**: Implement Light Analytics
-- **Task 9**: Ensure Compliance and Security
-- **Task 10**: Conduct Final Testing
-
-## 🔗 Key Integrations Status
-
-| Integration | Status | Priority | Notes |
-|-------------|--------|----------|-------|
-| OpenAI API | ✅ Configured | High | Key in .env, tested via Taskmaster |
-| React Query | ✅ Configured | High | Installed with provider setup |
-| PostgreSQL | ✅ Configured | High | Pool + health checks implemented |
-| Redis | ✅ Configured | High | Client + ping health checks |
-| BullMQ | ✅ Configured | High | Queues + workers + test routes |
-| Bouncer/NeverBounce | ⏳ Pending | Medium | Email verification |
-| Gmail/Outlook OAuth | ⏳ Pending | Medium | Email handoff |
-| Smartlead/Instantly | ⏳ Pending | Low | Sequencer integration |
+- ✅ **Contact Discovery** (`contactDiscovery.ts`):
+  - Email pattern detection
+  - Provider lookup (mock adapters)
+  - Verification service
+  - BullMQ job processing
 
 ## 📁 Project Structure
 
 ```
 Lead_discovery_platform/
-├── .taskmaster/              # AI task management
-│   ├── tasks/               # Generated tasks and subtasks
-│   ├── config.json          # AI model configuration
-│   └── CLAUDE.md            # Integration guide
-├── .claude/                 # Claude Code configuration
-├── frontend/                # Next.js application
-│   ├── src/                 # Source code
-│   ├── package.json         # Dependencies: React, Next.js, Tailwind
+├── .taskmaster/                    # AI task management
+├── frontend/                       # Next.js application
+│   ├── src/app/
+│   │   ├── page.tsx               # Home page with CTAs
+│   │   ├── start/page.tsx         # ICP generation (cleaned)
+│   │   ├── discover/
+│   │   │   ├── summary/page.tsx   # NEW: Discovery analysis
+│   │   │   └── results/page.tsx   # NEW: Company results
+│   │   ├── contacts/page.tsx      # Contact discovery
+│   │   ├── drafts/page.tsx        # Draft generation (placeholder)
+│   │   └── accounts/page.tsx      # Account management (placeholder)
+│   └── components/Navigation.tsx  # Updated with dropdowns
+├── backend/
+│   ├── src/services/
+│   │   ├── icpInference.ts        # ICP generation (enhanced)
+│   │   ├── candidateSourcing.ts   # FIXED: finds customers not competitors
+│   │   ├── companyScoring.ts      # FIXED: scores against target segments
+│   │   ├── contactDiscovery.ts    # Contact discovery system
+│   │   └── ...
 │   └── ...
-├── backend/                 # Fastify API server
-│   ├── src/index.ts         # Main server entry point
-│   ├── dist/                # TypeScript compiled output
-│   ├── package.json         # Dependencies: Fastify, BullMQ, pg, redis
-│   └── .env.example         # Environment template
-├── .env                     # Environment variables (API keys)
-├── frontend.html            # Original frontend reference
-├── PRD.txt                  # Product requirements document
-└── project_status.md        # This file
+├── DISCOVERY_REFINEMENT_ANALYSIS.md  # NEW: Problem analysis & solutions
+├── COMPETITIVE_ANALYSIS.md           # NEW: Market research
+├── BACKLOG.md                        # NEW: Feature backlog
+├── project_status.md                 # This file
+└── CLAUDE.md                         # Integration guide
 ```
 
-## 🔧 Development Commands
+## 🚀 Results Comparison
 
-### Backend
-```bash
-cd backend
-npm run dev      # Development server (nodemon + ts-node)
-npm run build    # TypeScript compilation
-npm start        # Production server
-```
+### Before Today's Fixes
+- **Results**: 0-35 companies (often 0 due to JSON errors)
+- **Companies**: Asana, ClickUp, Monday.com (competitors, not customers)
+- **Match Reasons**: "Founders need better workflows" (incorrect - describes needs)
+- **Scores**: Competitors ranked highest (100 points for industry match)
 
-### Frontend
-```bash
-cd frontend
-npm run dev      # Development server
-npm run build    # Production build
-npm start        # Production server
-```
+### After Today's Fixes
+- **Results**: 35-50 companies (consistent, no errors)
+- **Companies**: Y Combinator, Techstars, dev agencies, tech startups (actual customers)
+- **Match Reasons**: "Tech startup with 50-200 employees" (correct - describes characteristics)
+- **Scores**: Target customers ranked highest (startups/agencies get 100 points)
 
-### Task Management
-```bash
-taskmaster list              # View all tasks
-taskmaster next              # Get next available task
-taskmaster show <id>         # View task details
-taskmaster set-status --id=<id> --status=done  # Mark complete
-```
-
-## 🚨 Current Blockers & Risks
-
-### Blockers
-1. **Environment Variables**: Several API keys pending for full functionality
-2. **Frontend Migration**: Need to convert existing HTML to Next.js components
-
-### Risks
-- **API Costs**: OpenAI usage for task generation (currently ~$0.02 per operation)
-- **Database Dependencies**: Local setup complexity for PostgreSQL/Redis
-- **Timeline**: 8-week timeline requires maintaining current velocity
+### Remaining Issues
+- **Still seeing**: Zapier, Figma, Xero, Basecamp (famous brands)
+- **Not seeing enough**: Long tail SMBs, local agencies, niche startups
+- **Root cause**: AI defaults to well-known companies it "knows"
 
 ## 🎯 Next Steps (Priority Order)
 
-1. **Begin Task 3**: Discovery Playbooks
-2. **Frontend Migration**: Convert existing HTML to Next.js components
-3. **Start Discovery Playbooks**: Hiring signals + business profile matching
-4. **Configure Monitoring**: OpenTelemetry + PostHog
+### Immediate (Next Session)
+1. **Test Multi-Pass Discovery** ✅ READY TO TEST
+   - Use beta.projectmaven.io as test case
+   - Verify 50 companies returned (vs previous 35)
+   - Check for vertical diversity (5 different types)
+   - Confirm fewer famous brands, more SMBs/agencies
+   - Monitor discovery time (~90-120 seconds expected)
 
-## 📞 Handoff Information
+2. **Add Vertical Selector UI** (Phase 2 from analysis doc)
+   - Show user extracted verticals as checkboxes
+   - Add optional geographic filter
+   - Let user choose 1-3 verticals to focus on
+   - **Estimated Time**: 4-6 hours
+   - **Expected Impact**: Highly targeted results
 
-- **Taskmaster Status**: Fully configured, GPT-4o model active
-- **Code Quality**: TypeScript throughout, builds passing
-- **Documentation**: This file + .taskmaster/CLAUDE.md for full context
-- **Environment**: OpenAI API key configured, others in .env.example
+### After Discovery Refinement
+3. **Implement Contact Discovery Flow**
+   - Add checkboxes to company cards
+   - "Get Contacts for X Selected Companies" button
+   - Navigate to `/discover/contacts` with selected companies
+   - Wire up contact discovery API
+
+4. **Complete Draft Generation**
+   - Wire up draft generation API
+   - Implement evidence linking
+   - Add tone selector
+
+## 📞 Handoff Information for Tomorrow
+
+### What's Working
+- ✅ ICP generation from any URL
+- ✅ Candidate discovery (finds customers not competitors)
+- ✅ Company scoring (correct ranking)
+- ✅ 3-page discovery flow
+- ✅ Both servers running (frontend:3000, backend:8000)
+
+### What Needs Work
+- ⚠️ Discovery quality (too many famous brands, not enough SMBs)
+- ⚠️ Discovery quantity (35-50 vs hundreds possible)
+- ⚠️ No contact discovery flow (results page is dead-end)
+- ⚠️ No draft generation flow
+
+### Key Files to Know
+- **Problem Analysis**: `DISCOVERY_REFINEMENT_ANALYSIS.md` (complete 7-solution breakdown)
+- **Candidate Sourcing**: `backend/src/services/candidateSourcing.ts` (NEW multi-pass implementation)
+  - Lines 191-245: `extractVerticals()` - extracts 5-7 industry verticals
+  - Lines 247-317: `sourceAIGeneratedForVertical()` - searches specific vertical
+  - Lines 319-357: `sourceAIGenerated()` - orchestrates parallel searches
+  - Lines 359-457: `sourceAIGeneratedSinglePass()` - fallback if extraction fails
+- **Company Scoring**: `backend/src/services/companyScoring.ts` (lines 55-128 = scoring logic)
+- **Discovery UI**: `frontend/src/app/discover/results/page.tsx` (results display)
+
+### Environment Setup
+```bash
+# Backend (Terminal 1)
+cd backend && npm run dev
+
+# Frontend (Terminal 2)
+cd frontend && npm run dev
+
+# Both servers must be running for discovery to work
+```
+
+### Test Flow (Multi-Pass Discovery)
+1. Go to http://localhost:3000
+2. Click "Get Started" or "Try Demo"
+3. Enter: `beta.projectmaven.io` (or any URL)
+4. Optional: Enter brief description
+5. Click "Generate ICP Preview"
+6. Review ICP, click "Discover Leads"
+7. Wait for discovery (~90-120 seconds - NOW LONGER due to 6 API calls)
+8. See results page with 50 scored companies across 5 verticals
+9. Check backend logs for vertical extraction output
+
+## 🔗 Key Documentation
+
+| Document | Purpose | Status |
+|----------|---------|--------|
+| `DISCOVERY_REFINEMENT_ANALYSIS.md` | Problem analysis + 7 solutions | ✅ Complete |
+| `COMPETITIVE_ANALYSIS.md` | Market research & positioning | ✅ Complete |
+| `BACKLOG.md` | Feature backlog & roadmap | ✅ Complete |
+| `PRD.txt` | Original product requirements | ✅ Reference |
+| `CLAUDE.md` | Claude Code integration guide | ✅ Updated |
+| `project_status.md` | This file - current status | ✅ Updated |
 
 ## 📈 Success Metrics
 
 **MVP Acceptance Criteria:**
-- ✅ From live URL → ≥25 verified contacts
-- ✅ Average score ≥65
-- ✅ Complete in ≤10 minutes
-- ✅ Evidence-linked draft generation
-- ✅ Compliance gate enforcement
+- ⚠️ From URL → ≥25 verified contacts (contact flow not connected)
+- ⚠️ Average score ≥65 (currently 44-48, too low)
+- ⚠️ Complete in ≤10 minutes (currently ~2-3 minutes for discovery only)
+- ⚠️ Evidence-linked draft generation (not implemented yet)
+- ✅ Compliance gate enforcement (robots.txt checking working)
 
-**Current Readiness:** 60% - Core infrastructure complete, databases pending
+**Current Readiness:** 75% - Discovery working but needs quality improvement
+
+---
+
+**Last Session Work:**
+- Implemented Phase 1 multi-pass refinement strategy
+- Added vertical extraction with parallel search
+- Updated project status for testing phase
+
+**Branch:** `main`
+**Remote:** `https://github.com/olaotantc/Lead_discovery_platform.git`
