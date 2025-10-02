@@ -1,0 +1,165 @@
+# MVP Brief: “ICP Radar” → Insight-First AI-SDR (Simplified)
+
+## 1) Goal
+
+Deliver a lightweight, high-signal MVP that:
+
+1. Takes a company URL (or short brief),
+2. Infers and clearly explains the Ideal Customer Profile (ICP) — demographics, firmographics, technographics, and psychographics,
+3. Recommends where and how to find these ICPs (channels, sources, search strategies, filters),
+4. Optionally runs a targeted lead search (phase-2 toggle), without building full outreach automation yet.
+
+## 2) Why this wedge
+
+* Competes on **insight and strategy first**, not spray-and-pray automation.
+* Lower build complexity and fewer compliance risks.
+* Creates a strong “aha” moment in minutes: URL → understandable ICP → actionable playbook.
+
+## 3) User flow (MVP)
+
+1. **Input**
+
+   * User pastes URL (or writes a short brief).
+   * Optional: choose a target region/geo and target personas.
+2. **ICP Identification**
+
+   * Crawl homepage/about/pricing/careers/blog.
+   * Extract signals: industry, buyer roles, company sizes, tech stack hints, value props, jobs being hired for, pricing tiers.
+   * Map to canonical ICP “cards.”
+3. **Insight Panel**
+
+   * Display ICP cards with: Who they are, Core pains, Buying triggers, Objections, Messaging angles, Example subject lines.
+4. **“Where to Find Them”** (Playbooks)
+
+   * Channel + venue recommendations (e.g., job boards, review sites, partner ecosystems, subreddits, X queries, events lists, tech directories).
+   * Ready-to-run search recipes (query strings + filters).
+5. **Optional: Run Discovery** (Phase-2 toggle)
+
+   * Execute one selected playbook → produce a preview list (companies/handles/threads) without contact data first.
+   * Export CSV; advanced enrichment is out of scope for MVP.
+
+## 4) Deliverables
+
+* **ICP Report** (web view + PDF export):
+
+  * ICP overview (segments + buyer roles)
+  * Pains & triggers (backed by snippets from the site)
+  * Messaging angles and 3 starter openers
+  * “Where to find them” playbooks with copy-pasteable queries and filters
+  * Success metrics checklist
+* **Playbooks Library** (min. 6):
+
+  * Hiring-signal sweep, Tech-stack fit sweep, Category community sweep, Review-site sweep, Partner ecosystem sweep, Competitor-adjacent sweep.
+
+## 5) Non-goals (MVP)
+
+* No bulk email sending or sequencing.
+* No LinkedIn DM automation.
+* No contact verification or enrichment APIs.
+* No predictive scoring model beyond simple relevance ranking in discovery preview.
+
+## 6) Data & heuristics (MVP)
+
+* **Signals from target’s URL**: headlines, product pages, pricing tiers, integrations, careers roles, blog topics/cadence, testimonials, case studies.
+* **Heuristics**:
+
+  * If careers show SDR/RevOps roles → ICP likely B2B mid-market revenue teams.
+  * If integrations list Shopify/Woo → ICP likely e-commerce brands (employee band 2–200).
+  * If pricing mentions seats/workspaces → team-oriented buyer, PLG motion.
+* **Classification**: zero-shot + rules; keep deterministic fallbacks.
+
+## 7) Output formats (examples)
+
+### 7.1 ICP Card (JSON)
+
+```json
+{
+  "icp_id": "ecomm_midmarket_marketing_ops",
+  "title": "Mid-market E-commerce Marketing Ops",
+  "company_size": "50–250",
+  "industries": ["E-commerce", "DTC brands"],
+  "roles": ["Head of Growth", "Lifecycle Marketing Manager"],
+  "stack_hints": ["Shopify", "Klaviyo", "GA4"],
+  "core_pains": ["Rising CAC", "Attribution ambiguity", "Campaign ops overhead"],
+  "buying_triggers": ["New product launches", "Seasonal campaigns", "Hiring lifecycle roles"],
+  "objections": ["Another tool to learn", "Data compliance", "ROI proof"],
+  "messaging_angles": [
+    "Cut CAC on evergreen SKUs with lifecycle sequencing",
+    "Automate campaign ops to ship promos in hours, not weeks"
+  ],
+  "starter_openers": [
+    "Saw your Fall drop cadence—are you exploring lifecycle promos tied to SKU velocity?"
+  ]
+}
+```
+
+### 7.2 Playbook (JSON)
+
+```json
+{
+  "playbook_id": "hiring_signal_sweep",
+  "name": "Hiring Signal Sweep",
+  "why_it_works": "Teams hiring lifecycle/growth roles show near-term project needs.",
+  "channels": ["Company Careers", "LinkedIn Jobs", "Wellfound"],
+  "queries": [
+    "site:greenhouse.io (\"lifecycle\" OR \"email marketing\") AND (\"Shopify\")",
+    "site:lever.co (\"growth marketer\") AND (\"Klaviyo\" OR \"ESP\")"
+  ],
+  "filters": {"geo": "US/UK", "employee_band": "20–500"},
+  "step_by_step": [
+    "Run the two queries above",
+    "Collect company names + role titles",
+    "Prioritize active listings updated < 14 days"
+  ],
+  "mvp_output_fields": ["company", "source_url", "signal", "last_seen"]
+}
+```
+
+## 8) UI/UX (low-fi)
+
+* **Step 1: Input** — URL field, optional short brief, region.
+* **Step 2: ICP Panel** — left: ICP cards; right: “Evidence” drawer (snippets from the site).
+* **Step 3: Where to Find Them** — list of playbooks; each shows channels, queries, a 3-step mini-plan, and expected yield.
+* **Step 4: Optional Discovery** — select one playbook → run → show preview table (company, source, signal, last_seen) → export CSV.
+
+## 9) Tech notes
+
+* **Stack**: Next.js + Node.js + Postgres (per our norm).
+* **Crawling**: server-side fetch + HTML parsing; obey robots.txt; 10s timeout with graceful degradation.
+* **NLP**: small LLM or local classifier for label mapping; deterministic rules when confidence < threshold.
+* **Storage**: persist only report JSON + evidence snippets (URLs + short quotes).
+* **Export**: CSV + PDF (server-side render).
+
+## 10) Endpoints (MVP)
+
+* `POST /analyze` → body: `{ url, brief?, region? }` → returns `{ icp_cards[], evidence[], recommended_playbooks[] }`
+* `POST /discover` → body: `{ playbook_id, params }` → returns `{ items: [{ company, source_url, signal, last_seen }] }`
+* `GET /report/:id` → returns compiled report (JSON)
+* `GET /report/:id.pdf` → returns PDF
+
+## 11) Acceptance criteria
+
+* Inputting a valid URL returns at least **1–3 ICP cards** with distinct roles/segments and **3+ evidence snippets**.
+* Each recommended playbook includes **at least 2 runnable queries** and a **3-step plan**.
+* PDF export renders within 5 seconds with consistent typography.
+* Optional discovery returns a **deduped list** (company, source, signal, last_seen) for at least one playbook.
+* No outreach sending, no contact scraping, no LinkedIn automation.
+
+## 12) Phase-2 (fast follow)
+
+* Add “Run Discovery” for 3–4 playbooks.
+* Lightweight relevance ranking in results.
+* Save/playback of reports; simple versioning.
+
+## 13) Risks & guardrails
+
+* **Source fragility**: keep queries transparent and user-editable; avoid brittle HTML selectors.
+* **Compliance**: no DM automation; respect robots.txt; surface data provenance.
+* **Latency**: cap crawl depth and pages; cache by domain for 24h.
+
+## 14) Metrics (MVP)
+
+* Time to first ICP (<60s), time to report (<90s), playbook usage rate, CSV/PDF exports, user satisfaction (thumbs up/down per ICP card).
+
+---
+

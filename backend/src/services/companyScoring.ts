@@ -50,6 +50,7 @@ const COMPANY_FACET_WEIGHTS = {
 
 /**
  * Calculate Industry Fit Score (0-100)
+ * Scores based on how well candidate matches TARGET CUSTOMER profile, not seller's industry
  */
 function calculateIndustryFit(candidate: CandidateCompany, icp: ICPData): CompanyScoreFacet {
   const evidence: CompanyScoreEvidence[] = [];
@@ -57,51 +58,72 @@ function calculateIndustryFit(candidate: CandidateCompany, icp: ICPData): Compan
   let score = 0;
   const maxScore = 100;
 
-  // Exact industry match (100 points)
-  if (candidate.industry && icp.businessCategory) {
-    const candidateIndustry = candidate.industry.toLowerCase();
-    const icpCategory = icp.businessCategory.toLowerCase();
-
-    if (candidateIndustry === icpCategory) {
-      score = 100;
-      reasonCodes.push('EXACT_INDUSTRY_MATCH');
-      evidence.push({
-        reason: `Exact match: ${candidate.industry}`,
-        source: 'industry_classification',
-        value: candidate.industry,
-      });
-    } else if (candidateIndustry.includes(icpCategory) || icpCategory.includes(candidateIndustry)) {
-      score = 80;
-      reasonCodes.push('PARTIAL_INDUSTRY_MATCH');
-      evidence.push({
-        reason: `Partial match: ${candidate.industry} ~ ${icp.businessCategory}`,
-        source: 'industry_classification',
-      });
-    } else {
-      // Check for related industries based on common keywords
-      const icpWords = icpCategory.split(/\s+/);
-      const candidateWords = candidateIndustry.split(/\s+/);
-      const overlap = icpWords.filter(w => candidateWords.some(cw => cw.includes(w) || w.includes(cw)));
-
-      if (overlap.length > 0) {
-        score = 50;
-        reasonCodes.push('RELATED_INDUSTRY');
-        evidence.push({
-          reason: `Related via keywords: ${overlap.join(', ')}`,
-          source: 'semantic_analysis',
-        });
-      } else {
-        score = 20; // Different industry but still a valid candidate
-        reasonCodes.push('DIFFERENT_INDUSTRY');
-      }
-    }
-  } else {
-    // No industry data, use base score
-    score = 50;
+  if (!candidate.industry) {
+    score = 60; // Base score for unknown industry
     reasonCodes.push('INDUSTRY_UNKNOWN');
     evidence.push({
       reason: 'Industry data unavailable',
       source: 'discovery',
+    });
+    return {
+      score: Math.min(score, maxScore),
+      maxScore,
+      weight: COMPANY_FACET_WEIGHTS.industryFit,
+      reasonCodes,
+      evidence,
+    };
+  }
+
+  const candidateIndustry = candidate.industry.toLowerCase();
+
+  // Check against target market and customer segments (NOT businessCategory)
+  const targetSegments = [
+    ...(icp.customerSegments || []),
+    icp.targetMarket || ''
+  ].filter(Boolean).map(s => s.toLowerCase());
+
+  // Check for matches in target segments
+  let bestMatchScore = 0;
+  let bestMatchType = '';
+
+  for (const segment of targetSegments) {
+    // Exact match
+    if (candidateIndustry === segment || segment.includes(candidateIndustry) || candidateIndustry.includes(segment)) {
+      if (bestMatchScore < 100) {
+        bestMatchScore = 100;
+        bestMatchType = segment;
+        reasonCodes.push('TARGET_SEGMENT_MATCH');
+        evidence.push({
+          reason: `Matches target segment: ${segment}`,
+          source: 'icp_alignment',
+          value: candidate.industry,
+        });
+      }
+    }
+
+    // Check for keyword overlap
+    const segmentWords = segment.split(/[\s,]+/).filter(w => w.length > 3);
+    const industryWords = candidateIndustry.split(/[\s,]+/).filter(w => w.length > 3);
+    const overlap = segmentWords.filter(w => industryWords.some(iw => iw.includes(w) || w.includes(iw)));
+
+    if (overlap.length > 0 && bestMatchScore < 70) {
+      bestMatchScore = 70;
+      reasonCodes.push('RELATED_TO_TARGET');
+      evidence.push({
+        reason: `Related to target via: ${overlap.join(', ')}`,
+        source: 'semantic_analysis',
+      });
+    }
+  }
+
+  // If no match found in segments, give base score
+  score = bestMatchScore > 0 ? bestMatchScore : 40;
+
+  if (score === 40) {
+    reasonCodes.push('NO_TARGET_MATCH');
+    evidence.push({
+      reason: `Industry doesn't match target segments`,
+      source: 'icp_alignment',
     });
   }
 

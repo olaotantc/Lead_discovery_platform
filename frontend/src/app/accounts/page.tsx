@@ -313,8 +313,29 @@ export default function AccountsPage() {
 
         {/* Error State */}
         {error && !isLoading && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-            {error}
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-red-900 mb-2">{error}</h3>
+            {error === 'Authentication required' && (
+              <div className="mt-4">
+                <p className="text-sm text-red-700 mb-4">
+                  You need to be logged in to view saved accounts.
+                </p>
+                <div className="flex gap-3">
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="inline-flex items-center px-4 py-2 bg-white text-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors font-medium"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

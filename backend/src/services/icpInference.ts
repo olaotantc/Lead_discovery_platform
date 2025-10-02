@@ -106,6 +106,69 @@ async function crawlSite(baseUrl: string): Promise<PageContent[]> {
 }
 
 /**
+ * Fallback: Use AI with just the URL when crawling fails
+ */
+async function extractICPFromURLOnly(companyUrl: string): Promise<ICPData> {
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+  const prompt = `You are an expert B2B market researcher. Based solely on the company URL "${companyUrl}", infer their Ideal Customer Profile (ICP).
+
+Use your knowledge of this company to generate a detailed ICP with the following fields:
+
+Return a JSON object (no markdown formatting, raw JSON only) with this exact structure:
+{
+  "businessCategory": "string",
+  "companySize": "string (e.g., '10-50', '50-200', '200-1000', '1000+')",
+  "businessModel": "string (e.g., 'B2B SaaS', 'B2C', 'Marketplace')",
+  "growthStage": "string (e.g., 'Startup', 'Growth', 'Enterprise')",
+  "targetMarket": "string",
+  "marketPosition": "string",
+  "competitiveAdvantage": "string",
+  "revenueModel": "string",
+  "decisionMakingProcess": "string",
+  "buyingBehavior": "string",
+  "technologyAdoption": "string",
+  "regulatoryEnvironment": "string",
+  "buyerRoles": ["array", "of", "job", "titles"],
+  "customerSegments": ["array", "of", "customer", "types"],
+  "painPoints": ["array", "of", "pain", "points"],
+  "valueProposition": "string",
+  "keywords": ["array", "of", "relevant", "keywords"],
+  "confidence": 50
+}
+
+IMPORTANT:
+- Set confidence to 50 (lower than web-scraped since we're working without page content)
+- Return ONLY the JSON object, no markdown code blocks
+- Make educated guesses based on what you know about this company`;
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.5,
+      max_tokens: 2000,
+    });
+
+    const content = response.choices[0].message.content || '';
+
+    // Clean up potential markdown formatting
+    const jsonStr = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const parsed = JSON.parse(jsonStr);
+
+    return {
+      ...parsed,
+      sourceUrl: companyUrl,
+      inferredAt: new Date().toISOString(),
+      confidence: 50, // Lower confidence for URL-only inference
+    };
+  } catch (error) {
+    console.error('AI extraction error (URL-only):', error);
+    throw new Error('Failed to generate ICP from URL');
+  }
+}
+
+/**
  * Use AI to extract ICP fields from crawled content
  */
 async function extractICPWithAI(pages: PageContent[], baseUrl: string): Promise<ICPData> {
@@ -192,7 +255,9 @@ export async function inferICP(companyUrl: string): Promise<ICPData> {
   console.log(`Crawled ${pages.length} pages`);
 
   if (pages.length === 0) {
-    throw new Error('Unable to crawl any pages from the provided URL');
+    console.warn('⚠️  Unable to crawl pages - falling back to URL-only inference');
+    // Fallback: Use AI with just the URL to generate a basic ICP
+    return await extractICPFromURLOnly(companyUrl);
   }
 
   // Step 2: Extract ICP with AI

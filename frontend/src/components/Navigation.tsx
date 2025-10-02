@@ -2,12 +2,17 @@
 
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
-import { Menu, X } from 'lucide-react'
+import { usePathname } from 'next/navigation'
+import { Menu, X, ChevronDown, LayoutDashboard, Users, FileText } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Navigation() {
   const { user, logout } = useAuth()
+  const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false)
+
+  const isOnStartPage = pathname === '/start'
 
   return (
     <nav className="bg-white border-b border-neutral-200">
@@ -36,18 +41,40 @@ export default function Navigation() {
           <div className="hidden md:flex items-center gap-3">
             {user ? (
               <>
-                <Link
-                  href="/accounts"
-                  className="text-neutral-600 hover:text-neutral-900 transition-colors font-medium"
-                >
-                  Accounts
-                </Link>
-                <Link
-                  href="/contacts"
-                  className="text-neutral-600 hover:text-neutral-900 transition-colors font-medium"
-                >
-                  Contacts
-                </Link>
+                {/* Workspace Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setWorkspaceMenuOpen(!workspaceMenuOpen)}
+                    onBlur={() => setTimeout(() => setWorkspaceMenuOpen(false), 200)}
+                    className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 transition-colors font-medium px-3 py-2 hover:bg-neutral-50 rounded-lg"
+                  >
+                    <LayoutDashboard className="h-4 w-4" />
+                    <span>Workspace</span>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${workspaceMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {workspaceMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-2 z-50">
+                      <Link
+                        href="/accounts"
+                        className="flex items-center gap-3 px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-colors"
+                        onClick={() => setWorkspaceMenuOpen(false)}
+                      >
+                        <LayoutDashboard className="h-4 w-4" />
+                        <span>Accounts</span>
+                      </Link>
+                      <Link
+                        href="/drafts"
+                        className="flex items-center gap-3 px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-colors"
+                        onClick={() => setWorkspaceMenuOpen(false)}
+                      >
+                        <FileText className="h-4 w-4" />
+                        <span>Drafts</span>
+                      </Link>
+                    </div>
+                  )}
+                </div>
+
                 <div className="h-4 w-px bg-neutral-300"></div>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
@@ -129,19 +156,26 @@ export default function Navigation() {
               {user ? (
                 <>
                   <div className="h-px bg-neutral-200 my-2"></div>
+
+                  <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider px-2 py-1">
+                    Workspace
+                  </div>
+
                   <Link
                     href="/accounts"
-                    className="text-neutral-600 hover:text-neutral-900 transition-colors py-2 font-medium"
+                    className="flex items-center gap-3 text-neutral-600 hover:text-neutral-900 transition-colors py-2 font-medium px-2"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Accounts
+                    <LayoutDashboard className="h-4 w-4" />
+                    <span>Accounts</span>
                   </Link>
                   <Link
-                    href="/contacts"
-                    className="text-neutral-600 hover:text-neutral-900 transition-colors py-2 font-medium"
+                    href="/drafts"
+                    className="flex items-center gap-3 text-neutral-600 hover:text-neutral-900 transition-colors py-2 font-medium px-2"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Contacts
+                    <FileText className="h-4 w-4" />
+                    <span>Drafts</span>
                   </Link>
                   <div className="flex items-center gap-2 py-2">
                     <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">

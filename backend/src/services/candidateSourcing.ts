@@ -130,11 +130,11 @@ async function sourceWebSearch(icp: ICPData): Promise<CandidateCompany[]> {
       return sourceAIGenerated(icp);
     }
 
-    // Build search query from ICP keywords
+    // Build search query from ICP TARGET CUSTOMER fields (not the seller's business)
     const searchQuery = [
-      icp.businessCategory,
-      icp.businessModel,
-      ...((icp.keywords || []).slice(0, 3))
+      icp.targetMarket,
+      ...((icp.customerSegments || []).slice(0, 2)),
+      icp.companySize
     ].filter(Boolean).join(' ');
 
     const response = await axios.get('https://api.bing.microsoft.com/v7.0/search', {
@@ -186,53 +186,96 @@ async function sourceWebSearch(icp: ICPData): Promise<CandidateCompany[]> {
 }
 
 /**
- * AI-Generated Lookalikes (Fallback when no API keys available)
+ * AI-Generated Customer Matches (Fallback when no API keys available)
  */
 async function sourceAIGenerated(icp: ICPData): Promise<CandidateCompany[]> {
-  console.log('Using AI to generate lookalike companies');
+  console.log('Using AI to generate companies matching ICP target customers');
+  console.log('ICP fields:', {
+    targetMarket: icp.targetMarket,
+    customerSegments: icp.customerSegments,
+    businessCategory: icp.businessCategory,
+    companySize: icp.companySize,
+    businessModel: icp.businessModel,
+  });
 
-  const prompt = `Given this Ideal Customer Profile (ICP), generate a list of 30 real companies that match this profile.
+  const prompt = `You must find POTENTIAL CUSTOMER COMPANIES (businesses that would BUY/SUBSCRIBE to the product/service).
 
-ICP:
-- Business Category: ${icp.businessCategory}
-- Company Size: ${icp.companySize}
-- Business Model: ${icp.businessModel}
-- Target Market: ${icp.targetMarket}
-- Keywords: ${(icp.keywords || []).join(', ')}
-- Customer Segments: ${(icp.customerSegments || []).join(', ')}
+TARGET BUYER PROFILE:
+- Who buys: ${icp.targetMarket}
+- Customer types: ${(icp.customerSegments || []).join(', ')}
+- Company size: ${icp.companySize}
+- Business model: ${icp.businessModel}
 
-Return a JSON array of companies in this format:
-[
-  {
-    "name": "Company Name",
-    "domain": "company.com",
-    "description": "Brief description",
-    "industry": "Industry name",
-    "confidence": 85,
-    "matchReasons": ["Reason 1", "Reason 2"]
-  }
-]
+CRITICAL INSTRUCTIONS:
+1. Return 30 REAL companies that MATCH this buyer profile
+2. These should be companies that would PURCHASE/SUBSCRIBE - NOT competitors
+3. If targetMarket mentions job titles (Founders, Developers, etc), find COMPANIES WHERE THESE PEOPLE WORK
 
-Focus on real, existing companies. Prioritize well-known companies in the space. Return ONLY valid JSON.`;
+EXAMPLES:
+- Target: "Founders, Developers" → Return: Tech startups, dev agencies, software companies
+- Target: "Marketing teams" → Return: Digital agencies, SaaS companies, e-commerce brands
+- Target: "Software agencies" → Return: Thoughtbot, Toptal, Netguru (NOT Asana, ClickUp)
+- Target: "HR managers" → Return: Mid-size companies, enterprise corporations (NOT HR software vendors)
+
+If the target market is "Founders, Developers, Project Managers", return companies like:
+- Software development agencies
+- Tech startups
+- Web development firms
+- Digital product studios
+- Innovation labs
+DO NOT return project management tools like Asana, ClickUp, Monday.com
+
+Return JSON:
+{
+  "companies": [
+    {
+      "name": "Company Name",
+      "domain": "company.com",
+      "description": "What they do",
+      "industry": "Industry",
+      "size": "Employee count",
+      "confidence": 85,
+      "matchReasons": ["Why WE should sell TO them - describe THEIR characteristics, NOT what they need"]
+    }
+  ]
+}
+
+MATCH REASON EXAMPLES:
+✅ CORRECT: "Tech startup with 50-200 employees", "B2B SaaS company", "Has distributed engineering team"
+❌ WRONG: "Needs project management tools", "Founders need better workflows", "Would benefit from our solution"`;
 
   try {
     const completion = await openai.chat.completions.create({
       model: process.env.ICP_MODEL || 'gpt-4o-mini',
       messages: [
-        { role: 'system', content: 'You are an expert at identifying companies that match specific customer profiles. Always return valid JSON arrays.' },
+        { role: 'system', content: 'You are an expert B2B sales researcher. Your job is to find POTENTIAL CUSTOMERS (buyers) based on a target customer profile. Return companies who would BUY the product/service, NOT competitors or similar sellers. CRITICAL: Return ONLY valid JSON - no explanations, no markdown, just the JSON array.' },
         { role: 'user', content: prompt },
       ],
       temperature: 0.7,
-      max_tokens: 2000,
+      max_tokens: 3000,
+      response_format: { type: "json_object" }
     });
 
-    const responseText = completion.choices[0]?.message?.content || '[]';
+    const responseText = completion.choices[0]?.message?.content || '{"companies":[]}';
+    console.log('AI response preview:', responseText.substring(0, 500));
 
-    // Extract JSON from response
-    const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-    const jsonText = jsonMatch ? jsonMatch[0] : '[]';
-
-    const companies = JSON.parse(jsonText);
+    // Parse JSON response - GPT with json_object mode returns {"companies": [...]}
+    let companies = [];
+    try {
+      const parsed = JSON.parse(responseText);
+      companies = parsed.companies || parsed.results || parsed;
+      if (!Array.isArray(companies)) {
+        // If it's still an object, try to extract array from any property
+        const firstKey = Object.keys(parsed)[0];
+        companies = Array.isArray(parsed[firstKey]) ? parsed[firstKey] : [];
+      }
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      // Fallback: try to extract JSON array with regex
+      const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+      const jsonText = jsonMatch ? jsonMatch[0] : '[]';
+      companies = JSON.parse(jsonText);
+    }
 
     return companies.map((c: any) => ({
       name: c.name,
