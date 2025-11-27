@@ -1,5 +1,6 @@
 import { Contact, ContactSource } from '../../types/contact';
 import { detectEmailPatterns } from '../emailPatterns';
+import { HunterIoProvider } from './hunterIo';
 
 export interface ProviderOptions {
   roles?: string[];
@@ -146,18 +147,20 @@ export class MockClearbitProvider implements EmailDiscoveryProvider {
 }
 
 export function selectDiscoveryProviders(): EmailDiscoveryProvider[] {
-  // With network disabled, return mock providers while preserving selection logic for future
   const providers: EmailDiscoveryProvider[] = [];
 
+  // Use real Hunter.io provider if API key is configured
   if (process.env.HUNTER_API_KEY) {
-    // Placeholder: would add real Hunter provider here
-    providers.push(new MockHunterProvider());
+    console.log('[Providers] Using real Hunter.io provider');
+    providers.push(new HunterIoProvider(process.env.HUNTER_API_KEY));
   } else {
+    console.log('[Providers] No HUNTER_API_KEY, using mock provider');
     providers.push(new MockHunterProvider());
   }
 
+  // Clearbit provider (mock for now, can be implemented similarly)
   if (process.env.CLEARBIT_API_KEY) {
-    // Placeholder: would add real Clearbit provider here
+    // TODO: Implement real Clearbit provider
     providers.push(new MockClearbitProvider());
   } else {
     providers.push(new MockClearbitProvider());

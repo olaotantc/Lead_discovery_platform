@@ -144,7 +144,7 @@ IMPORTANT:
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: process.env.ICP_MODEL || 'gpt-4.1-mini',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.5,
       max_tokens: 2000,
@@ -208,7 +208,7 @@ Return ONLY valid JSON. Be specific and concise. Use "Unknown" for fields that c
 
   try {
     const completion = await openai.chat.completions.create({
-      model: process.env.ICP_MODEL || 'gpt-4o-mini', // Default to gpt-4o-mini, override with ICP_MODEL env var
+      model: process.env.ICP_MODEL || 'gpt-4.1-mini', // Default to gpt-4.1-mini (1M context, better reasoning)
       messages: [
         { role: 'system', content: 'You are an expert at analyzing company websites to extract ICP data. Always return valid JSON.' },
         { role: 'user', content: prompt },

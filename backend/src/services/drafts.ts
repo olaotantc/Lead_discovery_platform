@@ -191,3 +191,50 @@ export async function getDraftById(id: string): Promise<any | null> {
   return result.rows[0] || null;
 }
 
+// Update draft content in database
+export async function updateDraftInDatabase(
+  id: string,
+  updates: {
+    opener?: string;
+    followUp1?: string;
+    followUp2?: string;
+    tone?: string;
+  }
+): Promise<any | null> {
+  const updateFields: string[] = [];
+  const values: any[] = [];
+  let paramCount = 1;
+
+  if (updates.opener !== undefined) {
+    updateFields.push(`opener = $${paramCount++}`);
+    values.push(updates.opener);
+  }
+  if (updates.followUp1 !== undefined) {
+    updateFields.push(`follow_up_1 = $${paramCount++}`);
+    values.push(updates.followUp1);
+  }
+  if (updates.followUp2 !== undefined) {
+    updateFields.push(`follow_up_2 = $${paramCount++}`);
+    values.push(updates.followUp2);
+  }
+  if (updates.tone !== undefined) {
+    updateFields.push(`tone = $${paramCount++}`);
+    values.push(updates.tone);
+  }
+
+  if (updateFields.length === 0) {
+    return null;
+  }
+
+  values.push(id);
+  const query = `
+    UPDATE drafts
+    SET ${updateFields.join(', ')}
+    WHERE id = $${paramCount}
+    RETURNING *
+  `;
+
+  const result = await pool.query(query, values);
+  return result.rows[0] || null;
+}
+

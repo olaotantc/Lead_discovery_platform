@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Building2, Users, ChevronRight, ArrowLeft, Sparkles } from 'lucide-react'
 import Navigation from '@/components/Navigation'
@@ -13,7 +13,7 @@ interface IcpPreview {
   [key: string]: any
 }
 
-export default function DiscoverySummaryPage() {
+function DiscoverySummaryPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [icp, setIcp] = useState<IcpPreview | null>(null)
@@ -214,5 +214,18 @@ export default function DiscoverySummaryPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Wrapper with Suspense boundary for useSearchParams
+export default function DiscoverySummaryPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      </div>
+    }>
+      <DiscoverySummaryPageContent />
+    </Suspense>
   )
 }

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { usePathname } from 'next/navigation'
-import { Menu, X, ChevronDown, LayoutDashboard, Users, FileText } from 'lucide-react'
+import { Menu, X, ChevronDown, LayoutDashboard, Users, FileText, Compass } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Navigation() {
@@ -12,7 +12,7 @@ export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false)
 
-  const isOnStartPage = pathname === '/start'
+  const isOnDiscoveryPage = pathname === '/discovery' || pathname === '/start'
 
   return (
     <nav className="bg-white border-b border-neutral-200">
@@ -56,11 +56,27 @@ export default function Navigation() {
                   {workspaceMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-2 z-50">
                       <Link
-                        href="/accounts"
+                        href="/discovery"
+                        className="flex items-center gap-3 px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-colors"
+                        onClick={() => setWorkspaceMenuOpen(false)}
+                      >
+                        <Compass className="h-4 w-4" />
+                        <span>New Discovery</span>
+                      </Link>
+                      <Link
+                        href="/dashboard"
                         className="flex items-center gap-3 px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-colors"
                         onClick={() => setWorkspaceMenuOpen(false)}
                       >
                         <LayoutDashboard className="h-4 w-4" />
+                        <span>Dashboard</span>
+                      </Link>
+                      <Link
+                        href="/accounts"
+                        className="flex items-center gap-3 px-4 py-2 text-neutral-700 hover:bg-neutral-50 transition-colors"
+                        onClick={() => setWorkspaceMenuOpen(false)}
+                      >
+                        <Users className="h-4 w-4" />
                         <span>Accounts</span>
                       </Link>
                       <Link
@@ -105,7 +121,7 @@ export default function Navigation() {
                   Sign up
                 </Link>
                 <Link
-                  href="/start"
+                  href="/discovery"
                   className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
                 >
                   Get Started
@@ -162,11 +178,27 @@ export default function Navigation() {
                   </div>
 
                   <Link
-                    href="/accounts"
+                    href="/discovery"
+                    className="flex items-center gap-3 text-neutral-600 hover:text-neutral-900 transition-colors py-2 font-medium px-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Compass className="h-4 w-4" />
+                    <span>New Discovery</span>
+                  </Link>
+                  <Link
+                    href="/dashboard"
                     className="flex items-center gap-3 text-neutral-600 hover:text-neutral-900 transition-colors py-2 font-medium px-2"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <LayoutDashboard className="h-4 w-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                  <Link
+                    href="/accounts"
+                    className="flex items-center gap-3 text-neutral-600 hover:text-neutral-900 transition-colors py-2 font-medium px-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Users className="h-4 w-4" />
                     <span>Accounts</span>
                   </Link>
                   <Link
@@ -213,7 +245,7 @@ export default function Navigation() {
                     Sign up
                   </Link>
                   <Link
-                    href="/start"
+                    href="/discovery"
                     className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-center"
                     onClick={() => setMobileMenuOpen(false)}
                   >

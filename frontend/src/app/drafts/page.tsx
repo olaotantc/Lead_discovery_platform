@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Navigation from '@/components/Navigation'
-import { ArrowLeft, Search, Download, ExternalLink, Filter } from 'lucide-react'
+import { ArrowLeft, Search, Download, ExternalLink, Filter, Edit3, Save, X, Loader2 } from 'lucide-react'
 
 interface Draft {
   id: string
@@ -39,6 +39,17 @@ export default function DraftsPage() {
 
   // Selected draft for detail view
   const [selectedDraft, setSelectedDraft] = useState<Draft | null>(null)
+
+  // Edit mode state
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValues, setEditValues] = useState({
+    opener: '',
+    follow_up_1: '',
+    follow_up_2: '',
+    tone: 'direct' as 'direct' | 'consultative' | 'warm',
+  })
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchDrafts()
@@ -116,6 +127,71 @@ ${draft.citations.map((c, i) => `[${i + 1}] ${c.title} - ${c.url}`).join('\n')}
       case 'warm': return 'bg-orange-100 text-orange-700'
       default: return 'bg-gray-100 text-gray-700'
     }
+  }
+
+  // Enter edit mode
+  const startEditing = () => {
+    if (selectedDraft) {
+      setEditValues({
+        opener: selectedDraft.opener,
+        follow_up_1: selectedDraft.follow_up_1,
+        follow_up_2: selectedDraft.follow_up_2,
+        tone: selectedDraft.tone,
+      })
+      setIsEditing(true)
+      setSaveError(null)
+    }
+  }
+
+  // Cancel edit mode
+  const cancelEditing = () => {
+    setIsEditing(false)
+    setSaveError(null)
+  }
+
+  // Save draft changes
+  const saveDraft = async () => {
+    if (!selectedDraft) return
+
+    setIsSaving(true)
+    setSaveError(null)
+
+    try {
+      const response = await fetch(`http://localhost:8000/api/drafts/db/${selectedDraft.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          opener: editValues.opener,
+          followUp1: editValues.follow_up_1,
+          followUp2: editValues.follow_up_2,
+          tone: editValues.tone,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save draft')
+      }
+
+      const data = await response.json()
+      if (data.success && data.data) {
+        // Update the draft in state
+        setSelectedDraft(data.data)
+        setDrafts(drafts.map(d => d.id === data.data.id ? data.data : d))
+        setIsEditing(false)
+      }
+    } catch (err: any) {
+      setSaveError(err.message || 'Failed to save draft')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  // Close modal and reset edit state
+  const closeModal = () => {
+    setSelectedDraft(null)
+    setIsEditing(false)
+    setSaveError(null)
   }
 
   return (
@@ -339,50 +415,113 @@ ${draft.citations.map((c, i) => `[${i + 1}] ${c.title} - ${c.url}`).join('\n')}
 
       {/* Draft Detail Modal */}
       {selectedDraft && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setSelectedDraft(null)}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={closeModal}>
           <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="sticky top-0 bg-white border-b border-neutral-200 px-6 py-4 flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-semibold text-neutral-900">{selectedDraft.name || selectedDraft.email}</h3>
                 <p className="text-sm text-neutral-600">{selectedDraft.domain}</p>
               </div>
-              <button
-                onClick={() => setSelectedDraft(null)}
-                className="text-neutral-400 hover:text-neutral-600 transition-colors"
-              >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-2">
+                {!isEditing && (
+                  <button
+                    onClick={startEditing}
+                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors font-medium"
+                  >
+                    <Edit3 className="h-4 w-4" />
+                    Edit
+                  </button>
+                )}
+                <button
+                  onClick={closeModal}
+                  className="text-neutral-400 hover:text-neutral-600 transition-colors"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <div className="p-6 space-y-6">
+              {/* Save Error */}
+              {saveError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-2">
+                  <X className="h-4 w-4 text-red-600" />
+                  <span className="text-sm text-red-800">{saveError}</span>
+                </div>
+              )}
+
               {/* Metadata */}
               <div className="flex items-center gap-4 text-sm">
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getToneBadgeColor(selectedDraft.tone)}`}>
-                  {selectedDraft.tone}
-                </span>
+                {isEditing ? (
+                  <select
+                    value={editValues.tone}
+                    onChange={(e) => setEditValues({ ...editValues, tone: e.target.value as any })}
+                    className="px-3 py-1.5 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                  >
+                    <option value="direct">Direct</option>
+                    <option value="consultative">Consultative</option>
+                    <option value="warm">Warm</option>
+                  </select>
+                ) : (
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getToneBadgeColor(selectedDraft.tone)}`}>
+                    {selectedDraft.tone}
+                  </span>
+                )}
                 <span className="text-neutral-600">
                   Created {new Date(selectedDraft.created_at).toLocaleDateString()}
                 </span>
+                {isEditing && (
+                  <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+                    Editing
+                  </span>
+                )}
               </div>
 
               {/* Opener */}
               <div>
                 <h4 className="text-sm font-semibold text-neutral-700 mb-2">Opener</h4>
-                <div className="bg-neutral-50 rounded-lg p-4 text-neutral-800">{selectedDraft.opener}</div>
+                {isEditing ? (
+                  <textarea
+                    value={editValues.opener}
+                    onChange={(e) => setEditValues({ ...editValues, opener: e.target.value })}
+                    rows={4}
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                  />
+                ) : (
+                  <div className="bg-neutral-50 rounded-lg p-4 text-neutral-800 whitespace-pre-wrap">{selectedDraft.opener}</div>
+                )}
               </div>
 
               {/* Follow-up 1 */}
               <div>
                 <h4 className="text-sm font-semibold text-neutral-700 mb-2">Follow-up 1</h4>
-                <div className="bg-neutral-50 rounded-lg p-4 text-neutral-800">{selectedDraft.follow_up_1}</div>
+                {isEditing ? (
+                  <textarea
+                    value={editValues.follow_up_1}
+                    onChange={(e) => setEditValues({ ...editValues, follow_up_1: e.target.value })}
+                    rows={4}
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                  />
+                ) : (
+                  <div className="bg-neutral-50 rounded-lg p-4 text-neutral-800 whitespace-pre-wrap">{selectedDraft.follow_up_1}</div>
+                )}
               </div>
 
               {/* Follow-up 2 */}
               <div>
                 <h4 className="text-sm font-semibold text-neutral-700 mb-2">Follow-up 2</h4>
-                <div className="bg-neutral-50 rounded-lg p-4 text-neutral-800">{selectedDraft.follow_up_2}</div>
+                {isEditing ? (
+                  <textarea
+                    value={editValues.follow_up_2}
+                    onChange={(e) => setEditValues({ ...editValues, follow_up_2: e.target.value })}
+                    rows={4}
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                  />
+                ) : (
+                  <div className="bg-neutral-50 rounded-lg p-4 text-neutral-800 whitespace-pre-wrap">{selectedDraft.follow_up_2}</div>
+                )}
               </div>
 
               {/* Citations */}
@@ -416,19 +555,52 @@ ${draft.citations.map((c, i) => `[${i + 1}] ${c.title} - ${c.url}`).join('\n')}
 
               {/* Actions */}
               <div className="flex items-center gap-3 pt-4 border-t border-neutral-200">
-                <button
-                  onClick={() => downloadDraft(selectedDraft)}
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
-                >
-                  <Download className="h-4 w-4" />
-                  Download .eml
-                </button>
-                <button
-                  onClick={() => setSelectedDraft(null)}
-                  className="px-4 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors font-medium"
-                >
-                  Close
-                </button>
+                {isEditing ? (
+                  <>
+                    <button
+                      onClick={saveDraft}
+                      disabled={isSaving}
+                      className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium disabled:opacity-50"
+                    >
+                      {isSaving ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Save className="h-4 w-4" />
+                      )}
+                      {isSaving ? 'Saving...' : 'Save Changes'}
+                    </button>
+                    <button
+                      onClick={cancelEditing}
+                      disabled={isSaving}
+                      className="px-4 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors font-medium disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={startEditing}
+                      className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                    >
+                      <Edit3 className="h-4 w-4" />
+                      Edit Draft
+                    </button>
+                    <button
+                      onClick={() => downloadDraft(selectedDraft)}
+                      className="flex items-center gap-2 px-4 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors font-medium"
+                    >
+                      <Download className="h-4 w-4" />
+                      Download .eml
+                    </button>
+                    <button
+                      onClick={closeModal}
+                      className="px-4 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors font-medium"
+                    >
+                      Close
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>

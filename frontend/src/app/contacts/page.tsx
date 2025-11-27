@@ -80,11 +80,34 @@ export default function ContactsPage() {
   const [draftTone, setDraftTone] = useState<Tone>('direct')
   const [latestDraft, setLatestDraft] = useState<DraftJobData | null>(null)
 
-  // Read URL parameter from query string (passed from /accounts page)
+  // Selected companies from discovery results
+  interface SelectedCompany {
+    name: string
+    domain: string
+    score: number
+    industry?: string
+  }
+  const [selectedCompanies, setSelectedCompanies] = useState<SelectedCompany[]>([])
+  const [currentCompanyIndex, setCurrentCompanyIndex] = useState(0)
+
+  // Read URL parameter from query string and selected companies from sessionStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
       const urlParam = params.get('url')
+
+      // Load selected companies from sessionStorage
+      const storedCompanies = sessionStorage.getItem('selectedCompanies')
+      if (storedCompanies) {
+        try {
+          const companies = JSON.parse(storedCompanies) as SelectedCompany[]
+          setSelectedCompanies(companies)
+          console.log('[ContactsPage] Loaded selected companies:', companies.length)
+        } catch (e) {
+          console.error('[ContactsPage] Failed to parse selected companies', e)
+        }
+      }
+
       if (urlParam) {
         console.log('[ContactsPage] Setting URL from query param:', urlParam)
         setUrl(urlParam)
@@ -329,12 +352,40 @@ export default function ContactsPage() {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
         {/* Back Button */}
         <Link
-          href="/accounts"
+          href="/discover/results"
           className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Accounts
+          Back to Discovery Results
         </Link>
+
+        {/* Company Selector - shown when multiple companies selected */}
+        {selectedCompanies.length > 1 && (
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold mb-4">Selected Companies ({selectedCompanies.length})</h2>
+            <div className="flex flex-wrap gap-2">
+              {selectedCompanies.map((company, idx) => (
+                <button
+                  key={company.domain}
+                  onClick={() => {
+                    setCurrentCompanyIndex(idx)
+                    setUrl(company.domain)
+                    setData(null)
+                    setJobId(null)
+                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    idx === currentCompanyIndex
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {company.name}
+                  <span className="ml-2 text-xs opacity-75">({company.score})</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
           <h2 className="text-xl font-semibold mb-4">Discover Contacts</h2>

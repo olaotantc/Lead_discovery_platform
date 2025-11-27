@@ -24,9 +24,10 @@ import draftsRoutes from './routes/drafts';
 import exportsRoutes from './routes/exports';
 import handoffRoutes from './routes/handoff';
 import authRoutes from './routes/auth';
-import oauthRoutes from './routes/oauth';
 import scoringRoutes from './routes/scoring';
 import accountsRoutes from './routes/accounts';
+import statsRoutes from './routes/stats';
+import sessionsRoutes from './routes/sessions';
 
 // Create Fastify instance
 const server = fastify({
@@ -99,9 +100,10 @@ server.register(draftsRoutes, { prefix: '/api/drafts' });
 server.register(exportsRoutes, { prefix: '/api/exports' });
 server.register(handoffRoutes, { prefix: '/api/handoff' });
 server.register(authRoutes, { prefix: '/api/auth' });
-server.register(oauthRoutes, { prefix: '/api/oauth' });
 server.register(scoringRoutes, { prefix: '/api/scoring' });
 server.register(accountsRoutes, { prefix: '/api/accounts' });
+server.register(statsRoutes, { prefix: '/api/stats' });
+server.register(sessionsRoutes, { prefix: '/api/sessions' });
 
 // Initialize workers conditionally (avoid hard fail if Redis not running during dev)
 async function initWorkersIfEnabled() {

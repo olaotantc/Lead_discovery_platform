@@ -14,7 +14,7 @@ export default function HomePage() {
       localStorage.removeItem('inputUrl')
       console.log('[HomePage] Cleared localStorage for fresh start')
     }
-    router.push('/start')
+    router.push('/discovery')
   }
 
   return (

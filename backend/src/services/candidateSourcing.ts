@@ -214,7 +214,7 @@ Return ONLY a JSON array of 5-7 specific verticals:
 
   try {
     const completion = await openai.chat.completions.create({
-      model: process.env.ICP_MODEL || 'gpt-4o-mini',
+      model: process.env.ICP_MODEL || 'gpt-4.1-mini',
       messages: [
         { role: 'system', content: 'You are an expert at identifying specific industry verticals. Return ONLY a JSON array of 5-7 specific, actionable industry verticals.' },
         { role: 'user', content: prompt },
@@ -285,7 +285,7 @@ MATCH REASON EXAMPLES (describe THEIR characteristics):
 
   try {
     const completion = await openai.chat.completions.create({
-      model: process.env.ICP_MODEL || 'gpt-4o-mini',
+      model: process.env.ICP_MODEL || 'gpt-4.1-mini',
       messages: [
         { role: 'system', content: `You are a B2B sales researcher specializing in finding companies in specific industry verticals. Return ONLY valid JSON with exactly ${companiesPerVertical} companies.` },
         { role: 'user', content: prompt },
@@ -411,7 +411,7 @@ MATCH REASON EXAMPLES:
 
   try {
     const completion = await openai.chat.completions.create({
-      model: process.env.ICP_MODEL || 'gpt-4o-mini',
+      model: process.env.ICP_MODEL || 'gpt-4.1-mini',
       messages: [
         { role: 'system', content: 'You are an expert B2B sales researcher. Your job is to find POTENTIAL CUSTOMERS (buyers) based on a target customer profile. Return companies who would BUY the product/service, NOT competitors or similar sellers. CRITICAL: Return ONLY valid JSON - no explanations, no markdown, just the JSON array.' },
         { role: 'user', content: prompt },

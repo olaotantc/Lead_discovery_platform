@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { addDraftGenerationJob } from '../config/jobs';
-import { getDraftJob, startDraftJob, getDraftsFromDatabase, getDraftById } from '../services/drafts';
+import { getDraftJob, startDraftJob, getDraftsFromDatabase, getDraftById, updateDraftInDatabase } from '../services/drafts';
 
 interface GenerateDraftBody {
   contactId: string; // may be email if no persisted id exists
@@ -86,6 +86,44 @@ export default async function draftsRoutes(fastify: FastifyInstance) {
       reply.send({ success: true, data: draft });
     } catch (error: any) {
       reply.status(500).send({ success: false, error: error.message || 'Failed to fetch draft' });
+    }
+  });
+
+  // Update draft by database ID
+  fastify.patch<{
+    Params: { id: string };
+    Body: {
+      opener?: string;
+      followUp1?: string;
+      followUp2?: string;
+      tone?: string;
+    };
+  }>('/db/:id', {
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          opener: { type: 'string' },
+          followUp1: { type: 'string' },
+          followUp2: { type: 'string' },
+          tone: { type: 'string', enum: ['direct', 'consultative', 'warm'] },
+        },
+      },
+    },
+  }, async (request, reply) => {
+    const { id } = request.params;
+    const updates = request.body;
+
+    try {
+      const updatedDraft = await updateDraftInDatabase(id, updates);
+      if (!updatedDraft) {
+        reply.status(404).send({ success: false, error: 'Draft not found or no updates provided' });
+        return;
+      }
+
+      reply.send({ success: true, data: updatedDraft });
+    } catch (error: any) {
+      reply.status(500).send({ success: false, error: error.message || 'Failed to update draft' });
     }
   });
 }

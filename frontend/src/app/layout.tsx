@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head />
-      <body className="antialiased font-sans">
+      <body className="antialiased font-sans" suppressHydrationWarning>
         <QueryProvider>
           <AuthProvider>
             {children}
