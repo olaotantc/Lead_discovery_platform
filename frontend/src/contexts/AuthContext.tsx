@@ -14,6 +14,8 @@ interface AuthContextType {
   token: string | null
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, plan?: string) => Promise<void>
+  loginWithToken: (token: string) => Promise<void>
+  loginWithGoogle: () => void
   logout: () => void
   isLoading: boolean
 }
@@ -79,10 +81,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => { setUser(null); setToken(null); localStorage.removeItem('auth_token') }
 
+  const loginWithToken = async (t: string) => {
+    console.log('[AuthProvider] loginWithToken - validating token')
+    localStorage.setItem('auth_token', t)
+    setToken(t)
+    // Fetch user data with the token
+    const res = await fetch(`${API}/api/auth/me`, { headers: { Authorization: `Bearer ${t}` } })
+    const data = await res.json()
+    if (!data.success) {
+      localStorage.removeItem('auth_token')
+      setToken(null)
+      throw new Error(data.error || 'Invalid token')
+    }
+    console.log('[AuthProvider] loginWithToken - user validated:', data.user?.email)
+    setUser(data.user)
+  }
+
+  const loginWithGoogle = () => {
+    console.log('[AuthProvider] loginWithGoogle - redirecting to Google OAuth')
+    window.location.href = `${API}/api/oauth/google`
+  }
+
   console.log('[AuthProvider] Rendering with state:', { hasUser: !!user, hasToken: !!token, isLoading })
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, token, login, register, loginWithToken, loginWithGoogle, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   )

@@ -3,12 +3,16 @@ export type Plan = 'free' | 'starter' | 'pro' | 'team';
 export interface User {
   id: string;
   email: string;
-  passwordHash: string;
+  passwordHash: string | null;
   plan: Plan;
   discoveryLimit: number;
   discoveryCount: number;
   createdAt: string;
   lastResetAt: string;
+  oauthProvider?: string | null;
+  oauthId?: string | null;
+  name?: string | null;
+  avatarUrl?: string | null;
 }
 
 export interface AuthToken {

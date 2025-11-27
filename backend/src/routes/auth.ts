@@ -49,6 +49,11 @@ export default async function authRoutes(fastify: FastifyInstance) {
         reply.status(401).send({ success: false, error: 'Invalid credentials' });
         return;
       }
+      // OAuth users don't have passwords - they must use OAuth to login
+      if (!user.passwordHash) {
+        reply.status(401).send({ success: false, error: 'Please sign in with Google' });
+        return;
+      }
       const ok = await verifyPassword(password, user.passwordHash);
       if (!ok) {
         reply.status(401).send({ success: false, error: 'Invalid credentials' });

@@ -4,6 +4,7 @@ dotenv.config();
 
 import fastify from 'fastify';
 import cors from '@fastify/cors';
+import cookie from '@fastify/cookie';
 import { createPostgresPool, createRedisClient, checkPostgresHealth, checkRedisHealth } from './config/database';
 import {
   checkQueuesHealth,
@@ -23,6 +24,7 @@ import draftsRoutes from './routes/drafts';
 import exportsRoutes from './routes/exports';
 import handoffRoutes from './routes/handoff';
 import authRoutes from './routes/auth';
+import oauthRoutes from './routes/oauth';
 import scoringRoutes from './routes/scoring';
 import accountsRoutes from './routes/accounts';
 
@@ -61,6 +63,12 @@ const buildAllowedOrigins = () => {
 const isDev = (process.env.NODE_ENV || 'development') !== 'production';
 const allowAll = isDev || (process.env.CORS_ALLOW_ALL || '').toLowerCase() === 'true' || (process.env.CORS_ORIGINS || '').trim() === '*';
 
+// Register cookie plugin (needed for OAuth state)
+server.register(cookie, {
+  secret: process.env.COOKIE_SECRET || 'dev-cookie-secret-change-in-prod',
+  parseOptions: {},
+});
+
 // Register CORS plugin
 server.register(cors, {
   origin: (origin, cb) => {
@@ -91,6 +99,7 @@ server.register(draftsRoutes, { prefix: '/api/drafts' });
 server.register(exportsRoutes, { prefix: '/api/exports' });
 server.register(handoffRoutes, { prefix: '/api/handoff' });
 server.register(authRoutes, { prefix: '/api/auth' });
+server.register(oauthRoutes, { prefix: '/api/oauth' });
 server.register(scoringRoutes, { prefix: '/api/scoring' });
 server.register(accountsRoutes, { prefix: '/api/accounts' });
 

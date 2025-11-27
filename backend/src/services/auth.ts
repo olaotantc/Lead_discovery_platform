@@ -120,7 +120,81 @@ function mapRowToUser(row: any): User {
     discoveryCount: row.discovery_count,
     createdAt: row.created_at?.toISOString?.() || row.created_at,
     lastResetAt: row.last_reset_at?.toISOString?.() || row.last_reset_at,
+    oauthProvider: row.oauth_provider,
+    oauthId: row.oauth_id,
+    name: row.name,
+    avatarUrl: row.avatar_url,
   } as User;
+}
+
+// ---- OAuth User Management ----
+export interface OAuthUserData {
+  email: string;
+  oauthProvider: string;
+  oauthId: string;
+  name?: string;
+  avatarUrl?: string;
+}
+
+export async function findOrCreateOAuthUser(data: OAuthUserData): Promise<User> {
+  // First, try to find by OAuth provider + ID
+  const existingOAuth = await pool.query(
+    `SELECT id, email, password_hash, plan, discovery_limit, discovery_count, created_at, last_reset_at,
+            oauth_provider, oauth_id, name, avatar_url
+     FROM users WHERE oauth_provider = $1 AND oauth_id = $2 LIMIT 1`,
+    [data.oauthProvider, data.oauthId]
+  );
+
+  if (existingOAuth.rows.length > 0) {
+    // Update name/avatar if changed
+    await pool.query(
+      `UPDATE users SET name = COALESCE($1, name), avatar_url = COALESCE($2, avatar_url) WHERE id = $3`,
+      [data.name, data.avatarUrl, existingOAuth.rows[0].id]
+    );
+    return mapRowToUser({ ...existingOAuth.rows[0], name: data.name || existingOAuth.rows[0].name, avatar_url: data.avatarUrl || existingOAuth.rows[0].avatar_url });
+  }
+
+  // Check if user exists by email (link OAuth to existing account)
+  const existingEmail = await pool.query(
+    `SELECT id, email, password_hash, plan, discovery_limit, discovery_count, created_at, last_reset_at,
+            oauth_provider, oauth_id, name, avatar_url
+     FROM users WHERE email = $1 LIMIT 1`,
+    [data.email.toLowerCase()]
+  );
+
+  if (existingEmail.rows.length > 0) {
+    // Link OAuth to existing account
+    const updated = await pool.query(
+      `UPDATE users SET oauth_provider = $1, oauth_id = $2, name = COALESCE($3, name), avatar_url = COALESCE($4, avatar_url)
+       WHERE id = $5
+       RETURNING id, email, password_hash, plan, discovery_limit, discovery_count, created_at, last_reset_at,
+                 oauth_provider, oauth_id, name, avatar_url`,
+      [data.oauthProvider, data.oauthId, data.name, data.avatarUrl, existingEmail.rows[0].id]
+    );
+    return mapRowToUser(updated.rows[0]);
+  }
+
+  // Create new OAuth user (no password)
+  const limit = DEFAULT_LIMITS['free'];
+  const result = await pool.query(
+    `INSERT INTO users (email, password_hash, plan, discovery_limit, discovery_count, oauth_provider, oauth_id, name, avatar_url)
+     VALUES ($1, NULL, 'free', $2, 0, $3, $4, $5, $6)
+     RETURNING id, email, password_hash, plan, discovery_limit, discovery_count, created_at, last_reset_at,
+               oauth_provider, oauth_id, name, avatar_url`,
+    [data.email.toLowerCase(), limit, data.oauthProvider, data.oauthId, data.name, data.avatarUrl]
+  );
+  return mapRowToUser(result.rows[0]);
+}
+
+export async function getUserByOAuth(provider: string, oauthId: string): Promise<User | null> {
+  const r = await pool.query(
+    `SELECT id, email, password_hash, plan, discovery_limit, discovery_count, created_at, last_reset_at,
+            oauth_provider, oauth_id, name, avatar_url
+     FROM users WHERE oauth_provider = $1 AND oauth_id = $2 LIMIT 1`,
+    [provider, oauthId]
+  );
+  if (!r || r.rows.length === 0) return null;
+  return mapRowToUser(r.rows[0]);
 }
 
 function usageKey(userId: string) {

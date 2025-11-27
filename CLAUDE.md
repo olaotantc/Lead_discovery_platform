@@ -1,198 +1,220 @@
-# Lead Discovery Platform - Claude Code Integration Guide
+# Lead Discovery Platform - Claude Code Guide
 
-**Project:** SignalRunner - Discovery-First Lead Platform MVP v0.2
-**Last Updated:** 2025-09-29 10:35 UTC
-**Status:** Task 1 complete; Task 2 in progress (~60%)
+**Project:** SignalRunner - Discovery-First Lead Platform
+**Last Updated:** 2025-11-26
+**Status:** ~70% complete - Core discovery engine working, downstream flow needs wiring
 
-## 🚀 Quick Project Context
+## Quick Context
 
-This is a **lead discovery platform** that takes a URL/brief and returns verified, prioritized leads with evidence-based email drafts in ≤10 minutes. We're building an MVP with Next.js frontend + Fastify backend + AI-powered discovery engine.
+A lead discovery platform that takes a URL/brief and returns verified, prioritized leads with evidence-based email drafts in ≤10 minutes.
 
-**Current Phase:** Task 2 (ICP Preview Input) - in progress
-**Next Priority:** Wire ICP API route and frontend
-**Architecture:** Next.js + Fastify + PostgreSQL + Redis + BullMQ + AI
+**Stack:** Next.js 15 + Fastify + PostgreSQL + Redis + BullMQ + OpenAI
 
-## 📋 Current Status Summary
+## Current State
 
-### ✅ Completed Infrastructure
-- **Project Structure**: Frontend/backend directories with TypeScript
-- **Build Systems**: Both apps compile and run successfully
-- **Task Management**: Taskmaster AI configured with 10-task roadmap
-- **Version Control**: Git repository with proper structure
+### Working (can demo end-to-end)
+- ICP inference from website crawling (8 pages)
+- Multi-pass candidate discovery (5 verticals × 10 companies)
+- Company scoring with 4 facets
+- Discovery flow: `/start` → `/discover/summary` → `/discover/results`
 
-### 🔄 Currently Working On
-- **Task 2**: Implement ICP Preview Input (URL + brief)
-- **Next Steps**: Register ICP routes in Fastify and call from `/start`
+### Scaffolded (code exists, not wired)
+- Contact discovery UI (`/contacts` page)
+- Draft generation (`/drafts` page)
+- Email verification (mock implementation)
+- Authentication routes
 
-### 📄 Key Files for Handoff
-- `project_status.md` - Comprehensive status and progress tracking
-- `PRD.txt` - Complete product requirements document
-- `.taskmaster/tasks/tasks.json` - AI-generated development roadmap
-- `frontend.html` - Original frontend implementation (needs migration)
+### Not Started
+- Real email verification API integration
+- Gmail/Outlook OAuth
+- Sequencer integration (Smartlead/Instantly)
+- CSV export
 
-## 🎯 Development Workflow
+## Architecture
 
-### Primary Commands
-```bash
-# Task Management
-taskmaster list                    # View all tasks and progress
-taskmaster next                    # Get next available task
-taskmaster show <id>               # View detailed task info
-taskmaster set-status --id=<id> --status=<status>  # Update progress
-
-# Development
-cd frontend && npm run dev         # Frontend development server
-cd backend && npm run dev          # Backend development server (port 8000)
-```
-
-### Current Task Breakdown
-- **1.1** ✅ Initialize Git Repository
-- **1.2** ✅ Set Up Project Structure
-- **1.3** ✅ Integrate Styling and Data Fetching Tools
-- **1.4** ✅ Initialize Databases (PostgreSQL + Redis)
-- **1.5** ✅ Set Up Job Management (BullMQ)
-- **2.0** 🔄 Implement ICP Preview Input (backend routes drafted; wiring pending)
-
-## 🏗️ Architecture Overview
-
-### Frontend (`/frontend/`)
-- **Framework**: Next.js 15.5.4 + TypeScript + Tailwind CSS
-- **State Management**: React Query provider configured
-- **Pages**: Home with CTAs linking to `/start`; `/start` page with client-side validation
-- **Current Need**: Call backend ICP API and render preview
-
-### Backend (`/backend/`)
-- **Framework**: Fastify + TypeScript
-- **Database**: PostgreSQL pool + health checks
-- **Cache/Jobs**: Redis client + BullMQ queues/workers with test endpoints
-- **ICP**: Routes and validation service drafted (`routes/icp.ts`, `services/validation.ts`) — register with server
-
-### Key Integrations Needed
-1. **AI APIs**: OpenAI (✅ configured), Anthropic, Perplexity
-2. **Email Verification**: Bouncer or NeverBounce
-3. **Email Integration**: Gmail/Outlook OAuth
-4. **Sequencer**: Smartlead or Instantly
-
-## 🔧 Technical Implementation Notes
-
-### Immediate Next Steps
-1. Register ICP routes in Fastify and expose `/api/icp/validate` and `/api/icp/preview`.
-2. Update `/start` page to call `POST /api/icp/preview` via React Query; render preview.
-3. Ensure `lucide-react` is added to frontend dependencies for icons used on `/start`.
-4. Continue migration of `frontend.html` sections to Next.js components.
-
-### Project Structure
 ```
 Lead_discovery_platform/
-├── frontend/           # Next.js app (port 3000)
-├── backend/            # Fastify API (port 8000)
-├── .taskmaster/        # AI task management
-├── project_status.md   # Always check this first!
-├── PRD.txt            # Complete requirements
-└── frontend.html      # Reference implementation
+├── frontend/                 # Next.js 15 (port 3002)
+│   └── src/app/
+│       ├── page.tsx          # Landing page
+│       ├── start/            # ICP input form
+│       ├── discover/         # Summary + results pages
+│       ├── contacts/         # Contact discovery (scaffolded)
+│       └── drafts/           # Draft generation (scaffolded)
+│
+├── backend/                  # Fastify (port 8000)
+│   └── src/
+│       ├── index.ts          # Server entry, route registration
+│       ├── routes/           # API endpoints
+│       │   ├── icpInference.ts
+│       │   ├── candidateSourcing.ts
+│       │   ├── contacts.ts
+│       │   └── drafts.ts
+│       ├── services/         # Business logic
+│       │   ├── icpInference.ts      # Website crawling + OpenAI extraction
+│       │   ├── candidateSourcing.ts # Multi-pass company discovery
+│       │   ├── companyScoring.ts    # 4-facet scoring algorithm
+│       │   ├── contactDiscovery.ts  # Email pattern detection
+│       │   ├── emailVerification.ts # Verification (mock)
+│       │   ├── scoring.ts           # Contact scoring
+│       │   └── drafts.ts            # Email draft generation
+│       ├── config/           # DB, Redis, BullMQ setup
+│       ├── migrations/       # PostgreSQL schema
+│       └── types/            # TypeScript definitions
+│
+└── .taskmaster/              # Task management
 ```
 
-## 🤖 AI-Powered Development
+## Key Files
 
-### Taskmaster Integration
-This project uses **Taskmaster AI** for development coordination:
-- **10 main tasks** generated from PRD analysis
-- **Subtasks** auto-generated for complex work
-- **Dependencies** managed automatically
-- **Progress tracking** with AI assistance
+| Purpose | File | Lines |
+|---------|------|-------|
+| ICP extraction | `backend/src/services/icpInference.ts` | 320 |
+| Company discovery | `backend/src/services/candidateSourcing.ts` | 500+ |
+| Scoring logic | `backend/src/services/companyScoring.ts` | 300 |
+| Contact discovery | `backend/src/services/contactDiscovery.ts` | 200 |
+| Draft generation | `backend/src/services/drafts.ts` | 220 |
+| Discovery results UI | `frontend/src/app/discover/results/page.tsx` | 400 |
 
-### Key Commands
+## API Endpoints
+
+```
+POST /api/icp-inference/infer     # Extract ICP from URL
+POST /api/candidate-sourcing/search  # Find matching companies
+POST /api/contacts/discover       # Find contacts (scaffolded)
+POST /api/drafts/generate         # Generate email drafts (scaffolded)
+GET  /api/health                  # Health check
+```
+
+## Development Commands
+
 ```bash
-taskmaster expand --id=<id>        # Break task into subtasks
-taskmaster update-task --id=<id> --prompt="changes"  # Update with AI
-taskmaster analyze-complexity      # Get complexity analysis
+# Start servers
+cd backend && npm run dev    # http://localhost:8000
+cd frontend && npm run dev   # http://localhost:3002
+
+# Build
+cd backend && npm run build
+cd frontend && npm run build
+
+# Database
+cd backend && npm run migrate
+
+# Task management
+task-master list              # View all tasks
+task-master next              # Get next task
+task-master show <id>         # Task details
+task-master set-status --id=<id> --status=done
 ```
 
-## 📊 Progress Tracking
+## Scoring Algorithm
 
-**Overall Progress**: ~60% complete
-- **Task 1**: 100% (5/5 subtasks done)
-- **Task 2**: In progress
+### Company Scoring (companyScoring.ts)
+```
+Total = industryFit(40%) + sizeFit(25%) + modelFit(20%) + keywordMatch(15%)
+```
 
-**Critical Path**: Complete infrastructure → ICP preview → Discovery engine → Contact verification → Scoring → Draft generation → Export/handoff
+### Contact Scoring (scoring.ts)
+```
+Total = fit(35%) + intent(30%) + reachability(25%) + recency(10%)
+```
 
-## 🔑 Environment Setup
+## Data Flow
 
-### Required API Keys
+```
+URL Input
+    ↓
+Crawl website (8 pages: /, /product, /about, /pricing, etc.)
+    ↓
+OpenAI extracts ICP: { businessCategory, companySize, targetMarket, customerSegments, keywords }
+    ↓
+Extract 5-7 industry verticals from targetMarket
+    ↓
+Parallel search: 5 verticals × 10 companies each = 50 candidates
+    ↓
+Score all candidates against ICP
+    ↓
+Return top 35-50 with scores and facet breakdowns
+    ↓
+[GAP] Contact discovery not connected
+    ↓
+[GAP] Draft generation not connected
+```
+
+## Known Issues
+
+1. **Discovery bias** - Still favors famous companies (Asana, Zapier). Blacklist helps but not enough SMBs.
+2. **ICP targetMarket** - Sometimes contains job titles ("CTOs") instead of company types ("Tech Startups").
+3. **Flow disconnection** - Cannot navigate from results → contacts → drafts.
+
+## Environment Variables
+
 ```bash
-# Already configured
-OPENAI_API_KEY=sk-proj-FoL4...  # ✅ Working
+# Required
+OPENAI_API_KEY=sk-...        # For ICP inference and discovery
+DATABASE_URL=postgres://...   # PostgreSQL connection
+REDIS_URL=redis://...         # Redis connection
 
-# Needed for full functionality
-ANTHROPIC_API_KEY=              # For Claude models
-PERPLEXITY_API_KEY=             # For research features
-BOUNCER_API_KEY=                # Email verification
-GMAIL_CLIENT_ID=                # Email integration
-OUTLOOK_CLIENT_ID=              # Email integration
+# Optional (for full functionality)
+ANTHROPIC_API_KEY=           # Alternative LLM
+PERPLEXITY_API_KEY=          # Research features
+BOUNCER_API_KEY=             # Email verification
+HUNTER_API_KEY=              # Email discovery
 ```
 
-### Database Requirements
-- **PostgreSQL**: Main data storage
-- **Redis**: Caching + job queue backend
-- **BullMQ**: Job processing for discovery operations
+## Next Steps (Priority Order)
 
-## 🎨 Frontend Implementation
+1. **Wire contact discovery** - Add company selection on results page, call `/api/contacts/discover`
+2. **Wire draft generation** - Pass selected contacts to `/api/drafts/generate`
+3. **Real email verification** - Replace mock with Bouncer/NeverBounce API
+4. **Implement export** - CSV download of contacts/drafts
 
-The original frontend (`frontend.html`) contains a **complete 6-step workflow**:
-1. **Welcome/Input** - URL/brief entry with ICP preview
-2. **Discovery Results** - Account listing with filtering
-3. **Contacts** - Verified contact management
-4. **Prioritize** - Evidence breakdown with scoring
-5. **Drafts** - Email generation with evidence linking
-6. **Handoff** - CSV export + Gmail/Outlook integration
+## Testing the Discovery Flow
 
-**Migration Priority**: Convert this to Next.js components while preserving functionality.
+```bash
+# Test ICP inference
+curl -X POST http://localhost:8000/api/icp-inference/infer \
+  -H "Content-Type: application/json" \
+  -d '{"url": "stripe.com"}'
 
-## 🔄 Handoff Protocol
+# Test candidate sourcing (needs ICP from previous step)
+curl -X POST http://localhost:8000/api/candidate-sourcing/search \
+  -H "Content-Type: application/json" \
+  -d '{"icp": {...}, "limit": 50}'
+```
 
-### For Continuing Development
-1. **Read `project_status.md`** - Get latest status
-2. **Run `taskmaster next`** - See current priority
-3. **Check build status**: `cd frontend && npm run build`, `cd backend && npm run build`
-4. **Review PRD.txt** - Understand requirements
+## Code Quality Standards
 
-### For New Tasks
-1. **Use Taskmaster**: `taskmaster show <id>` for details
-2. **Update progress**: Mark tasks complete as you go
-3. **Update `project_status.md`** after major changes
-4. **Test builds** before marking tasks done
+- TypeScript everywhere (no .js files)
+- All code must compile: `npm run build`
+- Environment variables via .env (never hardcode)
+- Evidence tracking for all discovered data
 
-### For Debugging
-- **Frontend logs**: Next.js dev server console
-- **Backend logs**: Fastify server console
-- **Task status**: `taskmaster list --with-subtasks`
-- **Dependencies**: Check `.taskmaster/tasks/tasks.json`
+## Compliance Requirements
 
-## 🚨 Important Notes
+- SPF/DKIM/DMARC validation before email handoff
+- List-Unsubscribe header on all outbound emails
+- GDPR/CCPA deletion capability
+- Respect robots.txt, implement rate limiting
 
-### Code Quality Standards
-- **TypeScript everywhere** - No JavaScript files
-- **Build verification** - Must compile without errors
-- **Environment variables** - Use .env files, never hardcode
-- **Evidence tracking** - Every feature needs source provenance
+## Performance Targets
 
-### Compliance Requirements
-- **Email hygiene**: SPF/DKIM/DMARC checks required
-- **List-Unsubscribe**: Required for all email handoffs
-- **Data privacy**: GDPR/CCPA deletion capabilities needed
-- **Rate limiting**: Respect robots.txt, implement backoff
-
-### Performance Targets
-- **URL to results**: ≤10 minutes end-to-end
-- **Draft generation**: ≤10 seconds per contact
-- **Minimum output**: ≥25 verified contacts with ≥65 avg score
+- URL to results: ≤10 minutes
+- Draft generation: ≤10 seconds per contact
+- Minimum output: ≥25 verified contacts with ≥65 avg score
 
 ---
 
-## Task Master AI Instructions
-**Import Task Master's development workflow commands and guidelines, treat as if import is in the main CLAUDE.md file.**
-@./.taskmaster/CLAUDE.md
+## Task Master Integration
+
+This project uses Task Master for development coordination. See `.taskmaster/CLAUDE.md` for full documentation.
+
+```bash
+task-master list                    # View tasks
+task-master next                    # Next available task
+task-master set-status --id=X --status=done  # Mark complete
+```
 
 ---
 
-**Remember**: Always update `project_status.md` after significant changes!
+**Current blocker:** Discovery results page needs "Select Companies" flow to proceed to contact discovery.
