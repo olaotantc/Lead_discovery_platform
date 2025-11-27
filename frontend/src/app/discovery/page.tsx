@@ -316,7 +316,7 @@ function DiscoveryWizardContent() {
     }
   }
 
-  // Save session state (debounced)
+  // Save session state (debounced) - silently fails to avoid disrupting UX
   const saveSession = async (updates: Record<string, any>) => {
     if (!sessionId || isDemo) return
 
@@ -325,14 +325,20 @@ function DiscoveryWizardContent() {
       if (token) headers['Authorization'] = `Bearer ${token}`
       if (sessionKey) headers['x-session-key'] = sessionKey
 
-      await fetch(`${apiBase}/api/sessions/${sessionId}`, {
+      const response = await fetch(`${apiBase}/api/sessions/${sessionId}`, {
         method: 'PATCH',
         headers,
         credentials: 'include',
         body: JSON.stringify(updates),
       })
+
+      // Silently ignore errors - session saving is non-critical
+      if (!response.ok) {
+        console.debug('Session save returned non-OK status:', response.status)
+      }
     } catch (err) {
-      console.error('Failed to save session:', err)
+      // Silently catch network errors for auto-save
+      console.debug('Session auto-save skipped:', err)
     }
   }
 
