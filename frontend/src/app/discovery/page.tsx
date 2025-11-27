@@ -943,50 +943,64 @@ function DiscoveryWizardContent() {
             </div>
           )}
 
-          {/* Step 3: Companies */}
+          {/* Step 3: Companies - Enhanced UI */}
           {currentStep === 3 && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Potential Customers</h2>
-                  <p className="text-gray-600">
-                    {companies.length} prospects found • {selectedCompanies.size} selected
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setSelectedCompanies(new Set(companies.map(c => c.domain)))}
-                    className="text-sm text-indigo-600 hover:text-indigo-800"
-                  >
-                    Select All
-                  </button>
-                  <button
-                    onClick={() => setSelectedCompanies(new Set())}
-                    className="text-sm text-gray-600 hover:text-gray-800"
-                  >
-                    Clear
-                  </button>
+              {/* Header with Stats */}
+              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Potential Customers</h2>
+                    <p className="text-gray-500 mt-1">
+                      Companies matching your ideal customer profile
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-6">
+                    {/* Quick Stats */}
+                    <div className="flex items-center gap-4 px-4 py-2 bg-gray-50 rounded-lg">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-indigo-600">{companies.length}</p>
+                        <p className="text-xs text-gray-500">Found</p>
+                      </div>
+                      <div className="h-8 w-px bg-gray-200" />
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-green-600">{selectedCompanies.size}</p>
+                        <p className="text-xs text-gray-500">Selected</p>
+                      </div>
+                      <div className="h-8 w-px bg-gray-200" />
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-amber-600">
+                          {companies.length > 0 ? Math.round(companies.reduce((a, c) => a + c.score, 0) / companies.length) : 0}
+                        </p>
+                        <p className="text-xs text-gray-500">Avg Score</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Who to Contact - Buyer Roles (Clickable Filters) */}
+              {/* Who to Contact - Buyer Roles */}
               {icp?.buyerRoles && icp.buyerRoles.length > 0 && (
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-5">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-green-600" />
-                      <h3 className="font-medium text-gray-900">Who to Contact at These Companies</h3>
+                      <div className="p-2 bg-green-100 rounded-lg">
+                        <Users className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">Target Decision Makers</h3>
+                        <p className="text-xs text-gray-500">Click to pre-filter contacts in the next step</p>
+                      </div>
                     </div>
                     {selectedRoleFilters.size > 0 && (
                       <button
                         onClick={() => setSelectedRoleFilters(new Set())}
-                        className="text-xs text-green-600 hover:text-green-800"
+                        className="text-sm text-green-600 hover:text-green-800 font-medium"
                       >
                         Clear filters
                       </button>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500 mb-3">Click to filter contacts by role</p>
                   <div className="flex flex-wrap gap-2">
                     {icp.buyerRoles.map((role, idx) => {
                       const isSelected = selectedRoleFilters.has(role)
@@ -1002,141 +1016,283 @@ function DiscoveryWizardContent() {
                             }
                             setSelectedRoleFilters(newFilters)
                           }}
-                          className={`px-3 py-1 text-sm rounded-full transition-all cursor-pointer ${
+                          className={`px-4 py-2 text-sm rounded-lg font-medium transition-all ${
                             isSelected
-                              ? 'bg-green-600 text-white ring-2 ring-green-600 ring-offset-1'
-                              : 'bg-green-100 text-green-800 hover:bg-green-200'
+                              ? 'bg-green-600 text-white shadow-md shadow-green-200'
+                              : 'bg-white text-gray-700 border border-gray-200 hover:border-green-300 hover:bg-green-50'
                           }`}
                         >
-                          {isSelected && <Check className="h-3 w-3 inline mr-1" />}
+                          {isSelected && <Check className="h-4 w-4 inline mr-1.5 -mt-0.5" />}
                           {role}
                         </button>
                       )
                     })}
                   </div>
                   {selectedRoleFilters.size > 0 && (
-                    <p className="text-xs text-green-700 mt-2">
-                      {selectedRoleFilters.size} role{selectedRoleFilters.size > 1 ? 's' : ''} selected — will filter contacts in Step 4
-                    </p>
+                    <div className="mt-3 px-3 py-2 bg-green-100/50 rounded-lg inline-block">
+                      <p className="text-sm text-green-800">
+                        <strong>{selectedRoleFilters.size}</strong> role{selectedRoleFilters.size > 1 ? 's' : ''} selected for contact filtering
+                      </p>
+                    </div>
                   )}
                 </div>
               )}
 
-              {/* Filters */}
-              <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                <input
-                  type="text"
-                  placeholder="Filter by name, domain, industry..."
-                  value={companyFilter}
-                  onChange={(e) => setCompanyFilter(e.target.value)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                />
-                <select
-                  value={companySortBy}
-                  onChange={(e) => setCompanySortBy(e.target.value as any)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg"
-                >
-                  <option value="score">Sort by Score</option>
-                  <option value="name">Sort by Name</option>
-                </select>
-                <button
-                  onClick={() => setCompanySortOrder(o => o === 'asc' ? 'desc' : 'asc')}
-                  className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
-                >
-                  {companySortOrder === 'asc' ? '↑' : '↓'}
-                </button>
+              {/* Search & Filter Bar */}
+              <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                <div className="flex flex-col md:flex-row gap-3">
+                  {/* Search Input */}
+                  <div className="relative flex-1">
+                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search by company name, domain, or industry..."
+                      value={companyFilter}
+                      onChange={(e) => setCompanyFilter(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                    />
+                  </div>
+                  {/* Sort Controls */}
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={companySortBy}
+                      onChange={(e) => setCompanySortBy(e.target.value as any)}
+                      className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="score">Sort by Fit Score</option>
+                      <option value="name">Sort by Name</option>
+                    </select>
+                    <button
+                      onClick={() => setCompanySortOrder(o => o === 'asc' ? 'desc' : 'asc')}
+                      className="p-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                      title={companySortOrder === 'asc' ? 'Ascending' : 'Descending'}
+                    >
+                      {companySortOrder === 'asc' ? (
+                        <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                        </svg>
+                      ) : (
+                        <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  {/* Selection Actions */}
+                  <div className="flex items-center gap-1 border-l border-gray-200 pl-3">
+                    <button
+                      onClick={() => setSelectedCompanies(new Set(filteredCompanies.map(c => c.domain)))}
+                      className="px-3 py-2 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg font-medium transition-colors"
+                    >
+                      Select All
+                    </button>
+                    <button
+                      onClick={() => setSelectedCompanies(new Set())}
+                      className="px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg font-medium transition-colors"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+                {/* Active Filter Count */}
+                {companyFilter && (
+                  <div className="mt-3 flex items-center gap-2">
+                    <span className="text-sm text-gray-500">
+                      Showing {filteredCompanies.length} of {companies.length} companies
+                    </span>
+                    <button
+                      onClick={() => setCompanyFilter('')}
+                      className="text-sm text-indigo-600 hover:text-indigo-800"
+                    >
+                      Clear search
+                    </button>
+                  </div>
+                )}
               </div>
 
-              {/* Company List */}
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {filteredCompanies.map((company) => (
-                  <div
-                    key={company.domain}
-                    onClick={() => {
-                      const newSelected = new Set(selectedCompanies)
-                      if (newSelected.has(company.domain)) {
-                        newSelected.delete(company.domain)
-                      } else {
-                        newSelected.add(company.domain)
-                      }
-                      setSelectedCompanies(newSelected)
-                    }}
-                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                      selectedCompanies.has(company.domain)
-                        ? 'border-indigo-400 bg-indigo-50 ring-2 ring-indigo-200'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="checkbox"
-                            checked={selectedCompanies.has(company.domain)}
-                            onChange={() => {}}
-                            className="h-4 w-4 text-indigo-600 rounded"
+              {/* Company Grid */}
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                {filteredCompanies.map((company) => {
+                  const isSelected = selectedCompanies.has(company.domain)
+                  const scoreColor = company.score >= 70 ? 'green' : company.score >= 50 ? 'amber' : 'red'
+
+                  return (
+                    <div
+                      key={company.domain}
+                      onClick={() => {
+                        const newSelected = new Set(selectedCompanies)
+                        if (isSelected) {
+                          newSelected.delete(company.domain)
+                        } else {
+                          newSelected.add(company.domain)
+                        }
+                        setSelectedCompanies(newSelected)
+                      }}
+                      className={`group relative bg-white border-2 rounded-xl p-5 cursor-pointer transition-all duration-200 ${
+                        isSelected
+                          ? 'border-indigo-500 bg-indigo-50/50 shadow-lg shadow-indigo-100'
+                          : 'border-gray-100 hover:border-gray-300 hover:shadow-md'
+                      }`}
+                    >
+                      {/* Selection Indicator */}
+                      <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                        isSelected
+                          ? 'bg-indigo-600 border-indigo-600'
+                          : 'border-gray-300 group-hover:border-indigo-400'
+                      }`}>
+                        {isSelected && <Check className="h-4 w-4 text-white" />}
+                      </div>
+
+                      {/* Company Header */}
+                      <div className="flex items-start gap-4 pr-8">
+                        {/* Company Avatar */}
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                          <img
+                            src={`https://logo.clearbit.com/${company.domain}`}
+                            alt=""
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none'
+                              e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                            }}
                           />
-                          <div>
-                            <h4 className="font-semibold text-gray-900">{company.name}</h4>
-                            <p className="text-sm text-gray-500">{company.domain}</p>
-                          </div>
+                          <Building2 className="h-6 w-6 text-gray-400 hidden" />
                         </div>
-                        {company.description && (
-                          <p className="mt-2 text-sm text-gray-600 line-clamp-2">{company.description}</p>
-                        )}
-                        <div className="mt-2 flex items-center gap-2">
-                          {company.industry && (
-                            <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
-                              {company.industry}
-                            </span>
-                          )}
-                          {company.size && (
-                            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
-                              {company.size}
-                            </span>
-                          )}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-gray-900 truncate">{company.name}</h4>
+                          <p className="text-sm text-gray-500">{company.domain}</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <span className={`px-3 py-1 rounded-lg text-lg font-bold ${
-                          company.score >= 70 ? 'bg-green-100 text-green-800' :
-                          company.score >= 50 ? 'bg-amber-100 text-amber-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
-                          {company.score}
-                        </span>
-                        <p className="text-xs text-gray-500 mt-1">Fit Score</p>
+
+                      {/* Description */}
+                      {company.description && (
+                        <p className="mt-3 text-sm text-gray-600 line-clamp-2">{company.description}</p>
+                      )}
+
+                      {/* Tags Row */}
+                      <div className="mt-4 flex items-center gap-2 flex-wrap">
+                        {company.industry && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 text-purple-700 text-xs font-medium rounded-md">
+                            <span className="w-1.5 h-1.5 bg-purple-400 rounded-full" />
+                            {company.industry}
+                          </span>
+                        )}
+                        {company.size && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-md">
+                            <Users className="h-3 w-3" />
+                            {company.size}
+                          </span>
+                        )}
+                        {company.source && (
+                          <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-md">
+                            via {company.source}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Score Section */}
+                      <div className="mt-4 pt-4 border-t border-gray-100">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            {/* Score Ring */}
+                            <div className="relative w-14 h-14">
+                              <svg className="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
+                                <circle cx="28" cy="28" r="24" fill="none" stroke="#e5e7eb" strokeWidth="4" />
+                                <circle
+                                  cx="28" cy="28" r="24" fill="none"
+                                  stroke={scoreColor === 'green' ? '#22c55e' : scoreColor === 'amber' ? '#f59e0b' : '#ef4444'}
+                                  strokeWidth="4"
+                                  strokeLinecap="round"
+                                  strokeDasharray={`${(company.score / 100) * 150.8} 150.8`}
+                                />
+                              </svg>
+                              <span className={`absolute inset-0 flex items-center justify-center text-sm font-bold ${
+                                scoreColor === 'green' ? 'text-green-600' : scoreColor === 'amber' ? 'text-amber-600' : 'text-red-600'
+                              }`}>
+                                {company.score}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">Fit Score</p>
+                              <p className="text-xs text-gray-500">
+                                {company.score >= 70 ? 'Excellent match' : company.score >= 50 ? 'Good match' : 'Partial match'}
+                              </p>
+                            </div>
+                          </div>
+                          {/* Match Reasons Preview */}
+                          {company.matchReasons && company.matchReasons.length > 0 && (
+                            <div className="flex items-center gap-1">
+                              {company.matchReasons.slice(0, 2).map((reason, idx) => (
+                                <span key={idx} className="px-2 py-1 bg-green-50 text-green-700 text-xs rounded">
+                                  {reason.length > 20 ? reason.substring(0, 20) + '...' : reason}
+                                </span>
+                              ))}
+                              {company.matchReasons.length > 2 && (
+                                <span className="text-xs text-gray-400">+{company.matchReasons.length - 2}</span>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
 
-              <div className="flex items-center justify-between pt-6 border-t">
-                <button
-                  onClick={() => setCurrentStep(2)}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-900 flex items-center gap-2"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  Back
-                </button>
-                <button
-                  onClick={handleFindContacts}
-                  disabled={contactsLoading || selectedCompanies.size === 0}
-                  className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 flex items-center gap-2"
-                >
-                  {contactsLoading ? (
-                    <>
-                      <RefreshCcw className="h-5 w-5 animate-spin" />
-                      Finding Contacts...
-                    </>
-                  ) : (
-                    <>
-                      Find Contacts ({selectedCompanies.size})
-                      <ChevronRight className="h-5 w-5" />
-                    </>
+              {/* Empty State */}
+              {filteredCompanies.length === 0 && (
+                <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                  <Building2 className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-1">No companies found</h3>
+                  <p className="text-gray-500 mb-4">
+                    {companyFilter ? 'Try adjusting your search terms' : 'No matching companies discovered'}
+                  </p>
+                  {companyFilter && (
+                    <button
+                      onClick={() => setCompanyFilter('')}
+                      className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      Clear search
+                    </button>
                   )}
-                </button>
+                </div>
+              )}
+
+              {/* Sticky Footer */}
+              <div className="sticky bottom-0 bg-white/95 backdrop-blur border-t border-gray-200 -mx-6 px-6 py-4 mt-8">
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={() => setCurrentStep(2)}
+                    className="px-4 py-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg flex items-center gap-2 font-medium transition-colors"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Back to Profile
+                  </button>
+                  <div className="flex items-center gap-4">
+                    {selectedCompanies.size > 0 && (
+                      <span className="text-sm text-gray-500">
+                        {selectedCompanies.size} compan{selectedCompanies.size === 1 ? 'y' : 'ies'} selected
+                      </span>
+                    )}
+                    <button
+                      onClick={handleFindContacts}
+                      disabled={contactsLoading || selectedCompanies.size === 0}
+                      className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-indigo-200 transition-all"
+                    >
+                      {contactsLoading ? (
+                        <>
+                          <RefreshCcw className="h-5 w-5 animate-spin" />
+                          Finding Contacts...
+                        </>
+                      ) : (
+                        <>
+                          Find Decision Makers
+                          <ChevronRight className="h-5 w-5" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}
