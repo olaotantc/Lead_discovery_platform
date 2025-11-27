@@ -152,6 +152,7 @@ function DiscoveryWizardContent() {
   const [companyFilter, setCompanyFilter] = useState('')
   const [companySortBy, setCompanySortBy] = useState<'score' | 'name'>('score')
   const [companySortOrder, setCompanySortOrder] = useState<'asc' | 'desc'>('desc')
+  const [selectedRoleFilters, setSelectedRoleFilters] = useState<Set<string>>(new Set())
 
   // Step 4: Contacts state
   const [contacts, setContacts] = useState<Contact[]>([])
@@ -623,10 +624,31 @@ function DiscoveryWizardContent() {
     return result
   }, [companies, companyFilter, companySortBy, companySortOrder])
 
-  // Filtered contacts by confidence
+  // Filtered contacts by confidence and role
   const filteredContacts = useMemo(() => {
-    return contacts.filter(c => c.confidence >= confidenceThreshold)
-  }, [contacts, confidenceThreshold])
+    return contacts.filter(c => {
+      // First filter by confidence threshold
+      if (c.confidence < confidenceThreshold) return false
+
+      // Then filter by selected roles (if any)
+      if (selectedRoleFilters.size > 0) {
+        const contactRole = (c.role || c.title || '').toLowerCase()
+        return Array.from(selectedRoleFilters).some(filterRole => {
+          const filterLower = filterRole.toLowerCase()
+          // Match partial words for flexibility (e.g., "Founders" matches "Co-Founder")
+          return contactRole.includes(filterLower) ||
+                 filterLower.includes(contactRole.split(' ')[0]) ||
+                 // Handle common variations
+                 (filterLower === 'founders' && contactRole.includes('founder')) ||
+                 (filterLower === 'developers' && (contactRole.includes('developer') || contactRole.includes('engineer'))) ||
+                 (filterLower === 'technical leads' && (contactRole.includes('lead') || contactRole.includes('principal') || contactRole.includes('staff'))) ||
+                 (filterLower === 'project managers' && (contactRole.includes('manager') || contactRole.includes('pm')))
+        })
+      }
+
+      return true
+    })
+  }, [contacts, confidenceThreshold, selectedRoleFilters])
 
   // Calculate step status
   const getStepStatus = (stepId: number) => {
@@ -941,20 +963,56 @@ function DiscoveryWizardContent() {
                 </div>
               </div>
 
-              {/* Who to Contact - Buyer Roles */}
+              {/* Who to Contact - Buyer Roles (Clickable Filters) */}
               {icp?.buyerRoles && icp.buyerRoles.length > 0 && (
                 <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Users className="h-4 w-4 text-green-600" />
-                    <h3 className="font-medium text-gray-900">Who to Contact at These Companies</h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-green-600" />
+                      <h3 className="font-medium text-gray-900">Who to Contact at These Companies</h3>
+                    </div>
+                    {selectedRoleFilters.size > 0 && (
+                      <button
+                        onClick={() => setSelectedRoleFilters(new Set())}
+                        className="text-xs text-green-600 hover:text-green-800"
+                      >
+                        Clear filters
+                      </button>
+                    )}
                   </div>
+                  <p className="text-xs text-gray-500 mb-3">Click to filter contacts by role</p>
                   <div className="flex flex-wrap gap-2">
-                    {icp.buyerRoles.map((role, idx) => (
-                      <span key={idx} className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
-                        {role}
-                      </span>
-                    ))}
+                    {icp.buyerRoles.map((role, idx) => {
+                      const isSelected = selectedRoleFilters.has(role)
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            const newFilters = new Set(selectedRoleFilters)
+                            if (isSelected) {
+                              newFilters.delete(role)
+                            } else {
+                              newFilters.add(role)
+                            }
+                            setSelectedRoleFilters(newFilters)
+                          }}
+                          className={`px-3 py-1 text-sm rounded-full transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-green-600 text-white ring-2 ring-green-600 ring-offset-1'
+                              : 'bg-green-100 text-green-800 hover:bg-green-200'
+                          }`}
+                        >
+                          {isSelected && <Check className="h-3 w-3 inline mr-1" />}
+                          {role}
+                        </button>
+                      )
+                    })}
                   </div>
+                  {selectedRoleFilters.size > 0 && (
+                    <p className="text-xs text-green-700 mt-2">
+                      {selectedRoleFilters.size} role{selectedRoleFilters.size > 1 ? 's' : ''} selected — will filter contacts in Step 4
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -1103,6 +1161,41 @@ function DiscoveryWizardContent() {
                 </div>
               </div>
 
+              {/* Active Role Filters */}
+              {selectedRoleFilters.size > 0 && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm text-green-700 font-medium">Filtering by:</span>
+                      {Array.from(selectedRoleFilters).map(role => (
+                        <span
+                          key={role}
+                          className="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full flex items-center gap-1"
+                        >
+                          {role}
+                          <button
+                            onClick={() => {
+                              const newFilters = new Set(selectedRoleFilters)
+                              newFilters.delete(role)
+                              setSelectedRoleFilters(newFilters)
+                            }}
+                            className="hover:text-green-900"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => setSelectedRoleFilters(new Set())}
+                      className="text-xs text-green-600 hover:text-green-800"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Confidence Threshold */}
               <div className="p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-center justify-between mb-2">
@@ -1182,7 +1275,10 @@ function DiscoveryWizardContent() {
                 ))}
                 {filteredContacts.length === 0 && (
                   <div className="text-center py-8 text-gray-500">
-                    No contacts found above the confidence threshold
+                    {selectedRoleFilters.size > 0
+                      ? `No contacts matching selected roles above ${confidenceThreshold}% confidence. Try clearing role filters.`
+                      : 'No contacts found above the confidence threshold'
+                    }
                   </div>
                 )}
               </div>
